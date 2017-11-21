@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>BE Voc App</title>
+        
+        <meta charset="utf-8">
+
+        <script src="/include/Controller.js" type="text/javascript"></script>
+        <script src="/include/UxUi.js" type="text/javascript"></script>
+        <script src="/include/DataAccess.js" type="text/javascript"></script>
+       
+
+        <style>
+            
+            html { 
+              
+            }
+
+            body{
+                font-family: sans-serif;                
+            }      
+
+            table {
+                
+                border: 0px ;
+                width: 100%;
+            } 
+
+            td{
+              
+                border: 0px ;
+            }
+
+            td.tdNarrow{
+                width: 10%;
+            }
+
+            td.tdTitle{
+                font-weight: bold;
+            }
+            
+            td.tdTitleButtons{
+                text-align: right;
+            }
+
+            td.dividerBold{
+                border-bottom: 2px solid grey;
+            }
+
+            td.dividerSoft{
+                border-bottom: 1px solid grey;
+            }
+
+            textarea {                
+                width: 100%;
+            } 
+
+            textarea.contentEdit{                
+                width: 100%;
+                height: 400px;
+            } 
+
+            div {
+                // border: 1px solid red;
+                border: 0px ;
+                width: 100%;
+            } 
+
+            div.hidden{
+                display: none;
+
+            }
+
+            div.smallNodeTitle{
+                font-weight: bold;
+            }
+
+            div.naviDiv{
+                padding: 10px;    
+            }
+
+            div.mainBodyDiv{
+                padding: 10px;                
+            }
+            
+            span.breadcrumb{
+                color: #999999;
+            }
+
+        </style>
+
+    </head>
+    <body >
+
+        <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
+        <div id="mainBody" class="mainBodyDiv">body</div>
+        <div id="mainPop"  class="hidden">pop</div>
+
+        <script>
+
+            var globalSession = "";
+            var globalFontSize = 12;
+            var globalBaseUrl = window.location.href;
+            var uxui = new UxUi();
+            var con = new Controller();
+            con.init(uxui);
+
+        </script>
+    </body>
+</html>
