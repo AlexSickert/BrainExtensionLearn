@@ -4,8 +4,9 @@
 from urllib import parse
 import json
 import process_json as pj
+import log
 
-print("loading process_post.py")
+log.log_info("loading process_post.py")
 
 def process_post(s):
     

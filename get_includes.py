@@ -7,8 +7,9 @@ this file provides the static files and includes etc.
 
 """
 from pathlib import Path
+import log
 
-print("loading get_includes.py")
+log.log_info("loading get_includes.py")
 
 
 def get_include_file_content(p):
@@ -34,7 +35,7 @@ def get_include_file_content(p):
         s = file.read()
         file.close()
     else:
-        print('could not find the follwing file and hence return error: ' + str(p))
+        log.log_info('could not find the follwing file and hence return error: ' + str(p))
         x = "error"
         s = bytearray()
         s.extend(map(ord, x))

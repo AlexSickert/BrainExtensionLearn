@@ -28,9 +28,13 @@ import process_post as po
 import sys
 import datetime
 import time
+import log
 
 
 class S(BaseHTTPRequestHandler):
+
+    has_cookie_set = False
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -39,13 +43,13 @@ class S(BaseHTTPRequestHandler):
 
     def do_GET(self):
         start_execution = datetime.datetime.now()
-        print("------------------ start GET ----------------------")
+        log.log_info("------------------ start GET ----------------------")
 
         try:
 
             p = self.path
-            print(self.path)
-            print(self.headers)
+            log.log_info(self.path)
+            log.log_info(self.headers)
 
             s = gi.get_include_file_content(p)
 
@@ -64,22 +68,22 @@ class S(BaseHTTPRequestHandler):
         end_execution = datetime.datetime.now()
         execution_time_diff = end_execution - start_execution
         millis = execution_time_diff.total_seconds() * 1000
-        print("GET execution took time in milliseconds: " + str(millis))
-        print("-------------------end GET ---------------------")
+        log.log_info("GET execution took time in milliseconds: " + str(millis))
+        log.log_info("-------------------end GET ---------------------")
 
     def do_HEAD(self):
         self._set_headers()
 
     def do_POST(self):
         start_execution = datetime.datetime.now()
-        print("------------- start POST ------------------")
+        log.log_info("------------- start POST ------------------")
 
         # Doesn't do anything with posted data
         content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
         post_data = self.rfile.read(content_length)  # <--- Gets the data itself
 
         try:
-            print(post_data)
+            log.log_info(post_data)
             # process post data and make response
             ret = po.process_post(post_data)
 
@@ -89,7 +93,7 @@ class S(BaseHTTPRequestHandler):
 
         except:
 
-            print("Unexpected error:", sys.exc_info()[0])
+            log.log_info("Unexpected error:", sys.exc_info()[0])
             self._set_headers()
             s = "error"
             b = bytearray()
@@ -100,15 +104,15 @@ class S(BaseHTTPRequestHandler):
         end_execution = datetime.datetime.now()
         execution_time_diff = end_execution - start_execution
         millis = execution_time_diff.total_seconds() * 1000
-        print("POST execution took time in milliseconds: " + str(millis))
-        print("-------------- end POST --------------------------")
+        log.log_info("POST execution took time in milliseconds: " + str(millis))
+        log.log_info("-------------- end POST --------------------------")
 
 
 
 def run(server_class=HTTPServer, handler_class=S, port=80):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
-    print('Starting httpd...')
+    log.log_info('Starting httpd...')
     httpd.serve_forever()
 
 
@@ -116,7 +120,7 @@ if __name__ == "__main__":
 
     from sys import argv
 
-    print("-------------- START SERVER --------------------------")
+    log.log_info("-------------- START SERVER --------------------------")
 
     if len(argv) == 2:
         run(port=int(argv[1]))

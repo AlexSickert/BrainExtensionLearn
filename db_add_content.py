@@ -2,6 +2,7 @@
 
 import psycopg2
 import sys, traceback
+import log
 
 print("loading db_add_content.py")
 
@@ -13,7 +14,7 @@ def add_one_word(x):
     password = 'password'
     database = 'brainextension'
 
-    print("111  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    log.log_info("111  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     try:
     
         conn = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
@@ -26,7 +27,7 @@ def add_one_word(x):
         conn.commit()
         conn.close()
 
-        print("222  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        log.log_info("222  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
 
         conn = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
 
@@ -35,21 +36,21 @@ def add_one_word(x):
         # cur.execute( "SELECT id, language FROM user_1_languages;" )
         cur.execute("SELECT id, email FROM users;")
 
-        print("333  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+        log.log_info("333  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     except:
 
-        print ("Exception in user code:")
-        print ('-'*60)
+        log.log_info ("Exception in user code:")
+        log.log_info ('-'*60)
         traceback.print_exc(file=sys.stdout)
-        print ('-'*60)
+        log.log_info ('-'*60)
   
 #
 #    for a, b in cur.fetchall() :
 #        print(a)
 #        print(b)
     for row in cur:
-        print(row[0])
-        print(row[1])
+        log.log_info(row[0])
+        log.log_info(row[1])
         
     conn.close()
     
