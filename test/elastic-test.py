@@ -22,6 +22,7 @@ res = es.index(index="test-index", doc_type='tweet', id=111, body=doc)
 
 print(res)
 
+
 print(res['result'])
 
 res = es.get(index="test-index", doc_type='tweet', id=1)
