@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+
+  <script>
+    var doit = true;
+    var tempcount = 0;
+    var totalcount = 0;
+    var stats = {};
+    var parallelExec = 0;
+    var parallelCalls = 30;
+    var timeoutLevel = 10;
+    var startTime = 0;
+
+    function BeAjaxRequest() {
+      var http = false;
+      try {
+        http = new XMLHttpRequest();
+      } catch (e1) {
+        try {
+          http = new ActiveXObject("Msxml2.xmlhttp");
+        } catch (e2) {
+          try {
+            http = new ActiveXObject("Microsoft.xmlhttp");
+          } catch (e3) {
+            http = false;
+          }
+        }
+      }
+      return http;
+    }
+
+
+    function testRequest() {
+
+      parallelExec += 1;
+
+      var req = new BeAjaxRequest();
+
+      req.onreadystatechange = function() {
+        if (req.readyState === 4) {
+          //console.log(req.responseText);
+          logger(req.responseText);
+        }
+      };
+
+      var x = document.getElementById("a").value;
+
+      var d = new Date();
+      startTime = d.getTime();
+
+      var obj = encodeURIComponent(" alsjdf ;lakjsd ;flkjas d;lfkja s;ldkjf ;alskdj f;lajsd f;lkajs d;lfja sd;lfj aldsjf ;alsjd f;laj sd;lfj a" + startTime);
+      var a = encodeURIComponent(x);
+      //console.log(obj)
+      req.open("POST", "test", true);
+      req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      req.send("variable=" + obj + "&area=" + a);
+      //req.send("variable=" + obj);
+
+    }
+
+
+    function makeStress() {
+      testRequest();
+    }
+
+    function logger(s) {
+
+      console.log("-------------------------------")
+      console.log(s)
+
+
+    }
+
+    function stop() {
+      console.log("stopping");
+      doit = false;
+    }
+
+
+    function start() {
+      console.log("starting");
+      var d = new Date();
+      startTime = d.getTime();
+      doit = true;
+      totalcount = 0;
+      makeStress();
+    }
+  </script>
+</head>
+
+<body>
+
+
+
+  <input type="button" onclick="start()" value="send request">
+
+  <br>
+
+  <div id="res">
+    Please check in Console what is going on... stats are written there.
+  </div>
+
+<textarea id="a">
+
+</textarea>
+
+
+
+</body>
+
+</html>
