@@ -192,7 +192,6 @@ def handle_request(client_connection):
     else:
         method = "GET"
         print("we are in GET")
-        # in this case we have little problems re. reading from socket - we are done
         print(url_parameter)
 
     # by now we have parsed and loaded all data and can work with the input to prepare the response
