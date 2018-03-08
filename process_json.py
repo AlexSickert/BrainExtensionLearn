@@ -17,9 +17,16 @@ print("loading process_json.py")
 def distribute_actions(jo):
     
     """
-    this is the 'entry' function that then distributes work to the next 
+    this is the 'entry' function that then distributes work to the subsequent
     functions
     """
+
+    # check if valid session
+
+    # check login
+
+
+
     
     rj = {}
     result = ""
