@@ -8,7 +8,7 @@ import log
 
 log.log_info("loading process_post.py")
 
-def process_post(s):
+def process_post(header_values, form_values):
     
     """
     If we have a json object then we convert the string into a json object
@@ -18,11 +18,12 @@ def process_post(s):
     
     res = ""
     
-    if s[0:8] == b'objJSON=':
+    if "objJSON" in form_values:
+        s = form_values["objJSON"]
 #        print("json object") 
         x = s.decode('utf-8')
         j = parse.unquote(x)
-        j = j[8:]
+        # j = j[8:]
         data = json.loads(j)  
         
         print(j)
