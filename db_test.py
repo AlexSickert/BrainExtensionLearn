@@ -15,9 +15,23 @@ from datetime import datetime
 
 
 hostname = 'localhost'
-username = 'testuser'
+username = 'postgres'
 password = 'password'
 database = 'brainextension'
+
+
+# ------------------------------------------------------------------------------
+# Simple routine to run a query on a database and print the results:
+def showTables(conn):
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM pg_catalog.pg_tables;")
+
+    for a in cur.fetchall():
+        print(a)
+
+
+
 
 #------------------------------------------------------------------------------
 # Simple routine to run a query on a database and print the results:
@@ -69,6 +83,7 @@ def doInsertTimestamp( conn ) :
 
 
 myConnection = psycopg2.connect( host=hostname, user=username, password=password, dbname=database )
+showTables( myConnection )
 doInsertTimestamp( myConnection )
 doInsert( myConnection )
 doDelete( myConnection )
