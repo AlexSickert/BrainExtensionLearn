@@ -6,12 +6,16 @@ from urllib import parse
 import datetime
 import process_post as po
 import process_get as pg
+import process_json as pj
 import log
+import sys, traceback
+
 
 log.log_info("------------------ start server ----------------------")
 
 SERVER_ADDRESS = (HOST, PORT) = '', 8888
 REQUEST_QUEUE_SIZE = 50
+
 
 def getHtml():
 
@@ -53,11 +57,8 @@ def get_header_values(data):
 
     """
 
-    print("data has length: " + str(len(data)))
+    log.log_info("data has length: " + str(len(data)))
 
-    print("++++++++++++++++++++++++++++++++")
-    print(data)
-    print("++++++++++++++++++++++++++++++++")
 
     method = ""
     url = ""
@@ -65,8 +66,8 @@ def get_header_values(data):
     header_values = {}
     url_parameter = {}
 
-
     lines = data.split("\r\n")
+
     i = 0
     for l in lines:
         i += 1
@@ -75,8 +76,11 @@ def get_header_values(data):
 
         else:
             pos = l.find(":")
-            header_values[l[:pos]] = l[pos + 2:]
+            # we make the header values all lower case to reduce one source of error
 
+            k = l[:pos]
+            k = k.strip().lower()
+            header_values[k] = l[pos + 2:]
 
     if "?" in url:
 
@@ -115,9 +119,9 @@ def handle_body(s):
     else:
         if "=" in s:
             k, v = s.split("=")
-            print(k)
-            print(v)
-            print(parse.unquote(v))
+            # log.log_info(k)
+            # log.log_info(v)
+            # log.log_info(parse.unquote(v))
             values[k] = parse.unquote(v)
 
     return values
@@ -147,118 +151,146 @@ def handle_request(client_connection):
     :return:
     """
 
-    start_execution = datetime.datetime.now()
-    print("---------------------------------------------------------")
+    try:
+        start_execution = datetime.datetime.now()
+        log.log_info("------------------ REQUEST RECEIVED ----------------------")
 
-    request = client_connection.recv(1024)
-    print(request)
-    req = request.decode()
+        request = client_connection.recv(1024)
+        # print(request)
+        req = request.decode()
 
-    method = ""
-    form_values = {}
-    elements = req.split("\r\n\r\n")
-    method, url, protocol, header_values, url_parameter = get_header_values(req)
+        method = ""
+        form_values = {}
+        elements = req.split("\r\n\r\n")
 
+        log.log_info("get_header_values(req) ...")
+        method, url, protocol, header_values, url_parameter = get_header_values(req)
 
-
-    #check if POST
-
-    if req[:4] == "POST":
-        print("it is a post request")
-        method = "POST"
-        print("req: " + req)
-
-        print("------" )
-        # print(elements)
-        header = elements[0].split("\r\n")
-        body = elements[1]
-
-        # print(header)
-        # print("body: " + body)
-
-        for l in header:
-            print(l)
-            fragments = l.split(":")
-
-            # print(fragments[0])
-            if "Content-Length" in fragments[0]:
-                content_length = int(fragments[1])
-                # print(content_length)
-
-        #body lenght already retrieved
-        done = len(body)
-        diff = content_length - done
-
-        chunks = []
-        if diff > 0:
-            todo = diff
-            while todo > 0:
-
-                chunk = client_connection.recv(1)
-                chunks.append(chunk)
-                todo -= 1
-
-        for c in chunks:
-            s = c.decode()
-            body += s
-        # print(body)
-        print("asdfasdfasdfasdfasdfasdf")
-        form_values = handle_body(body)
-
-    else:
-        method = "GET"
-        print("we are in GET")
-        print(url_parameter)
-
-    # by now we have parsed and loaded all data and can work with the input to prepare the response
-
-    http_response = make_header()
-
-    if "GET" in method:
-        print("GET request")
-        print("URL: " + url)
+        log.log_info("get_header_values(req) DONE ")
 
 
-        # check if we need to serve a static file or process parameters
-        if url.strip() == "/":
-            # serve the index file
-            http_response += getHtml()
+        #check if POST
+
+        if req[:4] == "POST":
+            log.log_info("it is a post request")
+            method = "POST"
+            # log.log_info("req: " + req)
+
+            # print(elements)
+            header = elements[0].split("\r\n")
+            body = elements[1]
+
+            # print(header)
+            # print("body: " + body)
+
+            for l in header:
+                # print(l)
+                fragments = l.split(":")
+
+                # print(fragments[0])
+                if "Content-Length" in fragments[0]:
+                    content_length = int(fragments[1])
+                    # print(content_length)
+
+            #body lenght already retrieved
+            done = len(body)
+            diff = content_length - done
+
+            log.log_info("body longer than already processed...")
+
+            chunks = []
+            if diff > 0:
+                todo = diff
+                while todo > 0:
+                    # print(1)
+                    chunk = client_connection.recv(1)
+                    # print(2)
+                    # print(chunk)
+                    chunks.append(chunk)
+                    # print(3)
+                    todo -= 1
+
+            log.log_info("adding new chunks to existing body.")
+            for c in chunks:
+                # print(c)
+                # print(c.decode(encoding = 'UTF-8', errors = 'replace'))
+                s = c.decode(encoding = 'UTF-8', errors = 'replace')
+                body += s
+            # print(body)
+            #     log.log_info("body completely processed now.")
+            form_values = handle_body(body)
+
         else:
-            # serve other stuff
-            u = url.strip()
-            if u == "/app":
-                http_response += getFile("./html/app.html")
-            elif u == "/Controller.js":
-                http_response += getFile("./js/Controller.js")
-            elif u == "/UxUi.js":
-                http_response += getFile("./js/UxUi.js")
-            elif u == "/DataAccess.js":
-                http_response += getFile("./js/DataAccess.js")
-            else:
-                # handle other requests
-                message = pg.process_get(fragments, url_parameter)
-                b = bytearray()
-                b.extend(map(ord, message))
-                http_response += b
+            method = "GET"
+            log.log_info("we are in GET")
+            log.log_info(url_parameter)
 
-    else:
-        print("POST request")
+        # by now we have parsed and loaded all data and can work with the input to prepare the response
+
         http_response = make_header()
-        message = po.process_post(fragments, form_values)
-        b = bytearray()
-        b.extend(map(ord, message))
-        http_response += b
 
-    client_connection.sendall(http_response)
-    client_connection.close()
+        if "GET" in method:
+            log.log_info("GET request")
+            log.log_info("URL: " + url)
 
-    end_execution = datetime.datetime.now()
-    execution_time_diff = end_execution - start_execution
-    millis = execution_time_diff.total_seconds() * 1000
 
-    print("Execution done by thread: " + str(threading.currentThread().getName()))
-    print("Execution took time in milliseconds: " + str(millis))
-    print("-------------------end GET ---------------------")
+            # check if we need to serve a static file or process parameters
+            if url.strip() == "/":
+                # serve the index file
+                http_response += getHtml()
+            else:
+                # serve other stuff
+                u = url.strip()
+                if u == "/app":
+                    http_response += getFile("./html/app.html")
+                elif u == "/Controller.js":
+                    http_response += getFile("./js/Controller.js")
+                elif u == "/UxUi.js":
+                    http_response += getFile("./js/UxUi.js")
+                elif u == "/DataAccess.js":
+                    http_response += getFile("./js/DataAccess.js")
+                elif u == "/favicon.ico":
+                    http_response += ""
+                else:
+                    # handle other requests we ignore them...
+                    message = ""
+                    b = bytearray()
+                    b.extend(map(ord, message))
+                    http_response += b
+
+        else:
+            log.log_info("POST request")
+            http_response = make_header()
+
+            if header_values["content-type"].strip() == "application/json":
+                log.log_info("JSON content")
+                jsonObj = parse.unquote(body)
+                message = pj.process_json(fragments, jsonObj)
+            else:
+                message = po.process_post(fragments, form_values)
+
+
+            b = bytearray()
+            b.extend(map(ord, message))
+            http_response += b
+
+        client_connection.sendall(http_response)
+        client_connection.close()
+
+        end_execution = datetime.datetime.now()
+        execution_time_diff = end_execution - start_execution
+        millis = execution_time_diff.total_seconds() * 1000
+
+        log.log_info("Execution done by thread: " + str(threading.currentThread().getName()))
+        log.log_info("Execution took time in milliseconds: " + str(millis))
+        log.log_info("------------------- END OF REQUEST ---------------------")
+
+    except:
+
+        log.log_info("Exception in user code:")
+        log.log_info('-' * 60)
+        traceback.print_exc(file=sys.stdout)
+        log.log_info('-' * 60)
 
 
 def serve_forever():
@@ -270,7 +302,7 @@ def serve_forever():
 
     executor = ThreadPoolExecutor(max_workers=50)
 
-    print('Serving HTTP on port {port} ...'.format(port=PORT))
+    log.log_info('Serving HTTP on port {port} ...'.format(port=PORT))
 
     while True:
         client_connection, client_address = listen_socket.accept()
