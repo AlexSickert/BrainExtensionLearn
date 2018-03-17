@@ -10,9 +10,50 @@ further processing
 import db_add_content as dbac
 import json
 import log
+import security as sec
 
 
 print("loading process_json.py")
+
+
+def process_json(fragments, json_string):
+
+    log.log_info("in function process_json")
+
+    jo = json.loads(json_string)
+
+    # print(jo)
+
+    ret = {}
+
+    #first check security
+
+    if sec.check_login(jo["user"], jo["password"]):
+
+        user_id = sec.get_user_id(jo["user"])
+
+
+        if jo["function"] == 'upload_google_spreadsheet':
+            log.log_info("received data from Google Spreadsheet")
+
+            # add the word to the dictionary
+            language = jo["language"]
+            language_translation = "german"
+            list_obj = jo["list"]
+
+            dbac.add_spreadsheet_list(user_id, language, language_translation, list_obj)
+
+            ret["function"] = jo["function"]
+            ret["error"] = False
+            ret["error_description"] = ""
+
+    else:
+        ret["error"] = True
+
+    result = json.dumps(ret)
+
+    return result
+
 
 def distribute_actions(jo):
     
@@ -25,9 +66,6 @@ def distribute_actions(jo):
 
     # check login
 
-
-
-    
     rj = {}
     result = ""
     
@@ -43,11 +81,11 @@ def distribute_actions(jo):
         language = jo["language"]   # the input language
 
     elif action == "adVocFromUrl":
-          
-        text = jo["text"]
-        
-        dbac.add_one_word(text)
-        
+
+        user_id = 1
+
+        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"])
+
 #        now test if it arrived
         
         rj['action'] = "adVocFromUrl"
@@ -64,7 +102,7 @@ def distribute_actions(jo):
 
     elif action == "logout":
 
-        # log out by destroying session and or cookie?
+        # logfiles out by destroying session and or cookie?
 
         session = jo["session"]
 
