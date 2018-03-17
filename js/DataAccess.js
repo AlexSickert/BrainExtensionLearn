@@ -1,8 +1,5 @@
 function DataAccess() {
 
-  var cookieMap;
-
-
   /*
    * get the list of files and its download links for a specific id
    */
@@ -67,10 +64,8 @@ function DataAccess() {
   this.getCookieValue = function(cname) {
 
     console.log("getCookieValue cname = " + cname);
-
     console.log("getCookieValue content = " + document.cookie);
 
-    
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -86,8 +81,6 @@ function DataAccess() {
     return "";
   }
 
-
-
   this.setCookieValue = function(cname, cvalue) {
 
     console.log("setCookieValue cname = " + cname);
@@ -100,7 +93,7 @@ function DataAccess() {
   }
 
 
-}  // end of class
+} // end of class
 
 
 // ========================================================
