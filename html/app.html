@@ -1,109 +1,461 @@
+<!DOCTYPE html>
+
 <html>
-    <head>
-        <title>BE Voc App</title>
-        
-        <meta charset="utf-8">
 
-        <script src="Controller.js" type="text/javascript"></script>
-        <script src="UxUi.js" type="text/javascript"></script>
-        <script src="DataAccess.js" type="text/javascript"></script>
-       
+<head>
+  <title>BE Voc App</title>
 
-        <style>
-            
-            html { 
-              
-            }
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="author" content="Alexander Sickert">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="HandheldFriendly" content="true" />
 
-            body{
-                font-family: sans-serif;                
-            }      
+  <title>Brain Extension</title>
 
-            table {
-                
-                border: 0px ;
-                width: 100%;
-            } 
+  <script src="Controller.js" type="text/javascript"></script>
+  <script src="UxUi.js" type="text/javascript"></script>
+  <script src="DataAccess.js" type="text/javascript"></script>
 
-            td{
-              
-                border: 0px ;
-            }
 
-            td.tdNarrow{
-                width: 10%;
-            }
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Lato:100,200,300,900,thin);
+    @import url(https://fonts.googleapis.com/css?family=Lusitana);
 
-            td.tdTitle{
-                font-weight: bold;
-            }
-            
-            td.tdTitleButtons{
-                text-align: right;
-            }
+    a:link {
+      color: #000000;
+    }
 
-            td.dividerBold{
-                border-bottom: 2px solid grey;
-            }
+    /* visited link */
 
-            td.dividerSoft{
-                border-bottom: 1px solid grey;
-            }
+    a:visited {
+      color: #000000;
+    }
 
-            textarea {                
-                width: 100%;
-            } 
+    /* mouse over link */
 
-            textarea.contentEdit{                
-                width: 100%;
-                height: 400px;
-            } 
+    a:hover {
+      color: #000000;
+    }
 
-            div {
-                // border: 1px solid red;
-                border: 0px ;
-                width: 100%;
-            } 
+    /* selected link */
 
-            div.hidden{
-                display: none;
+    a:active {
+      color: #000000;
+    }
 
-            }
+    body {
+      font-family: Arial;
+      background-color: #ffffff;
+      color: #444444;
+      border: 0px;
+      padding: 0px;
+      text-align: center;
+    }
 
-            div.smallNodeTitle{
-                font-weight: bold;
-            }
+    /*
+    div {
+      // border: 1px solid red;
+      border: 0px;
+      width: 100%;
+    }
 
-            div.naviDiv{
-                padding: 10px;    
-            }
+    */
 
-            div.mainBodyDiv{
-                padding: 10px;                
-            }
-            
-            span.breadcrumb{
-                color: #999999;
-            }
+    div {
+      display: block;
+      visibility: visible;
+    }
 
-        </style>
+    div.hidden {
+      display: none;
 
-    </head>
-    <body >
+    }
 
-        <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
-        <div id="mainBody" class="mainBodyDiv">body</div>
-        <div id="mainPop"  class="hidden">pop</div>
+    div.smallNodeTitle {
+      font-weight: bold;
+    }
 
-        <script>
+    div.naviDiv {
+      padding: 10px;
+    }
 
-            var globalSession = "";
-            var globalFontSize = 12;
-            var globalBaseUrl = window.location.href;
-            var uxui = new UxUi();
-            var con = new Controller();
-            con.init(uxui);
+    div.mainBodyDiv {
+      padding: 10px;
+    }
 
-        </script>
-    </body>
+    div.layoutDiv {
+      /*
+               visibility: hidden;
+              display: none;
+              */
+    }
+
+    div.greendiv {
+
+      background-color: #00ff00;
+      font-size: 1px;
+    }
+
+    html {}
+
+
+
+    span.breadcrumb {
+      color: #999999;
+    }
+
+
+    span.button {
+      padding: 0px;
+      border: 1px solid #ffffff;
+      text-align: center;
+    }
+
+    span.buttonSmall {
+      padding: 0px;
+      border: 1px solid #ffffff;
+      text-align: center;
+    }
+
+    span.label {
+      padding: 0px;
+      border: 0px solid #ffffff;
+      text-align: center;
+    }
+
+
+    span.text {
+      padding: 0px;
+      border: 0px solid #ffffff;
+      text-align: center;
+    }
+
+    span.spantest {
+
+      width: 20px;
+      height: 10px;
+      background-color: #9ee7f5;
+
+    }
+
+    /* -------------------------------------------*/
+
+    td.tdNarrow {
+      width: 10%;
+    }
+
+    td.tdTitle {
+      font-weight: bold;
+    }
+
+    td.tdTitleButtons {
+      text-align: right;
+    }
+
+    td.dividerBold {
+      border-bottom: 2px solid grey;
+    }
+
+    td.dividerSoft {
+      border-bottom: 1px solid grey;
+    }
+
+    table {
+      width: 100%;
+      border: 0px;
+      padding: 0px;
+      border-collapse: collapse;
+      border-spacing: 0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    td {
+      width: 200px;
+      border: 1px solid #cccccc;
+      padding: 0px;
+      text-align: center;
+    }
+
+    td.red {
+      background-color: #f5ad94;
+    }
+
+    td.yellow {
+      background-color: #fff1a6;
+    }
+
+    td.green {
+      background-color: #84f9a5;
+    }
+
+    td.greentest {
+      width: 100px;
+      border: 1px solid #ff0000;
+    }
+
+
+    td.blue {
+      background-color: #9ee7f5;
+    }
+
+    td.ml {
+
+      width: 100px;
+      height: 100px;
+      border: 1px solid #cccccc;
+      padding: 0px;
+      text-align: center;
+    }
+
+    tr {
+      padding: 0px;
+    }
+
+    /* -------------------------------------------*/
+
+    textarea {
+      width: 100%;
+    }
+
+    textarea.contentEdit {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+
+</head>
+
+<body onload="init()">
+
+  <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
+  <div id="mainBody" class="mainBodyDiv">body</div>
+  <div id="mainPop" class="hidden">pop</div>
+
+  <script>
+    var globalSession = "";
+    var globalFontSize = 12;
+    var globalBaseUrl = window.location.href;
+    var globalWordId = ""; // id of word currenlty learning
+    var globalWordHidden = "";
+    var uxui = new UxUi();
+    var con = new Controller();
+
+    uxui.setController(con);
+
+    function init() {
+      con.init(uxui);
+    }
+  </script>
+
+
+  <!-- THE DIV THAT HOLDS THE LAYOUT FOR MOBILE IN PORTRAIT MODE -->
+
+
+  <div id="mobilePortrait" class="layoutDiv">
+
+
+
+    <table>
+      <tr>
+        <td id="topbuttons1" class="blue">
+          <span id="exit" class="buttonSmall blue">exit</span>
+
+
+        </td>
+
+        <td id="topbuttons2" class="blue">
+
+          <span id="addword" class="buttonSmall blue">add word</span>
+
+
+        </td>
+
+
+        <td id="topbuttons3" class="blue">
+
+          <span id="more" class="buttonSmall blue">more</span>
+          <!--
+                                   <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
+                                   -->
+
+        </td>
+
+      </tr>
+    </table>
+
+
+    <table>
+      <tr>
+        <td id="language1"><span class="lable">Language 1</span></td>
+      </tr>
+
+      <tr>
+        <td id="word1"><span class="text">Word 1</span></td>
+      </tr>
+
+      <tr>
+        <td id="language2"><span class="lable">Language 2</span></td>
+      </tr>
+
+      <tr>
+        <td id="word2"><span class="text">Word 2</span></td>
+      </tr>
+    </table>
+
+
+    <table>
+      <tr>
+        <td id="bottombuttons1" class="green">
+          <span id="yes" class="button" onclick="location.reload();">YES</span>
+        </td>
+
+        <td id="bottombuttons2" class="yellow">
+          <span id="question" class="button">?</span>
+
+        </td>
+
+        <td id="bottombuttons3" class="red">
+          <span id="no" class="button">NO</span>
+        </td>
+      </tr>
+    </table>
+
+
+
+    <div id="test1" style="position: absolute;" class="greendiv">&nbsp;</div>
+    <div id="test2" style="position: absolute;" class="greendiv">&nbsp;</div>
+    <div id="test3" style="position: absolute;" class="greendiv">&nbsp;</div>
+    <div id="test4" style="position: absolute;" class="greendiv">&nbsp;</div>
+
+
+  </div>
+
+  <!-- THE DIV THAT HOLDS THE LAYOUT FOR MOBILE IN LANDSCAPE MODE -->
+
+  <div id="mobileLandscape" class="layoutDiv" style="position: absolute;">
+
+    <table style="border: 1px solid #000000;">
+      <tr>
+        <td id="mlyes" style="border: 1px solid #000000;" class="green" onclick="location.reload();">YES
+        </td>
+
+        <td id="mlcontent" style="border: 1px solid #000000;">
+
+          <table style="border: 1px solid #000000;">
+            <tr>
+              <td id="mlnavigation" style="border: 1px solid #000000;" class="blue">Navigation
+              </td>
+            </tr>
+
+            <tr>
+              <td id="mllanguage1" style="border: 1px solid #000000;">language 1
+              </td>
+            </tr>
+
+            <tr>
+              <td id="mlword1" style="border: 1px solid #000000;">word 1
+              </td>
+            </tr>
+
+            <tr>
+              <td id="mllanguage2" style="border: 1px solid #000000;">language 2
+              </td>
+            </tr>
+
+            <tr>
+              <td id="mlword2" style="border: 1px solid #000000;">word 2
+              </td>
+            </tr>
+
+            <tr>
+              <td id="mlquestion" style="border: 1px solid #000000;" class="yellow">?
+              </td>
+            </tr>
+
+
+          </table>
+        </td>
+
+        <td id="mlno" style="border: 1px solid #000000;" class="red">NO
+        </td>
+
+      </tr>
+    </table>
+
+  </div>
+
+  <!-- THE DIV THAT HOLDS THE LAYOUT FOR DESKTOP -->
+
+  <div id="desktop" style="display: none; visibility: hidden;">
+
+
+    <table>
+      <tr>
+        <td id="dtopbuttons1" class="blue">
+          <span id="exit" class="buttonSmall blue" onclick="window.location.href='./'">exit Desktop</span>
+        </td>
+
+        <td id="dtopbuttons2" class="blue">
+          <span id="addword" class="buttonSmall blue" onclick="con.setAddVocForm()">add word(s)</span>
+        </td>
+
+        <td id="dtopbuttons3" class="blue">
+          <span id="more" class="buttonSmall blue">more</span>
+          <!--
+                                   <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
+                                   -->
+        </td>
+      </tr>
+    </table>
+
+    <table style="width: 80%;">
+      <tr>
+        <td id="dspacer"><span class="lable">&nbsp;</span></td>
+      </tr>
+
+      <tr>
+        <td id="dlanguage1"><span class="lable">Language 1</span></td>
+      </tr>
+
+      <tr>
+        <td id="dword1"><span class="text">Word 1</span></td>
+      </tr>
+
+      <tr>
+        <td id="dlanguage2"><span class="lable">Language 2</span></td>
+      </tr>
+
+      <tr>
+        <td id="dword2"><span class="text">Word 2</span></td>
+      </tr>
+    </table>
+
+
+    <table style="width: 60%;">
+      <tr>
+        <td id="dbottombuttons1" class="green" onclick="con.answerYes()">
+          YES
+        </td>
+
+        <td id="dbottombuttons2" class="yellow" onclick="con.answerQuestionmark()">
+          ?
+        </td>
+
+        <td id="dbottombuttons3" class="red" onclick="con.answerNo()">
+          No
+        </td>
+      </tr>
+      <tr>
+        <td colspan=3>
+          You can use the arrow keys of your keyboard to press the buttons.
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+
 </html>
