@@ -30,7 +30,7 @@ def process_post(header_values, form_values):
         # j = j[8:]
         data = json.loads(j)
 
-        pj.distribute_actions(data)
+        res = pj.distribute_actions(data)
 
 
         # if asdfasd
