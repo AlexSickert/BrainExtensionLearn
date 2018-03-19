@@ -1,3 +1,21 @@
+"""
+
+This pice of code is the entry point of the application and constitutes a multi threaded server. The basic logic
+of the server is this:
+
+1. accept a connection request
+2. read the header
+3. if the header indicates a get request, then the header is enough to read. Process the GET request. This also includes
+   request to stream a static file from the file system to the client.
+4. if the header indicates a POST request, then continue reading from the socket as many bites as indicated in
+   the header.
+5. within the POST requests distinguish if the body is a JSON object or not. Depending on this process the request
+   further.
+
+
+"""
+
+
 import socket
 
 from  concurrent.futures import ThreadPoolExecutor
@@ -250,7 +268,7 @@ def handle_request(client_connection):
                 elif u == "/DataAccess.js":
                     http_response += getFile("./js/DataAccess.js")
                 elif u == "/favicon.ico":
-                    http_response += ""
+                    http_response += getFile("./html/favicon.ico")
                 else:
                     # handle other requests we ignore them...
                     message = ""
