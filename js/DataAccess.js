@@ -11,6 +11,9 @@ function DataAccess() {
       req.onreadystatechange = function() {
         if (req.readyState === 4) {
           try {
+            console.log("-------------------------");
+            console.log(req.responseText);
+            console.log("-------------------------");
             var resObj = JSON.parse(req.responseText);
             controller.callBack(resObj);
           } catch (x) {
@@ -128,4 +131,10 @@ function JsonAddVocRequest(l, u, w, t, a, tl, tw) {
   this.action = a;
   this.translationLanguage = tl;
   this.translationWord = tw
+}
+
+function JsonLoadWordRequest(answer, wordId) {
+  this.action = "loadWord";
+  this.answer = answer;
+  this.wordId = wordId;
 }
