@@ -11,6 +11,7 @@ import db_add_content as dbac
 import json
 import log
 import security as sec
+import time
 
 
 print("loading process_json.py")
@@ -66,6 +67,8 @@ def distribute_actions(jo):
 
     # check login
 
+    log.log_info("in distribute_actions")
+
     rj = {}
     result = ""
     
@@ -82,16 +85,42 @@ def distribute_actions(jo):
 
     elif action == "adVocFromUrl":
 
+        log.log_info("in distribute_actions adVocFromUrl")
+
         user_id = 1
 
         dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"])
 
 #        now test if it arrived
+        log.log_info("in distribute_actions preparing response")
         
         rj['action'] = "adVocFromUrl"
         rj['result'] = "successfully inserted "
         
         result = json.dumps(rj)
+
+    elif action == "loadWord":
+
+        log.log_info("loading new word")
+
+        wordId = jo["wordId"]
+        answer = jo["answer"]
+
+        # log.log_info("answer was " + answer)
+
+        rj['action'] = action
+        rj["wordId"] = "9999"
+
+        rj["language1"] = "English"
+        rj["word1"] = "car"
+        rj["language2"] = "German" +  str(time.time())
+        rj["word2"] = "Auto"
+        rj['error'] = False
+        rj['error_description'] = ""
+
+        result = json.dumps(rj)
+
+        print(result)
 
     elif action == "login":
 
