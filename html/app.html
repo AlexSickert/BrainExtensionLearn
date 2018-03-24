@@ -51,6 +51,7 @@
       background-color: #ffffff;
       color: #444444;
       border: 0px;
+      margin: 0px;
       padding: 0px;
       text-align: center;
     }
@@ -87,6 +88,8 @@
     }
 
     div.layoutDiv {
+
+      padding: 0px;
       /*
                visibility: hidden;
               display: none;
@@ -99,7 +102,12 @@
       font-size: 1px;
     }
 
-    html {}
+    html {
+
+      margin: 0px;
+      padding: 0px
+
+    }
 
 
 
@@ -110,13 +118,13 @@
 
     span.button {
       padding: 0px;
-      border: 1px solid #ffffff;
+      border: 0px solid #ffffff;
       text-align: center;
     }
 
     span.buttonSmall {
       padding: 0px;
-      border: 1px solid #ffffff;
+      border: 0px solid #ffffff;
       text-align: center;
     }
 
@@ -156,11 +164,11 @@
     }
 
     td.dividerBold {
-      border-bottom: 2px solid grey;
+      border-bottom: 0px solid grey;
     }
 
     td.dividerSoft {
-      border-bottom: 1px solid grey;
+      border-bottom: 0px solid grey;
     }
 
     table {
@@ -175,7 +183,7 @@
 
     td {
       width: 200px;
-      border: 1px solid #cccccc;
+      border: 0px solid #cccccc;
       padding: 0px;
       text-align: center;
     }
@@ -194,7 +202,7 @@
 
     td.greentest {
       width: 100px;
-      border: 1px solid #ff0000;
+      border: 0px solid #ff0000;
     }
 
 
@@ -206,7 +214,7 @@
 
       width: 100px;
       height: 100px;
-      border: 1px solid #cccccc;
+      border: 0px solid #cccccc;
       padding: 0px;
       text-align: center;
     }
@@ -229,7 +237,7 @@
 
 </head>
 
-<body onload="init()">
+<body onload="init()" onresize="resize()">
 
   <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
   <div id="mainBody" class="mainBodyDiv">body</div>
@@ -238,6 +246,7 @@
   <script>
     var globalSession = "";
     var globalFontSize = 12;
+    var globalVisibleScreen = 0; // defaul 1 = learning app
     var globalBaseUrl = window.location.href;
     var globalWordId = ""; // id of word currenlty learning
     var globalWordHidden = "";
@@ -248,6 +257,14 @@
 
     function init() {
       con.init(uxui);
+    }
+
+    function resize() {
+      //alert(0);
+      if (globalVisibleScreen > 0) {
+        uxui.showTrainingUi();
+      }
+
     }
   </script>
 
@@ -268,20 +285,16 @@
         </td>
 
         <td id="topbuttons2" class="blue">
+          <span id="addword" class="buttonSmall blue">add</span>
+        </td>
 
-          <span id="addword" class="buttonSmall blue">add word</span>
-
-
+        <td id="topbuttons3" class="blue">
+          <span id="more" class="buttonSmall blue">edit</span>
         </td>
 
 
-        <td id="topbuttons3" class="blue">
-
+        <td id="topbuttons4" class="blue">
           <span id="more" class="buttonSmall blue">more</span>
-          <!--
-                                   <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
-                                   -->
-
         </td>
 
       </tr>
@@ -310,27 +323,27 @@
     <table>
       <tr>
         <td id="bottombuttons1" class="green">
-          <span id="yes" class="button" onclick="location.reload();">YES</span>
+          <span id="yes" class="button" onclick="con.answerYes();">YES</span>
         </td>
 
         <td id="bottombuttons2" class="yellow">
-          <span id="question" class="button">?</span>
+          <span id="question" onclick="con.answerQuestionmark();" class="button">?</span>
 
         </td>
 
         <td id="bottombuttons3" class="red">
-          <span id="no" class="button">NO</span>
+          <span id="no" class="button" onclick="con.answerNo()">NO</span>
         </td>
       </tr>
     </table>
 
 
-
+    <!--
     <div id="test1" style="position: absolute;" class="greendiv">&nbsp;</div>
     <div id="test2" style="position: absolute;" class="greendiv">&nbsp;</div>
     <div id="test3" style="position: absolute;" class="greendiv">&nbsp;</div>
     <div id="test4" style="position: absolute;" class="greendiv">&nbsp;</div>
-
+  -->
 
   </div>
 
@@ -338,41 +351,41 @@
 
   <div id="mobileLandscape" class="layoutDiv" style="position: absolute;">
 
-    <table style="border: 1px solid #000000;">
+    <table style="border: 0px solid #000000;">
       <tr>
-        <td id="mlyes" style="border: 1px solid #000000;" class="green" onclick="location.reload();">YES
+        <td id="mlyes" style="border: 0px solid #000000;" class="green" onclick="con.answerYes();">YES
         </td>
 
-        <td id="mlcontent" style="border: 1px solid #000000;">
+        <td id="mlcontent" style="border: 0px solid #000000;">
 
-          <table style="border: 1px solid #000000;">
+          <table style="border: 0px solid #000000;">
             <tr>
-              <td id="mlnavigation" style="border: 1px solid #000000;" class="blue">Navigation
+              <td id="mlnavigation" style="border: 0px solid #000000;" class="blue">Navigation
               </td>
             </tr>
 
             <tr>
-              <td id="mllanguage1" style="border: 1px solid #000000;">language 1
+              <td id="mllanguage1" style="border: 0px solid #000000;">language 1
               </td>
             </tr>
 
             <tr>
-              <td id="mlword1" style="border: 1px solid #000000;">word 1
+              <td id="mlword1" style="border: 0px solid #000000;">word 1
               </td>
             </tr>
 
             <tr>
-              <td id="mllanguage2" style="border: 1px solid #000000;">language 2
+              <td id="mllanguage2" style="border: 0px solid #000000;">language 2
               </td>
             </tr>
 
             <tr>
-              <td id="mlword2" style="border: 1px solid #000000;">word 2
+              <td id="mlword2" style="border: 0px solid #000000;">word 2
               </td>
             </tr>
 
             <tr>
-              <td id="mlquestion" style="border: 1px solid #000000;" class="yellow">?
+              <td id="mlquestion" style="border: 0px solid #000000;" class="yellow" onclick="con.answerQuestionmark()">?
               </td>
             </tr>
 
@@ -380,7 +393,7 @@
           </table>
         </td>
 
-        <td id="mlno" style="border: 1px solid #000000;" class="red">NO
+        <td id="mlno" style="border: 0px solid #000000;" class="red" onclick="con.answerNo()">NO
         </td>
 
       </tr>
