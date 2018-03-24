@@ -12,6 +12,7 @@ import json
 import log
 import security as sec
 import time
+import db_learn as dbl
 
 
 print("loading process_json.py")
@@ -87,9 +88,10 @@ def distribute_actions(jo):
 
         log.log_info("in distribute_actions adVocFromUrl")
 
-        user_id = 1
+        user_id = sec.get_user_id("")
 
-        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"])
+        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"], True)
+        dbac.add_one_word_txt(user_id, jo["translationLanguage"], jo["translationWord"], jo["language"], jo["word"],  False)
 
 #        now test if it arrived
         log.log_info("in distribute_actions preparing response")
@@ -102,25 +104,42 @@ def distribute_actions(jo):
     elif action == "loadWord":
 
         log.log_info("loading new word")
+        log.log_info(jo)
+
+
 
         wordId = jo["wordId"]
         answer = jo["answer"]
 
-        # log.log_info("answer was " + answer)
+        log.log_info("answer was " + answer)
+        log.log_info("wordId was " + str(wordId))
+
+        user_id = sec.get_user_id("")
+        log.log_info("user_id is " + user_id)
+
+        dbl.process_answer(str(wordId), user_id, answer)
+
+        log.log_info("process_answer done")
+
+        new_id = dbl.get_next_word_id(user_id, str(wordId))
+
+        log.log_info("get_next_word_id done")
+
+        id, l1, w1, l2, w2 = dbl.get_word(new_id)
 
         rj['action'] = action
-        rj["wordId"] = "9999"
-
-        rj["language1"] = "English"
-        rj["word1"] = "car"
-        rj["language2"] = "German" +  str(time.time())
-        rj["word2"] = "Auto"
+        rj["wordId"] = id
+        rj["language1"] = dbac.get_language_label(l1)
+        rj["word1"] = w1
+        rj["language2"] = dbac.get_language_label(l2)
+        rj["word2"] = w2
         rj['error'] = False
         rj['error_description'] = ""
 
         result = json.dumps(rj)
 
-        print(result)
+        log.log_info("result for new work " + result)
+
 
     elif action == "login":
 
