@@ -1,4 +1,9 @@
+"""
 
+Collection of functions to verify session and logins
+
+
+"""
 
 
 
