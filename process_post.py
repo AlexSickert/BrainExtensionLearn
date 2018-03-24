@@ -11,7 +11,7 @@ log.log_info("loading process_post.py")
 
 def process_post(header_values, form_values):
 
-    print("in process_post")
+    # print("in process_post")
     
     """
     If we have a json object then we convert the string into a json object
@@ -35,8 +35,8 @@ def process_post(header_values, form_values):
 
         # if asdfasd
 
-        
-        print(j)
+
+        log.log_info(j)
 
         
     else:
