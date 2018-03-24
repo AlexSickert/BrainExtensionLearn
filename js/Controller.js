@@ -23,6 +23,7 @@ function Controller() {
     //objUxUi.setNavi("");
     //objUxUi.setLearnForm();
     objUxUi.initializeTrainingGui();
+    globalVisibleScreen = 1;
     return;
   };
 
@@ -126,7 +127,7 @@ function Controller() {
   }
 
   this.answerQuestionmark = function() {
-    objUxUi.showHiddenWord();    
+    objUxUi.showHiddenWord();
   }
 
   // initialize the loading. Result is handled by callback
