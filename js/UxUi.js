@@ -66,22 +66,22 @@ function UxUi() {
    */
   this.setLearnFormValues = function(l1, w1, l2, w2) {
     //this.setHtmlInDiv("mainBody", this.getLearnForm());
-    this.setHtmlInDiv("language1", l1);
-    this.setHtmlInDiv("word1", w1);
-    this.setHtmlInDiv("language2", l2);
+    this.setHtmlInDiv("language1", l1.trim());
+    this.setHtmlInDiv("word1", w1.trim());
+    this.setHtmlInDiv("language2", l2.trim());
     this.setHtmlInDiv("word2", "");
 
-    this.setHtmlInDiv("dlanguage1", l1);
-    this.setHtmlInDiv("dword1", w1);
-    this.setHtmlInDiv("dlanguage2", l2);
+    this.setHtmlInDiv("dlanguage1", l1.trim());
+    this.setHtmlInDiv("dword1", w1.trim());
+    this.setHtmlInDiv("dlanguage2", l2.trim());
     this.setHtmlInDiv("dword2", "");
 
-    this.setHtmlInDiv("mllanguage1", l1);
-    this.setHtmlInDiv("mlword1", w1);
-    this.setHtmlInDiv("mllanguage2", l2);
+    this.setHtmlInDiv("mllanguage1", l1.trim());
+    this.setHtmlInDiv("mlword1", w1.trim());
+    this.setHtmlInDiv("mllanguage2", l2.trim());
     this.setHtmlInDiv("mlword2", "");
 
-    globalWordHidden = w2
+    globalWordHidden = w2.trim()
 
     // once we have set the words it is necessary to adjust layout
     this.showTrainingUi();
@@ -247,6 +247,8 @@ function UxUi() {
     document.getElementById("dbottombuttons2").style.height = Math.floor(h * 0.2) + "px";
     document.getElementById("dbottombuttons3").style.height = Math.floor(h * 0.2) + "px";
 
+    //document.getElementById("dword2").innerHTML = navigator.userAgent;
+
   }
 
   this.fitMobileLandscape = function() {
@@ -272,6 +274,18 @@ function UxUi() {
     document.getElementById("mlno").style.width = Math.floor(w * 0.1) + "px";
     document.getElementById("mlno").style.height = Math.floor(h * 0.95) + "px";
     //document.getElementById("mlyes").innerHTML = "asfasfasdfasd";
+
+    // set font sizes of the content
+
+    var space = w * h;
+    var s1 = this.getFontSize(space, document.getElementById("mlword1").innerHTML);
+    var s2 = this.getFontSize(space, globalWordHidden);
+
+    document.getElementById("mllanguage1").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
+    document.getElementById("mlword1").style.fontSize = Math.floor(s1) + "px";
+    document.getElementById("mllanguage2").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
+    document.getElementById("mlword2").style.fontSize = Math.floor(s2) + "px";
+
   }
 
 
@@ -285,9 +299,10 @@ function UxUi() {
 
     // set width
 
-    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.3) + "px";
-    document.getElementById("topbuttons2").style.width = Math.floor(w * 0.4) + "px";
-    document.getElementById("topbuttons3").style.width = Math.floor(w * 0.3) + "px";
+    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.25) + "px";
+    document.getElementById("topbuttons2").style.width = Math.floor(w * 0.25) + "px";
+    document.getElementById("topbuttons3").style.width = Math.floor(w * 0.25) + "px";
+    document.getElementById("topbuttons4").style.width = Math.floor(w * 0.25) + "px";
 
     document.getElementById("language1").style.width = Math.floor(w) + "px";
     document.getElementById("word1").style.width = Math.floor(w) + "px";
@@ -303,11 +318,12 @@ function UxUi() {
     document.getElementById("topbuttons1").style.height = Math.floor(h * 0.1) + "px";
     document.getElementById("topbuttons2").style.height = Math.floor(h * 0.1) + "px";
     document.getElementById("topbuttons3").style.height = Math.floor(h * 0.1) + "px";
+    document.getElementById("topbuttons4").style.height = Math.floor(h * 0.1) + "px";
 
     document.getElementById("language1").style.height = Math.floor(h * 0.1) + "px";
-    document.getElementById("word1").style.height = Math.floor(h * 0.22) + "px";
+    document.getElementById("word1").style.height = Math.floor(h * 0.25) + "px";
     document.getElementById("language2").style.height = Math.floor(h * 0.1) + "px";
-    document.getElementById("word2").style.height = Math.floor(h * 0.22) + "px";
+    document.getElementById("word2").style.height = Math.floor(h * 0.25) + "px";
 
     document.getElementById("bottombuttons1").style.height = Math.floor(h * 0.2) + "px";
     document.getElementById("bottombuttons2").style.height = Math.floor(h * 0.2) + "px";
@@ -318,11 +334,12 @@ function UxUi() {
 
 
     //alert(document.getElementById("test3").style.width)
-
+    /*
     this.positionTest("test1", h, w, true, true);
     this.positionTest("test2", h, w, true, false);
     this.positionTest("test3", h, w, false, true);
     this.positionTest("test4", h, w, false, false);
+    */
 
 
     var ratio = window.devicePixelRatio || 1;
@@ -349,23 +366,25 @@ function UxUi() {
     // set font size
 
     // calcualte space of text areas
-    var space = w * h * 0.22;
+    var space = w * h;
+    var content = space + "funktion noun konjunktion nomen )";
 
-    space = Math.sqrt(space)
+    // globalWordHidden
 
-    var content = space + " faksjf ;lasj;flja sd;lkfa dfka s'dfk";
+    var s1 = this.getFontSize(space, document.getElementById("word1").innerHTML);
+    var s2 = this.getFontSize(space, globalWordHidden);
+
+    var tst = document.getElementById("word1").innerHTML;
+    tst = tst.trim();
+    //alert(tst);
 
 
-
-    var s1 = this.getFontSize(space, "Word1");
-    var s2 = this.getFontSize(space, content);
-
-
-    document.getElementById("word2").innerHTML = content;
+    //document.getElementById("word2").innerHTML = s1 + " len " + this.stringLength(tst);
 
     document.getElementById("topbuttons1").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
     document.getElementById("topbuttons2").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
     document.getElementById("topbuttons3").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
+    document.getElementById("topbuttons4").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
 
     document.getElementById("language1").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
     document.getElementById("word1").style.fontSize = Math.floor(s1) + "px";
@@ -378,6 +397,16 @@ function UxUi() {
 
 
   };
+
+  // dirty hack as Samsung browers did not work properly
+  this.stringLength = function(s) {
+    let i = 0;
+    while (s != '') {
+      i += 1;
+      s = s.slice(1);
+    }
+    return i;
+  }
 
 
   this.showDiv = function(id) {
@@ -433,10 +462,11 @@ function UxUi() {
 
   this.getFontSize = function(space, t) {
 
-    var c = Math.sqrt(t.length);
-
-    var s = 0.7 * space / c;
-
+    space = Math.sqrt(space);
+    //var c = Math.sqrt(t.length);
+    var l = this.stringLength(t) + 5; // to prevent weird effect for short strings
+    var c = Math.sqrt(l);
+    var s = 0.3 * space / c;
     return s;
   }
 
