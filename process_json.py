@@ -13,6 +13,7 @@ import log
 import security as sec
 import time
 import db_learn as dbl
+import db_report as dbr
 
 
 print("loading process_json.py")
@@ -138,8 +139,23 @@ def distribute_actions(jo):
 
         result = json.dumps(rj)
 
-        log.log_info("result for new work " + result)
+        log.log_info("distribute_actions(jo) result for new word " + result)
 
+    elif action == "report":
+
+        user_id = sec.get_user_id("")
+
+        new_words, learned_words = dbr.get_simple_report(user_id)
+
+        rj['action'] = action
+        rj['newWords'] = new_words
+        rj['learnedWords'] = learned_words
+        rj['error'] = False
+        rj['error_description'] = ""
+
+        result = json.dumps(rj)
+
+        log.log_info("distribute_actions(jo) result for report " + result)
 
     elif action == "login":
 
