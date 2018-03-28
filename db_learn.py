@@ -79,7 +79,14 @@ def get_next_word_id(user_id, last_word_id):
         # we need to add a new word question is if repeat old word or use new
         while count_current(user_id) < 7:
             if add_new_word():
-                word_id = get_new_random(user_id)
+                # ToDo: if there are no new words left, then we need to process old words and send info to user,
+                # that there are no new words left
+
+                if count_not_learned(user_id) > 0:
+                    word_id = get_new_random(user_id)
+                else:
+                    # if there are no new words left then use old words
+                    word_id = get_old_random(user_id)
 
             else:
                 # we can add old only if such words exist
@@ -140,9 +147,9 @@ def get_word(new_id):
 
     id = arr[0][0]
     l1 = arr[0][1]
-    w1 = arr[0][2]
+    w1 = str(arr[0][2]).strip()
     l2 = arr[0][3]
-    w2 = arr[0][4]
+    w2 = str(arr[0][4]).strip()
 
     return id, l1, w1, l2, w2
 
@@ -174,9 +181,31 @@ def get_old_random(user_id):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT ID  FROM vocabulary where user_id = %s AND current = FALSE AND count_positive > 0 ORDER BY random() LIMIT 1",
-        (user_id,))
+    # cur.execute(
+    #     "SELECT ID  FROM vocabulary where user_id = %s AND current = FALSE AND count_positive > 0 ORDER BY random() LIMIT 1",
+    #     (user_id,))
+
+    sql = """
+    
+    select id, (count_negative::float + 1) / count_positive::float as ratio  
+    FROM
+    vocabulary
+    where
+    user_id = %s AND 
+    current = false
+    AND
+    count_positive > 0
+    order
+    by
+    ratio
+    desc
+    limit
+    3;   
+    
+    """
+
+    cur.execute(sql, (user_id,))
+
     l = cur.fetchall()[0][0]
     return l
 
@@ -243,5 +272,12 @@ def count_learned(user_id):
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count(*)  FROM vocabulary where count_positive > 0 AND user_id = %s", (user_id,) )
+    l = cur.fetchall()[0][0]
+    return l
+
+def count_not_learned(user_id):
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT count(*)  FROM vocabulary where current = false AND count_positive < 1 AND direction = TRUE AND user_id = %s", (user_id,) )
     l = cur.fetchall()[0][0]
     return l
