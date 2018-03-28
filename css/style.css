@@ -1,0 +1,215 @@
+
+@import url(https://fonts.googleapis.com/css?family=Lato:100,200,300,900,thin);
+@import url(https://fonts.googleapis.com/css?family=Lusitana);
+
+
+
+a:link {
+  color: #000000;
+}
+
+/* visited link */
+
+a:visited {
+  color: #000000;
+}
+
+/* mouse over link */
+
+a:hover {
+  color: #000000;
+}
+
+/* selected link */
+
+a:active {
+  color: #000000;
+}
+
+body {
+  font-family: Arial;
+  background-color: #ffffff;
+  color: #444444;
+  border: 0px;
+  margin: 0px;
+  padding: 0px;
+  text-align: center;
+}
+
+/*
+div {
+  // border: 1px solid red;
+  border: 0px;
+  width: 100%;
+}
+
+*/
+
+div {
+  display: block;
+  visibility: visible;
+}
+
+div.hidden {
+  display: none;
+
+}
+
+div.smallNodeTitle {
+  font-weight: bold;
+}
+
+div.naviDiv {
+  padding: 10px;
+}
+
+div.mainBodyDiv {
+  padding: 10px;
+}
+
+div.layoutDiv {
+
+  padding: 0px;
+  /*
+           visibility: hidden;
+          display: none;
+          */
+}
+
+div.greendiv {
+
+  background-color: #00ff00;
+  font-size: 1px;
+}
+
+html {
+
+  margin: 0px;
+  padding: 0px
+
+}
+
+
+
+span.breadcrumb {
+  color: #999999;
+}
+
+
+span.button {
+  padding: 0px;
+  border: 0px solid #ffffff;
+  text-align: center;
+}
+
+span.buttonSmall {
+  padding: 0px;
+  border: 0px solid #ffffff;
+  text-align: center;
+}
+
+span.label {
+  padding: 0px;
+  border: 0px solid #ffffff;
+  text-align: center;
+}
+
+
+span.text {
+  padding: 0px;
+  border: 0px solid #ffffff;
+  text-align: center;
+}
+
+span.spantest {
+
+  width: 20px;
+  height: 10px;
+  background-color: #9ee7f5;
+
+}
+
+/* -------------------------------------------*/
+
+td.tdNarrow {
+  width: 10%;
+}
+
+td.tdTitle {
+  font-weight: bold;
+}
+
+td.tdTitleButtons {
+  text-align: right;
+}
+
+td.dividerBold {
+  border-bottom: 0px solid grey;
+}
+
+td.dividerSoft {
+  border-bottom: 0px solid grey;
+}
+
+table {
+  width: 100%;
+  border: 0px;
+  padding: 0px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td {
+  width: 200px;
+  border: 0px solid #cccccc;
+  padding: 0px;
+  text-align: center;
+}
+
+td.red {
+  background-color: #f5ad94;
+}
+
+td.yellow {
+  background-color: #fff1a6;
+}
+
+td.green {
+  background-color: #84f9a5;
+}
+
+td.greentest {
+  width: 100px;
+  border: 0px solid #ff0000;
+}
+
+
+td.blue {
+  background-color: #9ee7f5;
+}
+
+td.ml {
+
+  width: 100px;
+  height: 100px;
+  border: 0px solid #cccccc;
+  padding: 0px;
+  text-align: center;
+}
+
+tr {
+  padding: 0px;
+}
+
+/* -------------------------------------------*/
+
+textarea {
+  width: 100%;
+}
+
+textarea.contentEdit {
+  width: 100%;
+  height: 400px;
+}
