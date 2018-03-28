@@ -269,6 +269,8 @@ def handle_request(client_connection):
                     http_response += getFile("./js/DataAccess.js")
                 elif u == "/favicon.ico":
                     http_response += getFile("./html/favicon.ico")
+                elif u == "/style.css":
+                    http_response += getFile("./css/style.css")
                 else:
                     # handle other requests we ignore them...
                     message = ""
