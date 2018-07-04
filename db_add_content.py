@@ -24,28 +24,29 @@ def add_spreadsheet_list(user_id, language, language_translation, list_obj):
     log.log_info("add_spreadsheet_list adding words... ")
 
     for row in list_obj:
-        voc = row[0]
-        trans = row[1]
+        context = row[0]
+        voc = row[1]
+        trans = row[2]
 
         if len(voc) > 0:
             if len(trans) > 0:
 
-                add_one_word_txt(user_id, language, voc, language_translation, trans, True)
+                add_one_word_txt(user_id, language, voc, language_translation, trans, True, context)
 
-                add_one_word_txt(user_id, language_translation, trans, language, voc, False)
+                add_one_word_txt(user_id, language_translation, trans, language, voc, False, context)
 
     return ""
 
 
-def add_one_word_txt(user_id, language_word, word, language_translation, translation, direction):
+def add_one_word_txt(user_id, language_word, word, language_translation, translation, direction, context):
 
     language_word = get_language_code(language_word)
     language_translation = get_language_code(language_translation)
 
-    add_one_word(user_id, language_word, word, language_translation, translation, direction)
+    add_one_word(user_id, language_word, word, language_translation, translation, direction, context)
 
 
-def add_one_word(user_id, language_word, word, language_translation, translation, direction):
+def add_one_word(user_id, language_word, word, language_translation, translation, direction, context):
 
     """
     Add one single word and its translation
@@ -60,19 +61,19 @@ def add_one_word(user_id, language_word, word, language_translation, translation
 
     if word_exists(user_id, language_word, word, language_translation):
         # print("word existst")
-        update_word(user_id, language_word, word, language_translation, translation)
+        update_word(user_id, language_word, word, language_translation, translation, context)
         return
     else:
         # print("new word")
         conn = get_connection()
         cur = conn.cursor()
-        sql = "insert into vocabulary (user_id, language_word, word, language_translation," \
+        sql = "insert into vocabulary (context, user_id, language_word, word, language_translation," \
               " translation, direction, count_positive, count_negative, current) " \
-              "values (%s, %s, %s , %s, %s, %s, 0, 0, 'FALSE');"
+              "values (%s, %s, %s, %s , %s, %s, %s, 0, 0, 'FALSE');"
         if direction == True:
-            cur.execute(sql, (user_id, language_word, word, language_translation, translation, "TRUE"))
+            cur.execute(sql, (context, user_id, language_word, word, language_translation, translation, "TRUE"))
         else:
-            cur.execute(sql, (user_id, language_word, word, language_translation, translation, "FALSE"))
+            cur.execute(sql, (context, user_id, language_word, word, language_translation, translation, "FALSE"))
         conn.commit()
         # print("done")
     return
@@ -94,7 +95,7 @@ def get_connection():
     return conn
 
 
-def update_word(user_id, language_word, word, language_translation, translation):
+def update_word(user_id, language_word, word, language_translation, translation, context):
 
     word = word.strip()
 
@@ -102,6 +103,10 @@ def update_word(user_id, language_word, word, language_translation, translation)
     cur = conn.cursor()
     sql = "update vocabulary set translation = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s;"
     cur.execute(sql, (translation, user_id, language_word, word, language_translation))
+    conn.commit()
+
+    sql = "update vocabulary set context = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s;"
+    cur.execute(sql, (context, user_id, language_word, word, language_translation))
     conn.commit()
 
     return True
