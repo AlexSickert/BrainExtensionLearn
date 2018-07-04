@@ -5,17 +5,20 @@ Collection of functions to verify session and logins
 
 """
 
-
+import db_security as dbs
 
 
 def check_login(user, password):
 
-    return True
+    ret = dbs.check_login(user, password)
 
+    if ret > 0:
+        return True
+    else:
+        return False
 
 
 def get_user_id(user):
 
-    return "3"
-
+    return dbs.get_user_id(user)
 
