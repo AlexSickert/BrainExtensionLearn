@@ -55,6 +55,17 @@ div.hidden {
 
 }
 
+div.toast {
+  display: none;
+  //background-color: #FFFF00;
+  background-color: #f3d100;
+  text-align: center ;
+
+
+}
+
+
+
 div.smallNodeTitle {
   font-weight: bold;
 }
@@ -161,6 +172,10 @@ table {
   margin-right: auto;
 }
 
+table.login{
+  width: auto;
+}
+
 td {
   width: 200px;
   border: 0px solid #cccccc;
@@ -169,15 +184,24 @@ td {
 }
 
 td.red {
-  background-color: #f5ad94;
+  //background-color: #f5ad94;
+  background-color: #ec454c;
+  color: white;
+  font-weight: bold;
 }
 
 td.yellow {
-  background-color: #fff1a6;
+  //background-color: #fff1a6;
+  background-color: #f3d100;
+  color: white;
+  font-weight: bold;
 }
 
 td.green {
-  background-color: #84f9a5;
+  //background-color: #84f9a5;
+  background-color: #48b657;
+  color: white;
+  font-weight: bold;
 }
 
 td.greentest {
@@ -187,7 +211,10 @@ td.greentest {
 
 
 td.blue {
-  background-color: #9ee7f5;
+  //background-color: #9ee7f5;
+  background-color: #3B5998;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 td.ml {
