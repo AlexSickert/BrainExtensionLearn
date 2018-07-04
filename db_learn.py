@@ -7,6 +7,7 @@ import config as cfg
 import log
 import db_add_content as dba
 import random
+import time
 
 
 def process_answer(word_id, user_id, answer):
@@ -14,49 +15,270 @@ def process_answer(word_id, user_id, answer):
     """
     ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
 
+    This function is used by
+
+    :param word_id:
+    :param user_id:
+    :param answer:
+    :return: if the answer lead to a success in terms of leanring
+    """
+
+    success = False
+    experiment = False
+    once_learned = False
+
+    # ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
+
+    log.log_info("process_answer " + answer)
+
+    #before we update the data in the database, we need to process the result incase it was an experiment
+
+    if len(str(word_id)) > 0:
+        experiment, once_learned = process_experiment(word_id, user_id, answer)
+
+        experiment_timestamp = int(time.time())
+
+        # set timestamp of last access
+        sql = "UPDATE vocabulary SET last_studied = %s WHERE id = %s "
+
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        cur.execute(sql, (experiment_timestamp, word_id))
+        conn.commit()
+
+        if answer == "YES":
+
+            n = get_yes(word_id)
+            n = int(n) + 1
+            pn = "y" + get_np_string(word_id)
+            pn = pn[0:240]
+
+            sql = "UPDATE vocabulary SET count_positive = %s , pn_string = %s WHERE id = %s "
+            conn = dba.get_connection()
+            cur = conn.cursor()
+            cur.execute(sql, (n, pn, word_id) )
+            conn.commit()
+
+            # now check if we need to move the word to the 'learned' category
+            if check_if_learned(word_id):
+                sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
+                conn = dba.get_connection()
+                cur = conn.cursor()
+                cur.execute(sql, (word_id,))
+                conn.commit()
+                success = True
+
+        if answer == "NO":
+
+            n = get_no(word_id)
+            n = int(n) + 1
+            pn = "y" + get_np_string(word_id)
+            pn = pn[0:240]
+
+            sql = "UPDATE vocabulary SET count_negative = %s , pn_string = %s WHERE id = %s "
+            conn = dba.get_connection()
+            cur = conn.cursor()
+            cur.execute(sql, (n, pn, word_id) )
+            conn.commit()
+
+        if experiment:
+            if not success:
+                # forgot the word
+                add_transition(word_id, user_id, 2)
+
+        else:
+            if once_learned:
+                # re-learned existing word
+                add_transition(word_id, user_id, 3)
+
+            else:
+                # learned new word
+                add_transition(word_id, user_id, 1)
+
+
+    # success flag is needed to decide if we make a toast on the client app or not
+    return success, experiment, once_learned
+
+def add_transition(word_id, user_id, transition):
+
+    sql = """ 
+
+       INSERT INTO transitions 
+       (
+           user_id,
+           word_id,
+           time_stamp,
+           transition  
+       )
+       VALUES
+       (
+           %s, %s, %s, %s
+       )   
+
+       """
+
+    time_stamp = int(time.time())
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+
+    cur.execute(sql, (user_id,
+                      word_id,
+                      time_stamp,
+                      transition
+                      ))
+    conn.commit()
+
+
+def process_experiment(word_id, user_id, answer):
+
+
+
+    """
+    In essences, the function copies a line from the vocabulary table and inserts it in the experiments table
+    In addition, it enriches the data with a timestamp and if the experiment was sucessfull.
+    successful = user knows the word, unsuccessful = user forgot the word
     :param word_id:
     :param user_id:
     :param answer:
     :return:
     """
 
-    log.log_info("process_answer " + answer)
+    sql = """ 
+    
+    SELECT 
+        is_experiment,
+        pn_string,
+        count_positive,
+        count_negative,
+        last_studied,    
+        average_pos_length,
+        max_pos_length ,
+        last_pos_length ,
+        pos_neg_length_ratio ,
+        count_positive ,
+        count_negative ,
+        user_id ,
+        direction ,
+        language_word,
+        language_translation,        
+        current,
+        once_successfully_learned 
+    FROM
+        vocabulary
+    WHERE
+        id = %s   
+    
+    """
 
-    if answer == "YES":
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (word_id, ))
 
-        n = get_yes(word_id)
-        n = int(n) + 1
+    arr = cur.fetchall()
 
-        sql = "UPDATE vocabulary SET count_positive = %s WHERE id = %s "
-        conn = dba.get_connection()
-        cur = conn.cursor()
-        cur.execute(sql, (n, word_id) )
+    is_experiment = arr[0][0]
+
+    once_learned = arr[0][16]
+
+
+    if is_experiment:
+
+        pn_string = arr[0][1]
+        count_positive = arr[0][2]
+        count_negative = arr[0][3]
+        last_studied = arr[0][4]
+        average_pos_length = arr[0][5]
+        max_pos_length = arr[0][6]
+        last_pos_length = arr[0][7]
+        pos_neg_length_ratio = arr[0][8]
+        count_positive = arr[0][9]
+        count_negative = arr[0][10]
+        user_id = arr[0][11]
+        direction = arr[0][12]
+        language_word = arr[0][13]
+        language_translation = arr[0][14]
+
+
+        sql = """ 
+        
+            INSERT INTO experiments 
+            (
+                pn_string,
+                count_positive,
+                count_negative,
+                last_studied,
+                average_pos_length,
+                max_pos_length,
+                last_pos_length,
+                pos_neg_length_ratio,
+                user_id,
+                direction,
+                language_word,
+                language_translation,              
+                experiment_timestamp,
+                word_id,
+                success
+            
+            )
+            VALUES
+            (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s 
+            )   
+        
+            """
+
+        experiment_timestamp = int(time.time())
+
+        if answer == "YES":
+            answer = True
+        else:
+            answer = False
+
+        cur.execute(sql, (pn_string,
+                count_positive,
+                count_negative,
+                last_studied,
+                average_pos_length,
+                max_pos_length,
+                last_pos_length,
+                pos_neg_length_ratio,
+                user_id,
+                direction,
+                language_word,
+                language_translation,
+                experiment_timestamp,
+                word_id, answer ))
         conn.commit()
 
-        # now check if we need to move the word to the 'learned' category
-        if check_if_learned(word_id):
-            sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
-            conn = dba.get_connection()
-            cur = conn.cursor()
-            cur.execute(sql, (word_id,))
-            conn.commit()
+    # remove the experiment flag
+    set_experiment_state(word_id, False)
 
-    if answer == "NO":
 
-        n = get_no(word_id)
-        n = int(n) + 1
+    return is_experiment, once_learned
 
-        sql = "UPDATE vocabulary SET count_negative = %s WHERE id = %s "
-        conn = dba.get_connection()
-        cur = conn.cursor()
-        cur.execute(sql, (n, word_id) )
-        conn.commit()
+
+def set_experiment_state(word_id, is_experiment):
+
+    """
+    we flag a word if it is in experiment state or not. Important is to remove the flag once the experiment is over.
+    :param word_id:
+    :param is_experiment:
+    :return:
+    """
+
+    sql = "UPDATE vocabulary SET is_experiment = %s WHERE id = %s "
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (is_experiment, word_id))
+    conn.commit()
 
 
 def check_if_learned(word_id):
 
     """
-    checks if we know the word well enough
+    checks if we know the word well enough. This is the case if the positive answers are higher than the negative and
+    if the last two answers were positive
     :param word_id:
     :return:
     """
@@ -65,14 +287,24 @@ def check_if_learned(word_id):
     n = get_no(word_id)
 
     if y > n +2:
-        return True
+        pn = get_np_string(word_id)
+        if pn[0:2] == "yy":
+            return True
+        else:
+            return False
     else:
         return False
 
 
 def get_next_word_id(user_id, last_word_id):
+    """
+    Loads the id of the next word we want to learn. This can be either one of the 7 in the caroussel or if the
+    carousel is less than 7 we add another word and then learn this.
 
-
+    :param user_id:
+    :param last_word_id:
+    :return:
+    """
 
     if count_current(user_id) < 7:
         log.log_info("get_next_word_id - count_current less than 7" )
@@ -173,7 +405,7 @@ def set_word_current(word_id):
 
 def get_old_random(user_id):
     """
-    get a new word from the pile of words so far not studied by random
+    take one word from the pile of words we already learned
 
     :param user_id:
     :return:
@@ -181,32 +413,35 @@ def get_old_random(user_id):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    # cur.execute(
-    #     "SELECT ID  FROM vocabulary where user_id = %s AND current = FALSE AND count_positive > 0 ORDER BY random() LIMIT 1",
-    #     (user_id,))
 
     sql = """
     
-    select id, (count_negative::float + 1) / count_positive::float as ratio  
+    SELECT 
+        id, 
+        (count_negative::float + 1) / count_positive::float as ratio  
     FROM
-    vocabulary
-    where
-    user_id = %s AND 
-    current = false
+        vocabulary
+    WHERE
+        user_id = %s 
+    AND 
+        current = false
     AND
-    count_positive > 0
-    order
-    by
-    ratio
-    desc
-    limit
-    3;   
+        count_positive > 0
+    ORDER BY    
+        ratio desc
+    LIMIT 3;   
     
     """
 
     cur.execute(sql, (user_id,))
 
     l = cur.fetchall()[0][0]
+
+    # As we pull a word from the old words we need to track the success and hence it is an experiment so we set the
+    # experiment flag
+
+    set_experiment_state(l, True)
+
     return l
 
 
@@ -241,7 +476,7 @@ def add_new_word():
 
 def count_current(user_id):
     """
-
+    Counts how many words are in the carousel for a specific user.
     :param user_id:
     :return:
     """
@@ -254,6 +489,11 @@ def count_current(user_id):
 
 
 def get_yes(word_id):
+    """
+    Get for a specific word the number of positive answers
+    :param word_id:
+    :return:
+    """
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count_positive  FROM vocabulary where ID = %s", (word_id,) )
@@ -261,21 +501,56 @@ def get_yes(word_id):
     return l
 
 
+def get_np_string(word_id):
+    """
+    Get for a specific word the the string that looks like ynnyynynyynnynyn
+    :param word_id:
+    :return:
+    """
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT pn_string  FROM vocabulary where ID = %s", (word_id,) )
+    l = cur.fetchall()[0][0]
+
+    if not l:
+        l = ""
+
+    return l
+
+
 def get_no(word_id):
+    """
+    Get for a specific word the number of negative answers
+    :param word_id:
+    :return:
+    """
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count_negative  FROM vocabulary where ID = %s", (word_id,) )
     l = cur.fetchall()[0][0]
     return l
 
+
 def count_learned(user_id):
+    """
+    count the number of words that were already successfully learned
+    :param user_id:
+    :return:
+    """
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count(*)  FROM vocabulary where count_positive > 0 AND user_id = %s", (user_id,) )
     l = cur.fetchall()[0][0]
     return l
 
+
 def count_not_learned(user_id):
+    """
+    Counts the number of words so far not learned
+    :param user_id:
+    :return:
+    """
+
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count(*)  FROM vocabulary where current = false AND count_positive < 1 AND direction = TRUE AND user_id = %s", (user_id,) )
