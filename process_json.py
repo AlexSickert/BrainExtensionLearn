@@ -14,6 +14,8 @@ import security as sec
 import time
 import db_learn as dbl
 import db_report as dbr
+import db_security as dbs
+import email_sender
 
 
 print("loading process_json.py")
@@ -21,8 +23,16 @@ print("loading process_json.py")
 
 def process_json(fragments, json_string):
 
-    log.log_info("in function process_json")
+    """
+    This function is currently being used by teh GOOGLE SPREADSHEET upload
 
+    :param fragments:
+    :param json_string:
+    :return:
+    """
+
+    log.log_info("in function process_json")
+    print(json_string)
     jo = json.loads(json_string)
 
     # print(jo)
@@ -34,7 +44,6 @@ def process_json(fragments, json_string):
     if sec.check_login(jo["user"], jo["password"]):
 
         user_id = sec.get_user_id(jo["user"])
-
 
         if jo["function"] == 'upload_google_spreadsheet':
             log.log_info("received data from Google Spreadsheet")
@@ -89,10 +98,11 @@ def distribute_actions(jo):
 
         log.log_info("in distribute_actions adVocFromUrl")
 
-        user_id = sec.get_user_id("")
+        session = jo["session"]
+        user_id = dbs.get_user_id_from_session(session)
 
-        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"], True)
-        dbac.add_one_word_txt(user_id, jo["translationLanguage"], jo["translationWord"], jo["language"], jo["word"],  False)
+        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"], True, "")
+        dbac.add_one_word_txt(user_id, jo["translationLanguage"], jo["translationWord"], jo["language"], jo["word"],  False, "")
 
 #        now test if it arrived
         log.log_info("in distribute_actions preparing response")
@@ -107,18 +117,19 @@ def distribute_actions(jo):
         log.log_info("loading new word")
         log.log_info(jo)
 
-
-
         wordId = jo["wordId"]
         answer = jo["answer"]
+        session = jo["session"]
 
         log.log_info("answer was " + answer)
         log.log_info("wordId was " + str(wordId))
+        log.log_info("session was " + str(session))
 
-        user_id = sec.get_user_id("")
-        log.log_info("user_id is " + user_id)
+        user_id = dbs.get_user_id_from_session(session)
 
-        dbl.process_answer(str(wordId), user_id, answer)
+        log.log_info("user_id is " + str(user_id))
+
+        success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
 
         log.log_info("process_answer done")
 
@@ -136,6 +147,10 @@ def distribute_actions(jo):
         rj["word2"] = w2
         rj['error'] = False
         rj['error_description'] = ""
+        rj['success'] = success
+        rj['experiment'] = experiment
+        rj['once_learned'] = once_learned
+
 
         result = json.dumps(rj)
 
@@ -143,7 +158,9 @@ def distribute_actions(jo):
 
     elif action == "report":
 
-        user_id = sec.get_user_id("")
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
 
         new_words, learned_words = dbr.get_simple_report(user_id)
 
@@ -157,24 +174,109 @@ def distribute_actions(jo):
 
         log.log_info("distribute_actions(jo) result for report " + result)
 
-    elif action == "login":
+    elif action == "logIn":
 
-        # loging and create session
-
-        email = jo["email"]
+        # login and create session
+        user = jo["user"]
         password = jo["password"]
+        rj['action'] = "logIn"
+
+        password = password.strip()
+        password = password.replace(" ", "")
+
+        user = user.lower()
+        user = user.strip()
+        user = user.replace(" ", "")
+
+        if dbs.check_login(user, password) > 0:
+            rj['success'] = True
+            rj['result'] = "success"
+            rj['session'] = dbs.make_save_session(user)
+        else:
+            rj['success'] = False
+            rj['result'] = "failure"
+            rj['session'] = ""
+
+        result = json.dumps(rj)
 
     elif action == "logout":
 
+        # ToDo
         # logfiles out by destroying session and or cookie?
 
         session = jo["session"]
 
-    elif action == "reset":
+    elif action == "checkSession":
 
-        # reset password and send new passwrod to user by email
-
+        # check if session is valid
         session = jo["session"]
+        rj['action'] = "checkSession"
+
+        if dbs.check_session(session) > 0:
+            log.log_info("valid session " + session)
+            rj['sessionValid'] = True
+        else:
+            log.log_info("invalid session " + session)
+            rj['sessionValid'] = False
+
+        result = json.dumps(rj)
+
+    elif action == "resetPassword":
+
+        rj['action'] = action
+
+        # ToDo
+        # reset password and send new password to user by email
+
+        user = jo["user"]
+        user = user.lower()
+        user = user.strip()
+        user = user.replace(" ", "")
+
+        if dbs.check_user(user) > 0:
+            p = dbs.random_string_simple(4)
+            dbs.update_password(user, p)
+            # ToDo: put in a separate thread to prevent slow down of process
+            email_sender.send_mail(user, "resetPassword", "Password: " + p)
+            rj['result'] = "success"
+            rj['success'] = True
+            log.log_info("success in resetting password for " + user)
+        else:
+            rj['result'] = "failure"
+            rj['success'] = False
+            log.log_info("failure in resetting password because user not existing " + user)
+
+        result = json.dumps(rj)
+
+    elif action == "registerUser":
+
+        rj['action'] = action
+
+        # ToDo
+        # reset password and send new password to user by email
+
+        user = jo["user"]
+        user = user.lower()
+        user = user.strip()
+        user = user.replace(" ", "")
+
+        if dbs.check_user(user) < 1:
+
+            p = dbs.random_string_simple(4)
+            dbs.register_user(user, p)
+
+            # ToDo: put in a separate thread to prevent slow down of process
+            email_sender.send_mail(user, "registerUser", "password: " + p)
+
+            log.log_info("registering user " + user)
+
+            rj['result'] = "success"
+            rj['success'] = True
+        else:
+            rj['result'] = "failure"
+            rj['success'] = False
+
+        result = json.dumps(rj)
 
     else:
         # then we have a problem because we do not know the request and we need to throw an error
