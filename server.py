@@ -17,7 +17,7 @@ of the server is this:
 
 
 import socket
-
+import config as cfg
 from  concurrent.futures import ThreadPoolExecutor
 import threading
 from urllib import parse
@@ -27,6 +27,7 @@ import process_get as pg
 import process_json as pj
 import log
 import sys, traceback
+import ssl
 
 
 log.log_info("------------------ start server ----------------------")
@@ -88,17 +89,19 @@ def get_header_values(data):
 
     i = 0
     for l in lines:
-        i += 1
-        if i == 1:
-            method, url, protocol = l.split(" ")
+        if len(l) > 0:
+            i += 1
+            if i == 1:
+                print(l)
+                method, url, protocol = l.split(" ")
 
-        else:
-            pos = l.find(":")
-            # we make the header values all lower case to reduce one source of error
+            else:
+                pos = l.find(":")
+                # we make the header values all lower case to reduce one source of error
 
-            k = l[:pos]
-            k = k.strip().lower()
-            header_values[k] = l[pos + 2:]
+                k = l[:pos]
+                k = k.strip().lower()
+                header_values[k] = l[pos + 2:]
 
     if "?" in url:
 
@@ -316,17 +319,30 @@ def handle_request(client_connection):
 def serve_forever():
 
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    listen_socket.bind(SERVER_ADDRESS)
-    listen_socket.listen(REQUEST_QUEUE_SIZE)
+
+
+
+    #listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
+    ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True)
+
+    ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    ssl_socket.bind(SERVER_ADDRESS)
+    ssl_socket.listen(REQUEST_QUEUE_SIZE)
 
     executor = ThreadPoolExecutor(max_workers=50)
 
     log.log_info('Serving HTTP on port {port} ...'.format(port=PORT))
 
     while True:
-        client_connection, client_address = listen_socket.accept()
-        a = executor.submit(handle_request, client_connection)
+        #client_connection, client_address = listen_socket.accept()
+        try:
+            client_connection, client_address = ssl_socket.accept()
+            a = executor.submit(handle_request, client_connection)
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            log.log_error("Error in try-catch of main server loop: " + str(sys.exc_info()[0]))
+
+
 
 if __name__ == '__main__':
     serve_forever()
