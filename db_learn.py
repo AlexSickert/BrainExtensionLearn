@@ -72,9 +72,8 @@ def process_answer(word_id, user_id, answer):
 
             n = get_no(word_id)
             n = int(n) + 1
-            pn = "y" + get_np_string(word_id)
+            pn = "n" + get_np_string(word_id)
             pn = pn[0:240]
-
             sql = "UPDATE vocabulary SET count_negative = %s , pn_string = %s WHERE id = %s "
             conn = dba.get_connection()
             cur = conn.cursor()
@@ -95,9 +94,46 @@ def process_answer(word_id, user_id, answer):
                 # learned new word
                 add_transition(word_id, user_id, 1)
 
+        add_to_history(user_id, word_id, answer)
 
     # success flag is needed to decide if we make a toast on the client app or not
     return success, experiment, once_learned
+
+
+def add_to_history(user_id, word_id, answer):
+
+    if answer == "YES":
+        result = True
+    else:
+        result = False
+
+    sql = """ 
+
+           INSERT INTO history 
+           (
+               user_id,
+               word_id,
+               result,
+               time_stamp_server                 
+           )
+           VALUES
+           (
+               %s, %s, %s, %s
+           )   
+
+           """
+
+    time_stamp = int(time.time())
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+
+    cur.execute(sql, (user_id,
+                      word_id,
+                      result,
+                      time_stamp
+                      ))
+    conn.commit()
 
 def add_transition(word_id, user_id, transition):
 
@@ -130,6 +166,35 @@ def add_transition(word_id, user_id, transition):
     conn.commit()
 
 
+def experiment_counter(word_id):
+
+    sql = """ 
+
+        SELECT 
+            count_experiments,
+            count_forgotten 
+        FROM
+            vocabulary
+        WHERE
+            id = %s   
+
+        """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (word_id,))
+
+    try:
+        arr = cur.fetchall()
+        e = arr[0][0]
+        f = arr[0][1]
+    except:
+        e = 0
+        f = 0
+
+    return e, f
+
+
 def process_experiment(word_id, user_id, answer):
 
 
@@ -143,6 +208,8 @@ def process_experiment(word_id, user_id, answer):
     :param answer:
     :return:
     """
+
+    exp, forg = experiment_counter(word_id)
 
     sql = """ 
     
@@ -235,6 +302,8 @@ def process_experiment(word_id, user_id, answer):
         else:
             answer = False
 
+        update_vocabulary_counter(word_id, exp, forg, answer)
+
         cur.execute(sql, (pn_string,
                 count_positive,
                 count_negative,
@@ -257,6 +326,28 @@ def process_experiment(word_id, user_id, answer):
 
     return is_experiment, once_learned
 
+
+def update_vocabulary_counter(word_id,  experiment, forgotten, answer):
+
+    if answer == False:
+        forgotten += 1
+
+    experiment += 1
+
+    sql = """
+        UPDATE 
+            vocabulary
+        SET 
+            count_experiments = %s,
+            count_forgotten = %s
+        WHERE 
+            id = %s 
+          """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (experiment, forgotten, word_id))
+    conn.commit()
 
 def set_experiment_state(word_id, is_experiment):
 
@@ -431,6 +522,25 @@ def get_old_random(user_id):
         ratio desc
     LIMIT 3;   
     
+    """
+    #  ORDER BY RAND()
+
+    sql = """
+
+    SELECT 
+        id  
+    FROM
+        vocabulary
+    WHERE
+        user_id = %s 
+    AND 
+        current = false
+    AND
+        count_positive > 0
+    ORDER BY    
+        random() 
+    LIMIT 3;   
+
     """
 
     cur.execute(sql, (user_id,))
