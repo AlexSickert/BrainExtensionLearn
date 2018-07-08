@@ -24,11 +24,11 @@
 
 </head>
 
-<body onload="init()" onresize="resize()">
+<body onload="init()" onresize="resize()" id="bodyId">
 
   <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
   <div id="mainBody" class="mainBodyDiv">body</div>
-  <div id="mainPop"  style="position: absolute; display: none;" class="toast">pop</div>
+  <div id="mainPop"  style="position: absolute; display: none;" class="toastRed">pop</div>
 
 
   <script>
@@ -65,9 +65,7 @@
     <table>
       <tr>
         <td id="topbuttons1" class="blue">
-          <span id="exit" class="buttonSmall blue">exit</span>
-
-
+          <span id="exit" class="buttonSmall blue" onclick="window.location.href='./'">exit</span>
         </td>
 
         <td id="topbuttons2" class="blue">
@@ -75,19 +73,19 @@
         </td>
 
         <td id="topbuttons3" class="blue">
-          <span id="more" class="buttonSmall blue">edit</span>
+          <span id="more" class="buttonSmall blue" onclick="con.notImplemented()">edit</span>
         </td>
 
 
         <td id="topbuttons4" class="blue">
-          <span id="more" class="buttonSmall blue">more</span>
+          <span id="more" class="buttonSmall blue" onclick="con.notImplemented()">more</span>
         </td>
 
       </tr>
     </table>
 
 
-    <table>
+    <table onclick="con.answerQuestionmark()">
       <tr>
         <td id="language1"><span class="lable">Language 1</span></td>
       </tr>
@@ -144,9 +142,9 @@
 
         <td id="mlcontent" style="border: 0px solid #000000;">
 
-          <table style="border: 0px solid #000000;">
+          <table style="border: 0px solid #000000;" onclick="con.answerQuestionmark()">
             <tr>
-              <td id="mlnavigation" style="border: 0px solid #000000;" class="blue">Navigation
+              <td id="mlnavigation" style="border: 0px solid #000000;" class="blue"  onclick="con.notImplemented()">Navigation
               </td>
             </tr>
 
@@ -203,7 +201,7 @@
         </td>
 
         <td id="dtopbuttons3" class="blue">
-          <span id="more" class="buttonSmall blue">more</span>
+          <span id="more" class="buttonSmall blue"  onclick="con.notImplemented()">more</span>
           <!--
                                    <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
                                    -->
@@ -211,7 +209,7 @@
       </tr>
     </table>
 
-    <table style="width: 80%;">
+    <table style="width: 80%;" onclick="con.answerQuestionmark()">
       <tr>
         <td id="dspacer"><span class="lable">&nbsp;</span></td>
       </tr>
@@ -250,11 +248,22 @@
       </tr>
       <tr>
         <td colspan=3>
-          You can use the arrow keys of your keyboard to press the buttons.
+          You can use the arrow keys of your keyboard (&#8592;&#8593;&#8594;&#8595;) to press the buttons.
         </td>
       </tr>
     </table>
   </div>
 </body>
+
+<script type="text/javascript">
+
+  var charfield=document.getElementById("bodyId")
+  charfield.onkeydown=function(e){
+    var e=window.event || e;
+    con.handleKey(e.keyCode);
+    //alert(e.keyCode);
+  }
+
+</script>
 
 </html>
