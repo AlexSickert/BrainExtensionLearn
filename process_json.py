@@ -15,6 +15,7 @@ import time
 import db_learn as dbl
 import db_report as dbr
 import db_security as dbs
+import db_add_content as dbc
 import email_sender
 
 
@@ -31,7 +32,7 @@ def process_json(fragments, json_string):
     :return:
     """
 
-    log.log_info("in function process_json")
+    log.log_info("in function process_json...")
     print(json_string)
     jo = json.loads(json_string)
 
@@ -43,6 +44,8 @@ def process_json(fragments, json_string):
 
     if sec.check_login(jo["user"], jo["password"]):
 
+        log.log_info("login successful for user " + jo["user"])
+
         user_id = sec.get_user_id(jo["user"])
 
         if jo["function"] == 'upload_google_spreadsheet':
@@ -50,7 +53,7 @@ def process_json(fragments, json_string):
 
             # add the word to the dictionary
             language = jo["language"]
-            language_translation = "german"
+            language_translation = jo["mother_tongue"]
             list_obj = jo["list"]
 
             dbac.add_spreadsheet_list(user_id, language, language_translation, list_obj)
@@ -60,6 +63,7 @@ def process_json(fragments, json_string):
             ret["error_description"] = ""
 
     else:
+        log.log_info("login failed for user " + jo["user"])
         ret["error"] = True
 
     result = json.dumps(ret)
@@ -155,6 +159,26 @@ def distribute_actions(jo):
         result = json.dumps(rj)
 
         log.log_info("distribute_actions(jo) result for new word " + result)
+
+    elif action == "editWord":
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+
+        fromWord = jo["fromWord"]
+        toWord = jo["toWord"]
+        word_id = jo["wordId"]
+
+        dbc.update_word_by_id(user_id, fromWord, toWord, word_id)
+
+        log.log_info("update word done")
+
+        rj['action'] = action
+        rj['error'] = False
+        rj['error_description'] = ""
+
+        result = json.dumps(rj)
 
     elif action == "report":
 
