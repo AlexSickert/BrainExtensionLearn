@@ -5,6 +5,7 @@ import sys, traceback
 import logfiles
 import config as cfg
 import log
+import time
 
 print("loading db_add_content.py")
 
@@ -19,7 +20,10 @@ def add_spreadsheet_list(user_id, language, language_translation, list_obj):
     :return:
     """
 
-    lang_code = get_language_code(language)
+
+    # create the ID of this insert.
+    time_stamp = int(time.time())
+
 
     log.log_info("add_spreadsheet_list adding words... ")
 
@@ -27,26 +31,29 @@ def add_spreadsheet_list(user_id, language, language_translation, list_obj):
         context = row[0]
         voc = row[1]
         trans = row[2]
+        text = row[3]
 
         if len(voc) > 0:
             if len(trans) > 0:
 
-                add_one_word_txt(user_id, language, voc, language_translation, trans, True, context)
+                add_one_word_txt(user_id, language, voc, language_translation, trans, True, context, text, time_stamp)
 
-                add_one_word_txt(user_id, language_translation, trans, language, voc, False, context)
+                add_one_word_txt(user_id, language_translation, trans, language, voc, False, context, text, time_stamp)
 
     return ""
 
 
-def add_one_word_txt(user_id, language_word, word, language_translation, translation, direction, context):
+def add_one_word_txt(user_id, language_word, word, language_translation, translation, direction, context, text, time_stamp):
+
+    # ToDo: This decoding should not be done here as it makes the whole process slower.
 
     language_word = get_language_code(language_word)
     language_translation = get_language_code(language_translation)
 
-    add_one_word(user_id, language_word, word, language_translation, translation, direction, context)
+    add_one_word(user_id, language_word, word, language_translation, translation, direction, context, text, time_stamp)
 
 
-def add_one_word(user_id, language_word, word, language_translation, translation, direction, context):
+def add_one_word(user_id, language_word, word, language_translation, translation, direction, context, text, time_stamp):
 
     """
     Add one single word and its translation
@@ -61,19 +68,19 @@ def add_one_word(user_id, language_word, word, language_translation, translation
 
     if word_exists(user_id, language_word, word, language_translation):
         # print("word existst")
-        update_word(user_id, language_word, word, language_translation, translation, context)
+        update_word(user_id, language_word, word, language_translation, translation, context, text)
         return
     else:
         # print("new word")
         conn = get_connection()
         cur = conn.cursor()
-        sql = "insert into vocabulary (context, user_id, language_word, word, language_translation," \
-              " translation, direction, count_positive, count_negative, current) " \
-              "values (%s, %s, %s, %s , %s, %s, %s, 0, 0, 'FALSE');"
+        sql = "insert into vocabulary (example_sentences, context, user_id, language_word, word, language_translation," \
+              " translation, direction, count_positive, count_negative, current, upload_batch) " \
+              "values (%s, %s, %s, %s , %s, %s, %s, %s, 0, 0, 'FALSE', %s);"
         if direction == True:
-            cur.execute(sql, (context, user_id, language_word, word, language_translation, translation, "TRUE"))
+            cur.execute(sql, (text, context, user_id, language_word, word, language_translation, translation, "TRUE", time_stamp))
         else:
-            cur.execute(sql, (context, user_id, language_word, word, language_translation, translation, "FALSE"))
+            cur.execute(sql, (text, context, user_id, language_word, word, language_translation, translation, "FALSE", time_stamp))
         conn.commit()
         # print("done")
     return
@@ -95,22 +102,62 @@ def get_connection():
     return conn
 
 
-def update_word(user_id, language_word, word, language_translation, translation, context):
+def update_word(user_id, language_word, word, language_translation, translation, context, text):
+
+    """
+    Gets executed when user is uploading from google spreadsheet
+    :param user_id:
+    :param language_word:
+    :param word:
+    :param language_translation:
+    :param translation:
+    :param context:
+    :param text:
+    :return:
+    """
 
     word = word.strip()
 
     conn = get_connection()
     cur = conn.cursor()
-    sql = "update vocabulary set translation = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s;"
+    sql = "update vocabulary set translation = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s  and edited = false;"
     cur.execute(sql, (translation, user_id, language_word, word, language_translation))
     conn.commit()
 
-    sql = "update vocabulary set context = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s;"
+    sql = "update vocabulary set context = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s  and edited = false;"
     cur.execute(sql, (context, user_id, language_word, word, language_translation))
+    conn.commit()
+
+    sql = "update vocabulary set example_sentences = %s where user_id = %s and language_word = %s and word = %s and language_translation = %s and edited = false;"
+    cur.execute(sql, (text, user_id, language_word, word, language_translation))
     conn.commit()
 
     return True
 
+
+def update_word_by_id(user_id, word, translation, word_id):
+
+    """
+    This gets executed if user is manually editing the word on the mobile device
+    :param user_id:
+    :param word:
+    :param translation:
+    :param word_id:
+    :return:
+    """
+
+    # ToDo: here is a proper error handling msissing if update fails.
+
+    word = word.strip()
+
+    conn = get_connection()
+    cur = conn.cursor()
+    sql = "update vocabulary set translation = %s, word = %s, edited = true where user_id = %s and id = %s ;"
+    cur.execute(sql, (translation, word, user_id, word_id))
+    conn.commit()
+
+
+    return True
 
 def word_exists(user_id, language_word, word, language_translation):
 
