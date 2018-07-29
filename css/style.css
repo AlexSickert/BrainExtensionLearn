@@ -125,9 +125,15 @@ span.button {
 }
 
 span.buttonSmall {
-  padding: 0px;
-  border: 0px solid #ffffff;
+  padding: 10px;
+  /* border: 0px solid #ffffff; */
+  background-color: #cccccc;
   text-align: center;
+}
+
+/* this button gets modified by javascript*/
+span.buttonSmallBlue{
+    font-size: 16px;
 }
 
 span.label {
