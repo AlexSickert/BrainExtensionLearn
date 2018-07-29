@@ -1,173 +1,209 @@
 <html>
-    <head>
-        <title>Brain Extension</title>
-        
-        <meta charset="utf-8">
 
-        <script src="Controller.js" type="text/javascript"></script>
-       
+<head>
+  <title>Brain Extension</title>
 
-        <style>
-            
-	// colors from http://www.gnscl.com/trendy-color-combinations/trendy-color-combinations-opulent-design-ideas-5-web-palettes-and-material-schemes-amp-tools/
+  <meta charset="utf-8">
 
-            body{
-                font-family: Gill Sans Extrabold, sans-serif;    
-		background-color:rgb(230, 230, 230);          
-            }      
-
-            table {
-		padding: 0px;                
-                border: 0px ;
-                width: 100%;
-            } 
-
-            td{
-              
-                border: 0px ;
-		width: 50%;
-		//background-color:rgb(206, 51, 117);
-            }
-
-	    td.columnheader{
-		font-size: 20pt;
-
-            }
-
-	    a{
-      		color: white;
-	    }
-
-            span.headline{
-		font-size: 30pt;
-            }
-
-            div.navigation {
-                border: 0px ;
-                width: 100%;
-		padding: 20px;
-		background-color: #5B5941;
-            } 
-
-            div.head {
-                border: 0px ;
-                width: 100%;
-		padding: 20px;
-		background-color:#F79F79;
-            } 
-
-            div.roadmap {
-                border: 0px ;
-                width: 100%;
-		padding: 20px;
-		background-color:#E3f09B;
-            }  
-
-            div.signup {
-                border: 0px ;
-                width: 100%;
-		padding: 20px;
-		background-color:#F7D08A;
-            }  
-
-            div.contact {
-                border: 0px ;
-                width: 100%;
-		padding: 20px;
-		background-color:#87B6A7;
-            }           
-
-        </style>
-
-    </head>
+  <script src="Controller.js" type="text/javascript"></script>
 
 
-    <body >
+  <style>
+    body {
+      font-family: Gill Sans Extrabold, sans-serif;
+      background-color: #ffffff;
+      border: 0px;
+      margin: 0px;
+      padding: 0px;
+    }
 
-	<div class="navigation">
+    table {
+      padding: 0px;
+      border: 0px;
+      width: 100%;
+    }
 
-		<center>
-			<a href="/app">Lanuch app</a>   
-			<a href="#contact">Contact</a> 
-			<a href="#roadmap">Roadmap</a> 
-		</center>
+    td {
 
-	</div>
+      border: 0px;
+      width: 50%; //background-color:rgb(206, 51, 117);
+    }
 
+    td.columnheader {
+      font-size: 20pt;
 
-	<div class="head">
-		<center>
-			<span class="headline">BrainExtension</span>
-		</center>
-	</div>
+    }
 
+    a {
+      color: white;
+      font-weight: bold;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
 
-	<div class="signup">
+    a.inline {
 
-		The application is free of charge, free to use. No strings attached. Sign up here: 
+      color: white;
+      font-weight: bold;
+      padding-left: 0px;
+      padding-right: 0px;
+    }
 
-	</div>
+    span.headline {
+      color: #444444;
+      font-size: 30pt;
+    }
 
-	<div class="roadmap">
-		<a id="roadmap"></a>
+    span.normalText {
+      color: #444444;
+      font-size: 20pt;
+      width: 80%;
+    }
 
-		<center>
-			<span class="headline">Roadmap</span>
-		</center>		
+    span.ul {
 
+      text-align: left;
 
-		<table>
+      color: #444444;
+      font-size: 20pt;
 
-			<tr>
+    }
 
-				<td class="columnheader">
-					Features
+    div.navigation {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      background-color: #48b657;
+    }
 
-				</td>
+    div.head {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      color: #444444;
+      background-color: #ffffff;
+    }
 
-				<td class="columnheader">
-					What will be implemented soon
-				</td>
-
-			</tr>
-
-			<tr>
-
-				<td>
-					<ul>
-						<li>Insert new words that you want to learn</li>
-						<li>Learn the words</li>
-						<li>Upload words via Google Spreadsheet</li>
-					</ul>
-
-				</td>
-
-				<td>
-					<ul>
-						<li>Get statistics from your learning progress</li>						
-						<li>Automatically pull text from a URL, translate each word and add it to teh vocabularly list. It ignores words that you already know</li>
-						<li>Paste a text and extract from it all new words</li>
-						
-					</ul>
-				</td>
-
-			</tr>
-
-		</table>
-
-	</div>
-
-	<div class="contact">
-		<a id="contact"></a>
-		contact
-
-	</div>
-     
-
-
-        <script>
+    div.white {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      background-color: #ffffff;
+      align-items: center;
 
 
-        </script>
-    </body>
+    }
+
+    div.roadmap {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      background-color: #f3d100;
+    }
+
+    div.signup {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      background-color: #ec454c;
+    }
+
+    div.contact {
+      border: 0px;
+      width: 100%;
+      padding: 20px;
+      background-color: #ec454c;
+    }
+  </style>
+
+</head>
+
+
+<body>
+
+  <div class="navigation">
+
+    <center>
+      <a href="/app">Lanuch app</a>
+      <a href="#contact">Contact</a>
+      <a href="#roadmap">Roadmap</a>
+    </center>
+
+  </div>
+
+
+  <div class="head">
+    <center>
+      <span class="headline">BrainExtension</span>
+    </center>
+  </div>
+
+  <div class="white">
+    <center>
+      <span class="normalText">
+        BrainExtension is..Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut consectetur accumsan quam quis bibendum. Morbi varius libero convallis porttitor vestibulum. Nunc vulputate, metus sed maximus porta, felis libero sagittis sem, vitae maximus nulla urna id ligula. Vestibulum erat erat, auctor vitae vehicula non, pulvinar faucibus turpis. .
+      </span>
+    </center>
+  </div>
+
+
+  <div class="signup">
+
+    The application is free of charge, free to use. No strings attached. Sign up <a class="inline" href="/app">here</a>
+
+  </div>
+
+  <div class="white">
+    <center>
+      <span class="headline">Functionality</span>
+    </center>
+
+    <center>
+      <span class="ul">
+
+        <ul>
+          <li>Insert new words that you want to learn</li>
+          <li>Learn the words</li>
+          <li>Upload words via Google Spreadsheet</li>
+        </ul>
+
+
+      </span>
+    </center>
+  </div>
+
+  <div class="roadmap">
+    <a id="roadmap"></a>
+
+    <center>
+      <span class="headline">Roadmap</span>
+    </center>
+
+    <center>
+      <span class="ul">
+
+        <ul class="ul">
+          <li>Get statistics about your learning progress</li>
+          <li>Automatically pull text from a URL, translate each word and add it to teh vocabularly list. It ignores words that you already know</li>
+          <li>Paste a text and extract from it all new words</li>
+
+        </ul>
+
+
+      </span>
+    </center>
+
+
+
+  </div>
+
+  <div class="contact">
+    <a id="contact"></a> contact
+    <a href="/rss.html" target="_blank">RSS</a>
+
+  </div>
+
+
+</body>
+
 </html>
