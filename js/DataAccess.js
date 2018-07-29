@@ -5,15 +5,20 @@ function DataAccess() {
    */
   this.ajaxPost = function(controller, request) {
     console.log("in ajax post");
+
+    console.log("----------- JSON object ajaxPost --------------");
+    console.log(JSON.stringify(request));
+    console.log("-----------------------------------------------");
+
     try {
       var r = request;
       var req = new AjaxRequest();
       req.onreadystatechange = function() {
         if (req.readyState === 4) {
           try {
-            console.log("-------------------------");
+            console.log("---------- ajaxPost result ---------------");
             console.log(req.responseText);
-            console.log("-------------------------");
+            console.log("------------------------------------------");
             var resObj = JSON.parse(req.responseText);
             controller.callBack(resObj);
           } catch (x) {
@@ -22,6 +27,7 @@ function DataAccess() {
           }
         }
       };
+
       var obj = encodeURIComponent(JSON.stringify(r));
       req.open("POST", "ajaxPost", true);
       //req.open("POST", "objParameterArray", true);
@@ -40,6 +46,10 @@ function DataAccess() {
 
 
     var req = new AjaxRequest();
+
+    console.log("----------- JSON object in ajaxPostJson--------------");
+    console.log(JSON.stringify(json));
+    console.log("-----------------------------------------------------");
 
 
     req.onreadystatechange = function() {
@@ -123,18 +133,56 @@ function AjaxRequest() {
  * create the object that is being sent to server
  * JsonAddVocRequest(l, u, w, t, "adVocFromUrl");
  */
-function JsonAddVocRequest(l, u, w, t, a, tl, tw) {
+function JsonAddVocRequest(l, u, w, t, a, tl, tw, s) {
   this.language = l; // module
   this.url = u;
   this.word = w;
   this.text = t;
   this.action = a;
   this.translationLanguage = tl;
-  this.translationWord = tw
+  this.translationWord = tw;
+  this.session = s;
 }
 
-function JsonLoadWordRequest(answer, wordId) {
+function JsonLoadWordRequest(answer, wordId, sess) {
   this.action = "loadWord";
   this.answer = answer;
   this.wordId = wordId;
+  this.session = sess;
+}
+
+
+function JsonEditWordRequest(wordId, fromWord, toWord, sess) {
+  this.action = "editWord";
+  this.fromWord = fromWord;
+  this.toWord = toWord;
+  this.wordId = wordId;
+  this.session = sess;
+}
+
+
+function JsonCheckSession(s) {
+  this.action = "checkSession";
+  this.session = s;
+}
+
+function JsonReportRequest(s) {
+  this.action = "report";
+  this.session = s;
+}
+
+function JsonLogInRequest(u, p) {
+  this.action = "logIn";
+  this.user = u;
+  this.password = p;
+}
+
+function JsonRegisterRequest(u) {
+  this.action = "registerUser";
+  this.user = u;
+}
+
+function JsonResetRequest(u) {
+  this.action = "resetPassword";
+  this.user = u;
 }
