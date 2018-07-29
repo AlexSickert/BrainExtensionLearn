@@ -32,7 +32,7 @@ import ssl
 
 log.log_info("------------------ start server ----------------------")
 
-SERVER_ADDRESS = (HOST, PORT) = '', 8888
+SERVER_ADDRESS = (HOST, PORT) = '', int(cfg.parameters["http"])
 REQUEST_QUEUE_SIZE = 50
 
 
@@ -85,15 +85,27 @@ def get_header_values(data):
     header_values = {}
     url_parameter = {}
 
+
+
     lines = data.split("\r\n")
 
     i = 0
     for l in lines:
         if len(l) > 0:
+            log.log_info("current line: " + str(l))
             i += 1
             if i == 1:
                 print(l)
-                method, url, protocol = l.split(" ")
+                log.log_info("first line string: " + str(l))
+                try:
+                    method, url, protocol = l.split(" ")
+                except:
+                    print("Error in first line:", sys.exc_info()[0])
+                    log.log_error("Error in first line: " + str(sys.exc_info()[0]))
+                    log.log_info("Error in first line. Line content was: " + str(l))
+                    method = ""
+                    url = "/"
+                    protocol = ""
 
             else:
                 pos = l.find(":")
@@ -189,113 +201,8 @@ def handle_request(client_connection):
 
         log.log_info("get_header_values(req) DONE ")
 
-
-        #check if POST
-
-        if req[:4] == "POST":
-            log.log_info("it is a post request")
-            method = "POST"
-            # log.log_info("req: " + req)
-
-            # print(elements)
-            header = elements[0].split("\r\n")
-            body = elements[1]
-
-            # print(header)
-            # print("body: " + body)
-
-            for l in header:
-                # print(l)
-                fragments = l.split(":")
-
-                # print(fragments[0])
-                if "Content-Length" in fragments[0]:
-                    content_length = int(fragments[1])
-                    # print(content_length)
-
-            #body lenght already retrieved
-            done = len(body)
-            diff = content_length - done
-
-            log.log_info("body longer than already processed...")
-
-            chunks = []
-            if diff > 0:
-                todo = diff
-                while todo > 0:
-                    # print(1)
-                    chunk = client_connection.recv(1)
-                    # print(2)
-                    # print(chunk)
-                    chunks.append(chunk)
-                    # print(3)
-                    todo -= 1
-
-            log.log_info("adding new chunks to existing body.")
-            for c in chunks:
-                # print(c)
-                # print(c.decode(encoding = 'UTF-8', errors = 'replace'))
-                s = c.decode(encoding = 'UTF-8', errors = 'replace')
-                body += s
-            # print(body)
-            #     log.log_info("body completely processed now.")
-            form_values = handle_body(body)
-
-        else:
-            method = "GET"
-            log.log_info("we are in GET")
-            log.log_info(url_parameter)
-
-        # by now we have parsed and loaded all data and can work with the input to prepare the response
-
         http_response = make_header()
-
-        if "GET" in method:
-            log.log_info("GET request")
-            log.log_info("URL: " + url)
-
-
-            # check if we need to serve a static file or process parameters
-            if url.strip() == "/":
-                # serve the index file
-                http_response += getHtml()
-            else:
-                # serve other stuff
-                u = url.strip()
-                if u == "/app":
-                    http_response += getFile("./html/app.html")
-                elif u == "/Controller.js":
-                    http_response += getFile("./js/Controller.js")
-                elif u == "/UxUi.js":
-                    http_response += getFile("./js/UxUi.js")
-                elif u == "/DataAccess.js":
-                    http_response += getFile("./js/DataAccess.js")
-                elif u == "/favicon.ico":
-                    http_response += getFile("./html/favicon.ico")
-                elif u == "/style.css":
-                    http_response += getFile("./css/style.css")
-                else:
-                    # handle other requests we ignore them...
-                    message = ""
-                    b = bytearray()
-                    b.extend(map(ord, message))
-                    http_response += b
-
-        else:
-            log.log_info("POST request")
-            http_response = make_header()
-
-            if header_values["content-type"].strip() == "application/json":
-                log.log_info("JSON content")
-                jsonObj = parse.unquote(body)
-                message = pj.process_json(fragments, jsonObj)
-            else:
-                message = po.process_post(fragments, form_values)
-
-
-            b = bytearray()
-            b.extend(map(ord, message))
-            http_response += b
+        http_response += getFile("./html/redirect.html")
 
         client_connection.sendall(http_response)
         client_connection.close()
@@ -319,15 +226,10 @@ def handle_request(client_connection):
 def serve_forever():
 
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    listen_socket.bind(SERVER_ADDRESS)
+    listen_socket.listen(REQUEST_QUEUE_SIZE)
 
-
-
-    #listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
-    ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True)
-
-    ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    ssl_socket.bind(SERVER_ADDRESS)
-    ssl_socket.listen(REQUEST_QUEUE_SIZE)
 
     executor = ThreadPoolExecutor(max_workers=50)
 
@@ -336,7 +238,8 @@ def serve_forever():
     while True:
         #client_connection, client_address = listen_socket.accept()
         try:
-            client_connection, client_address = ssl_socket.accept()
+            # client_connection, client_address = ssl_socket.accept()
+            client_connection, client_address = listen_socket.accept()
             a = executor.submit(handle_request, client_connection)
         except:
             print("Unexpected error:", sys.exc_info()[0])
