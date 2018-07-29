@@ -18,39 +18,66 @@ function UxUi() {
 
     console.log("in this.setNavi = function (current) ");
 
-    var s = "";
+    var s = "<table><tr>";
 
-    var homeButton = this.getButton("Exit", "window.location.href='./'");
+    var homeButton = this.getButtonNavi("Exit", "window.location.href='./'");
 
-    s += homeButton;
+    s += "<td class='blue'>" + homeButton + "</td>";
+
+
 
     if (current === "add") {
-      s += this.getButton("Learn", "con.setLearnForm()");
-      s += this.getButton("Settings", "con.setSettingsForm()");
-      s += this.getButton("Results", "con.setResultsForm()");
+      s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
+      //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
     }
 
     if (current === "learn" || current === "") {
-      s += this.getButton("Add words", "con.setAddVocForm()");
-      s += this.getButton("Settings", "con.setSettingsForm()");
-      s += this.getButton("Results", "con.setResultsForm()");
+      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
+      //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
+    }
+
+    if (current === "edit" || current === "") {
+      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
+      //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
     }
 
     if (current === "results") {
-      s += this.getButton("Add words", "con.setAddVocForm()");
-      s += this.getButton("Learn", "con.setLearnForm()");
-      s += this.getButton("Settings", "con.setSettingsForm()");
+      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
+      //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
     }
 
     if (current === "settings") {
-      s += this.getButton("Add words", "con.setAddVocForm()");
-      s += this.getButton("Learn", "con.setLearnForm()");
-      s += this.getButton("Results", "con.setResultsForm()");
+      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
     }
 
+    s += "</tr></table>";
     this.setHtmlInDiv("mainNavi", s);
+    this.adjustNaviFont();
     return;
   };
+
+
+  this.adjustNaviFont = function(){
+
+    var h = this.getHeight() - 0;
+
+    var x = document.getElementsByClassName("buttonSmallBlue");
+    var i;
+    for (i = 0; i < x.length; i++) {
+        x[i].style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+    }
+
+  }
 
   this.setLearnForm = function() {
     //this.setHtmlInDiv("mainBody", this.getLearnForm());
@@ -81,6 +108,7 @@ function UxUi() {
     this.setHtmlInDiv("mllanguage2", l2.trim());
     this.setHtmlInDiv("mlword2", "");
 
+    globalWord = w1.trim();
     globalWordHidden = w2.trim()
 
     // once we have set the words it is necessary to adjust layout
@@ -93,6 +121,22 @@ function UxUi() {
     this.setHtmlInDiv("mlword2", globalWordHidden);
   }
 
+  // show the login form
+  this.setLoginForm = function(x) {
+    this.setHtmlInDiv("mainBody", this.getLoginForm(x));
+  };
+
+  this.setAfterResetRegistration = function(x) {
+    this.setHtmlInDiv("mainBody", this.getAfterResetRegistration(x));
+  };
+
+  this.setRegistrationForm = function(x) {
+    this.setHtmlInDiv("mainBody", this.getRegistrationForm(x));
+  };
+
+  this.setPasswordResetForm = function(x) {
+    this.setHtmlInDiv("mainBody", this.getPasswordResetForm(x));
+  };
 
   this.setSettingsForm = function() {
     this.setHtmlInDiv("mainBody", this.getSettingsForm());
@@ -106,10 +150,28 @@ function UxUi() {
     this.setHtmlInDiv("mainBody", this.getAddVocForm());
   };
 
+  this.setEditVocForm = function() {
+
+    this.setHtmlInDiv("mainBody", this.getEditVocForm());
+    this.setValue("editFromWord", globalWord);
+    this.setValue("editToWord", globalWordHidden);
+  };
+
   this.setAddVocFormMessage = function(s) {
     s += this.getButton("Add words", "con.setAddVocForm()");
     this.setHtmlInDiv("mainBody", s);
   };
+
+  // set the results in the html code and display
+  this.setResults = function(learned, newWords) {
+    var s = this.getResultsForm(learned, newWords);
+    this.setHtmlInDiv("mainBody", s);
+  };
+
+  this.setLoading = function() {
+    var s = this.getLoadingPlaceholder();
+    this.setHtmlInDiv("mainBody", s);
+  }
 
   this.setHtmlInDiv = function(id, html) {
 
@@ -135,7 +197,17 @@ function UxUi() {
    */
   this.getButton = function(text, code) {
     var s;
-    s = "<input type=\"button\" id=\"" + text + "\" name=\"" + text + "\" class=\"naviButton\"  value=\"" + text + "\"  onclick=\"" + code + "\"  />";
+    //s = "<input type=\"button\" id=\"" + text + "\" name=\"" + text + "\" class=\"naviButton\"  value=\"" + text + "\"  onclick=\"" + code + "\"  />";
+    s = "<span id=\"" + text + "\" class=\"buttonSmall\" onclick=\"" + code + "\">" + text + "</span>";
+
+    return s;
+  };
+
+  this.getButtonNavi = function(text, code) {
+    var s;
+    //s = "<input type=\"button\" id=\"" + text + "\" name=\"" + text + "\" class=\"naviButton\"  value=\"" + text + "\"  onclick=\"" + code + "\"  />";
+    s = "<span id=\"" + text + "\" class=\"buttonSmallBlue\" onclick=\"" + code + "\">" + text + "</span>";
+
     return s;
   };
 
@@ -299,10 +371,10 @@ function UxUi() {
 
     // set width
 
-    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.25) + "px";
-    document.getElementById("topbuttons2").style.width = Math.floor(w * 0.25) + "px";
-    document.getElementById("topbuttons3").style.width = Math.floor(w * 0.25) + "px";
-    document.getElementById("topbuttons4").style.width = Math.floor(w * 0.25) + "px";
+    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.2) + "px";
+    document.getElementById("topbuttons2").style.width = Math.floor(w * 0.3) + "px";
+    document.getElementById("topbuttons3").style.width = Math.floor(w * 0.2) + "px";
+    document.getElementById("topbuttons4").style.width = Math.floor(w * 0.3) + "px";
 
     document.getElementById("language1").style.width = Math.floor(w) + "px";
     document.getElementById("word1").style.width = Math.floor(w) + "px";
@@ -362,9 +434,6 @@ function UxUi() {
 
     var resAdj = Math.floor(Math.sqrt(area) / 30);
 
-
-    // set font size
-
     // calcualte space of text areas
     var space = w * h;
     var content = space + "funktion noun konjunktion nomen )";
@@ -376,24 +445,26 @@ function UxUi() {
 
     var tst = document.getElementById("word1").innerHTML;
     tst = tst.trim();
-    //alert(tst);
 
-
-    //document.getElementById("word2").innerHTML = s1 + " len " + this.stringLength(tst);
-
-    document.getElementById("topbuttons1").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
-    document.getElementById("topbuttons2").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
-    document.getElementById("topbuttons3").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
-    document.getElementById("topbuttons4").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
+    // following lines do not work properly, so we replace them with a function that works well in other places
+    /*
+    document.getElementById("topbuttons1").style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+    document.getElementById("topbuttons2").style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+    document.getElementById("topbuttons3").style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+    document.getElementById("topbuttons4").style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+    */
+    this.adjustNaviFont();
 
     document.getElementById("language1").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
     document.getElementById("word1").style.fontSize = Math.floor(s1) + "px";
     document.getElementById("language2").style.fontSize = Math.floor(h * 0.1 * 0.5) + "px";
     document.getElementById("word2").style.fontSize = Math.floor(s2) + "px";
 
-    document.getElementById("bottombuttons1").style.fontSize = Math.floor(h * 0.2 * 0.5) + "px";
-    document.getElementById("bottombuttons2").style.fontSize = Math.floor(h * 0.2 * 0.5) + "px";
-    document.getElementById("bottombuttons3").style.fontSize = Math.floor(h * 0.2 * 0.5) + "px";
+    document.getElementById("bottombuttons1").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
+    document.getElementById("bottombuttons2").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
+    document.getElementById("bottombuttons3").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
+
+
 
 
   };
@@ -505,12 +576,77 @@ function UxUi() {
     ele.style.left = horizontal + 'px';
     ele.style.top = vertical + 'px';
 
-
-
   }
 
-
   // ======================= TEMPLATES =======================================
+
+
+
+  this.getLoginForm = function(txt) {
+    var s = "";
+    s += txt;
+    s += "<br>";
+    s += "<br>";
+    s += "<table class='login'>";
+    s += "<tr>";
+    s += "<td><span id='xxxxxx'>Email</span></td><td><input type='text' id='user' name='user' value='' /></td>";
+    s += "</tr>";
+    s += "<tr>";
+    s += "<td><span id='xxxxxx'>Password</span></td><td><input type='password' id='password' name='password' value='' /></td>";
+    s += "</tr>";
+    s += "</table>";
+    s += "<br>";
+    s += this.getButton("Login", "con.logIn()");
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Register", "con.gotRegistrationForm()");
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Forgot password", "con.gotResetForm()");
+    return s;
+  };
+
+
+  this.getAfterResetRegistration = function(txt) {
+    var s = "";
+    s += txt;
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Login", "con.gotLoginForm()");
+
+    return s;
+  };
+
+  this.getRegistrationForm = function(txt) {
+    var s = "";
+    s += txt;
+    s += "<br>";
+    s += "<br>";
+    s += "<span id='xxxxxx'>Email</span><input type='text' id='user' name='user' value='' /><br>";
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Register", "con.register()");
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Go to login", "con.gotLoginForm()");
+    return s;
+  };
+
+  this.getPasswordResetForm = function(txt) {
+    var s = "";
+    s += txt;
+    s += "<br>";
+    s += "<br>";
+    s += "<span id='xxxxxx'>Email</span><input type='text' id='user' name='user' value='' /><br>";
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Reset password", "con.resetPassword()");
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Go to login", "con.gotLoginForm()");
+    return s;
+  };
+
 
   this.getLearnForm = function() {
     var s = "";
@@ -541,6 +677,17 @@ function UxUi() {
     return s;
   };
 
+  this.getEditVocForm = function() {
+    var s = "";
+    s += "Edit current word";
+    s += "<textarea id='editFromWord' rows='4' cols='50'></textarea>";
+    s += "<textarea id='editToWord' rows='4' cols='50'></textarea>";
+    s += "<br><br>";
+    s += this.getButton("Save", "con.saveEditVoc()");
+    s += "&nbsp;";
+    s += this.getButton("Cancel", "con.setLearnForm()");
+    return s;
+  };
 
   this.getSettingsForm = function() {
     var s = "";
@@ -550,11 +697,61 @@ function UxUi() {
     return s;
   };
 
-  this.getResultsForm = function() {
-    var s = "";
-    s += "<span id='resultLabel1'>result1</span><br>";
-    s += "<span id='resultLabel2'>result2</span><br>";
-    s += "<span id='resultLabel3'>result3</span><br>";
+  this.getLoadingPlaceholder = function() {
+    var s = "Content is loading...";
     return s;
   };
+
+  this.getResultsForm = function(learned, newWords) {
+    var s = "<br><br>";
+    s += "<span id='resultLabel1'>words learned so far: " + learned + "</span><br>";
+    s += "<span id='resultLabel1'>words remaining to learn: " + newWords + "</span><br>";
+    return s;
+  };
+
+  this.makeToast = function(s,c) {
+
+    // mmainPop
+
+    e = document.getElementById("mainPop");
+
+    if(c){
+      e.className = "toastRed";
+    }else{
+      e.className = "toastGreen";
+    }
+
+    e.style.display = "block";
+    e.innerHTML = s;
+
+    var h = this.getHeight() - 0;
+    var w = this.getWidth() - 0;
+
+    var cw = document.getElementById("mainPop").clientWidth;
+    var ch = document.getElementById('mainPop').clientHeight;
+
+    var topD = Math.floor(0.5 * (h - ch));
+    var leftD = Math.floor(0.5 * (w - cw));
+
+    e.style.width = "50%";
+    //e.style.height = "80%";
+    e.style.zIndex = "99";
+    //e.style.left = leftD + "px";
+    e.style.left = "0px";
+    //e.style.top = topD + "px";
+    e.style.top = "0px";
+
+
+    e.style.padding = "10px";
+
+    setTimeout(function() {
+
+      document.getElementById("mainPop").style.display = "none";
+
+    }, 2000);
+
+  };
+
+
+
 }
