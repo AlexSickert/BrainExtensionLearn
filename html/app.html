@@ -28,7 +28,7 @@
 
   <div id="mainNavi" class="naviDiv">APP navi<a href="/">home</a></div>
   <div id="mainBody" class="mainBodyDiv">body</div>
-  <div id="mainPop"  style="position: absolute; display: none;" class="toastRed">pop</div>
+  <div id="mainPop" style="position: absolute; display: none;" class="toastRed">pop</div>
 
 
   <script>
@@ -37,6 +37,7 @@
     var globalVisibleScreen = 0; // defaul 1 = learning app
     var globalBaseUrl = window.location.href;
     var globalWordId = ""; // id of word currenlty learning
+    var globalWord = "";
     var globalWordHidden = "";
     var uxui = new UxUi();
     var con = new Controller();
@@ -65,20 +66,26 @@
     <table>
       <tr>
         <td id="topbuttons1" class="blue">
-          <span id="exit" class="buttonSmall blue" onclick="window.location.href='./'">exit</span>
+          <span id="exit" class="buttonSmallBlue" onclick="window.location.href='./'">Exit</span>
         </td>
 
         <td id="topbuttons2" class="blue">
-          <span id="addword" class="buttonSmall blue" onclick="con.setAddVocForm()">add</span>
+          <!--
+          <span id="addword" class="buttonSmallBlue" onclick="con.setAddVocForm()">add</span>
+        -->
+          <span id="addword" class="buttonSmallBlue" onclick="con.logOut()">Logout</span>
         </td>
 
         <td id="topbuttons3" class="blue">
-          <span id="more" class="buttonSmall blue" onclick="con.notImplemented()">edit</span>
+          <span id="more" class="buttonSmallBlue" onclick="con.setEditForm()">Edit</span>
         </td>
 
 
         <td id="topbuttons4" class="blue">
-          <span id="more" class="buttonSmall blue" onclick="con.notImplemented()">more</span>
+          <!--
+          <span id="more" class="buttonSmallBlue" onclick="con.notImplemented()">more</span>
+          -->
+          <span id="more" class="buttonSmallBlue" onclick="con.setResultsForm()">Results</span>
         </td>
 
       </tr>
@@ -144,7 +151,7 @@
 
           <table style="border: 0px solid #000000;" onclick="con.answerQuestionmark()">
             <tr>
-              <td id="mlnavigation" style="border: 0px solid #000000;" class="blue"  onclick="con.notImplemented()">Navigation
+              <td id="mlnavigation" style="border: 0px solid #000000;" class="blue" onclick="con.setEditForm()">Edit current word
               </td>
             </tr>
 
@@ -193,15 +200,28 @@
     <table>
       <tr>
         <td id="dtopbuttons1" class="blue">
-          <span id="exit" class="buttonSmall blue" onclick="window.location.href='./'">exit Desktop</span>
+          <span id="exit" class="buttonSmallBlue" onclick="window.location.href='./'">Exit App</span>
         </td>
 
         <td id="dtopbuttons2" class="blue">
-          <span id="addword" class="buttonSmall blue" onclick="con.setAddVocForm()">add word(s)</span>
+          <!--
+          <span id="addword" class="buttonSmallBlue" onclick="con.setAddVocForm()">add word(s)</span>
+
+        -->
+          <span id="addword" class="buttonSmallBlue" onclick="con.logOut()">Logout</span>
+
         </td>
 
         <td id="dtopbuttons3" class="blue">
-          <span id="more" class="buttonSmall blue"  onclick="con.notImplemented()">more</span>
+          <span id="addword" class="buttonSmallBlue" onclick="con.setEditForm()">Edit word</span>
+        </td>
+
+        <td id="dtopbuttons4" class="blue">
+          <!--
+          <span id="more" class="buttonSmallBlue"  onclick="con.notImplemented()">more</span>
+        -->
+
+          <span id="more" class="buttonSmallBlue" onclick="con.setResultsForm()">Show Results</span>
           <!--
                                    <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
                                    -->
@@ -248,7 +268,7 @@
       </tr>
       <tr>
         <td colspan=3>
-          You can use the arrow keys of your keyboard (&#8592;&#8593;&#8594;&#8595;) to press the buttons.
+          <br><br> You can use the arrow keys of your keyboard (&#8592;&#8593;&#8594;&#8595;) to press the buttons.
         </td>
       </tr>
     </table>
@@ -256,14 +276,12 @@
 </body>
 
 <script type="text/javascript">
-
-  var charfield=document.getElementById("bodyId")
-  charfield.onkeydown=function(e){
-    var e=window.event || e;
+  var charfield = document.getElementById("bodyId")
+  charfield.onkeydown = function(e) {
+    var e = window.event || e;
     con.handleKey(e.keyCode);
     //alert(e.keyCode);
   }
-
 </script>
 
 </html>
