@@ -44,6 +44,7 @@ function UxUi() {
       //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
       //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
       s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
       s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
     }
 
@@ -237,6 +238,8 @@ function UxUi() {
 
 
   this.showTrainingUi = function() {
+
+   globalVisibleScreen = 1;
 
     // hide all
     this.hideDiv("mobileLandscape");
@@ -648,6 +651,9 @@ function UxUi() {
   };
 
 
+  /*
+  This is probably not used anymore
+  */
   this.getLearnForm = function() {
     var s = "";
     s += "<span id='leanFromLanguage'>language from</span><br>";
@@ -668,10 +674,10 @@ function UxUi() {
     s += "<input type='text' id='adVocTranslationWord' name='adVocTranslationWord'  />";
     s += this.getButton("Save Word", "con.saveAddVoc()");
     s += "<hr>";
-    s += "<textarea id='adVocText' rows='4' cols='50'></textarea>";
+    s += "<textarea id='adVocText' rows='4' style='width:80%;'></textarea>";
     s += this.getButton("Save Text", "con.saveAddVoc()");
     s += "<hr>";
-    s += "<textarea id='adVocUrl' rows='4' cols='50'></textarea>";
+    s += "<textarea id='adVocUrl' rows='4' style='width:80%;'></textarea>";
     s += this.getButton("Process Text from URL", "con.saveAddVoc()");
 
     return s;
@@ -679,9 +685,9 @@ function UxUi() {
 
   this.getEditVocForm = function() {
     var s = "";
-    s += "Edit current word";
-    s += "<textarea id='editFromWord' rows='4' cols='50'></textarea>";
-    s += "<textarea id='editToWord' rows='4' cols='50'></textarea>";
+    s += "Edit current word<br><br>";
+    s += "<textarea id='editFromWord' rows='4' style='width:80%;'></textarea>";
+    s += "<textarea id='editToWord' rows='4' style='width:80%;'></textarea>";
     s += "<br><br>";
     s += this.getButton("Save", "con.saveEditVoc()");
     s += "&nbsp;";
