@@ -11,6 +11,8 @@ function Controller() {
   var objDataAccess = new DataAccess();
   var objUxUi;
 
+  this.wordArray = [];
+
   /*
    * this function runs when the html page loads initially
    */
@@ -58,6 +60,7 @@ function Controller() {
    */
 
   this.logOut = function() {
+    globalVisibleScreen = 0;
     this.setCookie("session", "");
     globalSession = "";
     objUxUi.hideTrainingUi();
@@ -72,6 +75,8 @@ function Controller() {
    * function to register a new user
    */
   this.register = function() {
+
+    globalVisibleScreen = 0;
 
     var user = objUxUi.getValue("user");
 
@@ -89,6 +94,8 @@ function Controller() {
    */
   this.resetPassword = function() {
 
+    globalVisibleScreen = 0;
+
     var user = objUxUi.getValue("user");
 
     // ToDo: make here a proper email check
@@ -105,6 +112,7 @@ function Controller() {
    * gets called by Uxui when user logs in
    */
   this.logIn = function(uxui) {
+    globalVisibleScreen = 0;
     console.log("controller logIn()");
     var user = objUxUi.getValue("user");
 
@@ -119,20 +127,25 @@ function Controller() {
   }
 
   this.gotLoginForm = function() {
+    globalVisibleScreen = 0;
     objUxUi.setLoginForm("Please log in.");
   }
 
   this.gotResetForm = function() {
+    globalVisibleScreen = 0;
     objUxUi.setPasswordResetForm("Please enter the email address you are registered with.");
   }
 
   this.gotRegistrationForm = function() {
+    globalVisibleScreen = 0;
     objUxUi.setRegistrationForm("Please enter a valid email address to register. The login password will be sent to this email address.");
   }
 
 
   this.saveEditVoc = function() {
     //  globalWordId
+    //objUxUi.makeToast("controller saveEditVoc", true);
+    objUxUi.globalVisibleScreen = 2;
     var fromWord = document.getElementById("editFromWord").value;
     var toWord = document.getElementById("editToWord").value;
     var s = this.getCookie("session");
@@ -155,17 +168,22 @@ function Controller() {
   // function to handle Ui Interaction
 
   this.setEditForm = function() {
+    globalVisibleScreen = 2;
     // hide the training html decoded
     objUxUi.hideTrainingUi();
     objUxUi.showDiv("mainNavi");
     objUxUi.showDiv("mainBody");
     objUxUi.setNavi("edit");
     objUxUi.setEditVocForm();
+
+
+
     return;
   };
 
 
   this.setAddVocForm = function() {
+    globalVisibleScreen = 0;
     // hide the training html decoded
     objUxUi.hideTrainingUi();
     objUxUi.showDiv("mainNavi");
@@ -179,6 +197,7 @@ function Controller() {
   };
 
   this.setLearnForm = function() {
+    globalVisibleScreen = 1;
     objUxUi.setNavi("learn");
     objUxUi.setLearnForm();
     return;
@@ -192,6 +211,7 @@ function Controller() {
 
   // this is to show the report about progress
   this.setResultsForm = function() {
+    globalVisibleScreen = 0;
     objUxUi.hideTrainingUi();
     objUxUi.showDiv("mainNavi");
     objUxUi.showDiv("mainBody");
@@ -200,6 +220,9 @@ function Controller() {
     var s = this.getCookie("session");
     var r = new JsonReportRequest(s);
     objDataAccess.ajaxPost(this, r);
+
+
+
     return;
   };
 
@@ -230,6 +253,7 @@ function Controller() {
 
     var s = this.getCookie("session");
     var r = new JsonAddVocRequest(l, u, w, t, "adVocFromUrl", tl, tw, s);
+    var r = new JsonAddVocRequest("german", "", "hallo", "", "adVocFromUrl", "franch", "salut", "asdfasf");
     objDataAccess.ajaxPost(this, r);
   };
 
@@ -251,18 +275,49 @@ function Controller() {
 
   this.answerYes = function(answer) {
     var s = this.getCookie("session");
-    var r = new JsonLoadWordRequest("YES", globalWordId, s);
+    //var r = new JsonLoadWordRequest("YES", globalWordId, s);
+    var r = new JsonLoadWordArrayRequest("YES", globalWordId, s);
     objUxUi.setLearnFormValues("...", "...", "...", "...");
     objUxUi.showHiddenWord();
+    this.nextWordFromArray();
     objDataAccess.ajaxPost(this, r);
   }
 
   this.answerNo = function(answer) {
     var s = this.getCookie("session");
-    var r = new JsonLoadWordRequest("NO", globalWordId, s);
+    //var r = new JsonLoadWordRequest("NO", globalWordId, s);
+    var r = new JsonLoadWordArrayRequest("NO", globalWordId, s);
     objUxUi.setLearnFormValues("...", "...", "...", "...");
     objUxUi.showHiddenWord();
+    this.nextWordFromArray();
     objDataAccess.ajaxPost(this, r);
+  }
+
+  // from the array we immediately load the next word and don't wait for the callback
+  this.nextWordFromArray = function(){
+
+    console.log("this.nextWordFromArray() this.wordArray.length = " + this.wordArray.length);
+
+    if (this.wordArray.length > 0){
+
+        nextId = Math.round(Math.random() * (this.wordArray.length - 1));
+
+        console.log("nextId = " + nextId);
+
+        globalWordId = this.wordArray[nextId]["wordId"];
+
+        var l1 = this.wordArray[nextId]["language1"];
+        var l2 = this.wordArray[nextId]["language2"];
+        var w1 = this.wordArray[nextId]["word1"];
+        var w2 = this.wordArray[nextId]["word2"];
+
+        console.log("l1 = " + l1);
+        console.log("w1 = " + w1);
+        console.log("l2 = " + l2);
+        console.log("w2 = " + w2);
+
+        objUxUi.setLearnFormValues(l1, w1, l2, w2);
+    }
   }
 
   this.answerQuestionmark = function() {
@@ -272,21 +327,33 @@ function Controller() {
   // initialize the loading. Result is handled by callback
   this.loadWord = function() {
     var s = this.getCookie("session");
-    var r = new JsonLoadWordRequest("", "", s);
+    //var r = new JsonLoadWordRequest("", "", s);
+    var r = new JsonLoadWordArrayRequest("", "", s);
     objDataAccess.ajaxPost(this, r);
   }
 
   // handle the events from keyboard
   this.handleKey = function(x) {
-    if (x == 37) {
-      this.answerYes();
+
+    // we need to prevent this from running when on mobile device otherwise when editing a word the keyboard gets
+    // into the way
+
+    if(Number(globalVisibleScreen) == Number(2)){
+        // if we are in edit word
+        return;
+    }else{
+        if (x == 37) {
+          this.answerYes();
+        }
+        if (x == 39) {
+          this.answerNo();
+        }
+        if (x == 38 || x == 40) {
+          this.answerQuestionmark();
+        }
     }
-    if (x == 39) {
-      this.answerNo();
-    }
-    if (x == 38 || x == 40) {
-      this.answerQuestionmark();
-    }
+
+
   }
 
 
@@ -294,6 +361,9 @@ function Controller() {
   // function to handle call back from Ajax
 
   this.callBack = function(responseObject) {
+
+    var pushToGui;
+    var nextId;
 
     //console.log(responseObject["result"]);
     console.log(responseObject["action"]);
@@ -308,6 +378,43 @@ function Controller() {
       var w2 = responseObject["word2"];
       objUxUi.setLearnFormValues(l1, w1, l2, w2);
 
+      this.makeToast(responseObject["success"], responseObject["experiment"], responseObject["once_learned"]);
+
+    } else if (responseObject["action"] === "loadWordArray") {
+
+      // words
+
+      console.log("this.wordArray.length = " + this.wordArray.length);
+      if (this.wordArray.length < 1){
+        pushToGui = true;
+      }else{
+        pushToGui = false;
+      }
+
+      this.wordArray = responseObject["words"];
+
+      console.log("loaded the array of words");
+      console.log("pushToGui = " + pushToGui);
+
+      if(pushToGui){
+        nextId = Math.round(Math.random() * this.wordArray.length);
+
+        console.log("nextId = " + nextId);
+
+        globalWordId = this.wordArray[nextId]["wordId"];
+
+        var l1 = this.wordArray[nextId]["language1"];
+        var l2 = this.wordArray[nextId]["language2"];
+        var w1 = this.wordArray[nextId]["word1"];
+        var w2 = this.wordArray[nextId]["word2"];
+
+        // put a random value to the gui
+        objUxUi.setLearnFormValues(l1, w1, l2, w2);
+
+
+      }
+
+      // we need to check for a toast no matter what
       this.makeToast(responseObject["success"], responseObject["experiment"], responseObject["once_learned"]);
 
 
