@@ -105,8 +105,10 @@ def distribute_actions(jo):
         session = jo["session"]
         user_id = dbs.get_user_id_from_session(session)
 
-        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"], True, "")
-        dbac.add_one_word_txt(user_id, jo["translationLanguage"], jo["translationWord"], jo["language"], jo["word"],  False, "")
+        time_stamp = int(time.time())
+
+        dbac.add_one_word_txt(user_id, jo["language"], jo["word"], jo["translationLanguage"], jo["translationWord"], True, "", "", time_stamp)
+        dbac.add_one_word_txt(user_id, jo["translationLanguage"], jo["translationWord"], jo["language"], jo["word"],  False, "", "", time_stamp)
 
 #        now test if it arrived
         log.log_info("in distribute_actions preparing response")
@@ -160,6 +162,54 @@ def distribute_actions(jo):
 
         log.log_info("distribute_actions(jo) result for new word " + result)
 
+    elif action == "loadWordArray":
+
+        log.log_info("loading new word array")
+        log.log_info(jo)
+
+        wordId = jo["wordId"]
+        answer = jo["answer"]
+        session = jo["session"]
+
+        log.log_info("answer was " + answer)
+        log.log_info("wordId was " + str(wordId))
+        log.log_info("session was " + str(session))
+
+        user_id = dbs.get_user_id_from_session(session)
+
+        log.log_info("user_id is " + str(user_id))
+
+        success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
+
+        log.log_info("process_answer done")
+
+        new_id_array = dbl.get_next_word_id_array(user_id, str(wordId))
+
+        word_arr = []
+
+        for new_id in new_id_array:
+
+            row_j = {}
+            id, l1, w1, l2, w2 = dbl.get_word(new_id)
+            row_j["wordId"] = id
+            row_j["language1"] = dbac.get_language_label(l1)
+            row_j["word1"] = w1
+            row_j["language2"] = dbac.get_language_label(l2)
+            row_j["word2"] = w2
+            word_arr.append(row_j)
+
+        rj['action'] = action
+        rj['error'] = False
+        rj['error_description'] = ""
+        rj['success'] = success
+        rj['experiment'] = experiment
+        rj['once_learned'] = once_learned
+        rj["words"] = word_arr
+
+        result = json.dumps(rj)
+
+        log.log_info("distribute_actions(jo) result for new word " + result)
+
     elif action == "editWord":
 
         session = jo["session"]
@@ -188,9 +238,29 @@ def distribute_actions(jo):
 
         new_words, learned_words = dbr.get_simple_report(user_id)
 
+        html = "<table>"
+        html += "<tr>"
+        html += "<td>"
+        html += "new words:"
+        html += "</td>"
+        html += "<td>"
+        html += str(new_words)
+        html += "</td>"
+        html += "</tr>"
+        html += "<tr>"
+        html += "<td>"
+        html += "learned words:"
+        html += "</td>"
+        html += "<td>"
+        html += str(learned_words)
+        html += "</td>"
+        html += "</tr>"
+        html += "</table>"
+
         rj['action'] = action
         rj['newWords'] = new_words
         rj['learnedWords'] = learned_words
+        rj['html'] = html
         rj['error'] = False
         rj['error_description'] = ""
 
@@ -242,6 +312,18 @@ def distribute_actions(jo):
         else:
             log.log_info("invalid session " + session)
             rj['sessionValid'] = False
+
+        result = json.dumps(rj)
+
+    elif action == "getLanguages":
+
+        rj['action'] = action
+
+        rj['labels'] = ["English", "German", "Russian", "Franch", "Italian", "Spanish", "Portuguese"]
+        rj['values'] = ["english", "german", "russian", "franch", "italian", "spanish", "portuguese"]
+
+        rj['error'] = False
+        rj['error_description'] = ""
 
         result = json.dumps(rj)
 
