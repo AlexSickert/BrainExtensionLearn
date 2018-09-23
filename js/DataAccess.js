@@ -151,6 +151,13 @@ function JsonLoadWordRequest(answer, wordId, sess) {
   this.session = sess;
 }
 
+function JsonLoadWordArrayRequest(answer, wordId, sess) {
+  this.action = "loadWordArray";
+  this.answer = answer;
+  this.wordId = wordId;
+  this.session = sess;
+}
+
 
 function JsonEditWordRequest(wordId, fromWord, toWord, sess) {
   this.action = "editWord";
@@ -185,4 +192,9 @@ function JsonRegisterRequest(u) {
 function JsonResetRequest(u) {
   this.action = "resetPassword";
   this.user = u;
+}
+
+function JsonGetLanguages(s) {
+  this.action = "getLanguages";
+  this.session = s;
 }
