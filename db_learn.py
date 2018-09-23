@@ -389,6 +389,9 @@ def check_if_learned(word_id):
 
 def get_next_word_id(user_id, last_word_id):
     """
+
+    NOTE: consider also the funciton get_next_word_id_array(user_id, last_word_id) because it is similar !!!
+
     Loads the id of the next word we want to learn. This can be either one of the 7 in the caroussel or if the
     carousel is less than 7 we add another word and then learn this.
 
@@ -447,6 +450,60 @@ def get_next_word_id(user_id, last_word_id):
                 (user_id, ))
             l = cur.fetchall()[0][0]
         return l
+
+
+def get_next_word_id_array(user_id, last_word_id):
+    """
+    NOTE: consider also the funciton get_next_word_id(user_id, last_word_id) because it is similar !!!
+
+
+    :param user_id:
+    :param last_word_id:
+    :return:
+    """
+
+    # first we ensure there are enough current words
+
+    if count_current(user_id) < 7:
+        log.log_info("get_next_word_id - count_current less than 7" )
+        # we need to add a new word question is if repeat old word or use new
+        while count_current(user_id) < 7:
+            if add_new_word():
+                # ToDo: if there are no new words left, then we need to process old words and send info to user,
+                # that there are no new words left
+
+                if count_not_learned(user_id) > 0:
+                    word_id = get_new_random(user_id)
+                else:
+                    # if there are no new words left then use old words
+                    word_id = get_old_random(user_id)
+
+            else:
+                # we can add old only if such words exist
+                # if not, then we add from new category
+                num_learned = count_learned(user_id)
+                if num_learned > 0:
+                    word_id = get_old_random(user_id)
+                else:
+                    word_id = get_new_random(user_id)
+
+
+            set_word_current(word_id)
+
+
+    # now we load all the current words as an array
+    ret = []
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT ID  FROM vocabulary where user_id = %s AND current = true ORDER BY random() LIMIT 20",
+        (user_id,))
+    l = cur.fetchall()
+
+    for id in l:
+        ret.append(id[0])
+
+    return ret
 
 
 def get_word(new_id):
