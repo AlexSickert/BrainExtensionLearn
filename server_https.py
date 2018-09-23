@@ -286,6 +286,8 @@ def handle_request(client_connection):
                     http_response += getFile("./html/favicon.ico")
                 elif u == "/style.css":
                     http_response += getFile("./css/style.css")
+                elif u == "/mobile-screenshot.png":
+                    http_response += getFile("./html/mobile-screenshot.png")
                 else:
                     # handle other requests we ignore them...
                     message = ""
