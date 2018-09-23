@@ -7,6 +7,16 @@ import config as cfg
 import log
 import db_add_content as dba
 import random
+#
+# conn = dba.get_connection()
+# cur = conn.cursor()
+# cur.execute("SELECT email, password  FROM users  ", ())
+# ret = cur.fetchall()
+#
+# for row in ret:
+#     print("--------------------------")
+#     print("email: ", row[0])
+#     print(" password: ", row[1])
 
 
 def random_string(l):
