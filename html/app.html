@@ -34,7 +34,7 @@
   <script>
     var globalSession = "";
     var globalFontSize = 12;
-    var globalVisibleScreen = 0; // defaul 1 = learning app
+    var globalVisibleScreen = 0; // defaul 1 = learning app , 2 = edit word screen
     var globalBaseUrl = window.location.href;
     var globalWordId = ""; // id of word currenlty learning
     var globalWord = "";
@@ -49,9 +49,16 @@
     }
 
     function resize() {
-      //alert(0);
-      if (globalVisibleScreen > 0) {
+      //alert("resize triggered");
+
+      if (Number(globalVisibleScreen) == Number(1)) {
+        //uxui.makeToast("resize global = " + globalVisibleScreen, true);
         uxui.showTrainingUi();
+      }else if(Number(globalVisibleScreen) == Number(2)){
+        // this is when edit word screen is shown
+      }else{
+         // if it is 0 then do nothing
+        // do nothing
       }
 
     }
@@ -279,6 +286,7 @@
   var charfield = document.getElementById("bodyId")
   charfield.onkeydown = function(e) {
     var e = window.event || e;
+
     con.handleKey(e.keyCode);
     //alert(e.keyCode);
   }
