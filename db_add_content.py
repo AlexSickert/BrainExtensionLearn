@@ -83,6 +83,26 @@ def add_one_word(user_id, language_word, word, language_translation, translation
             cur.execute(sql, (text, context, user_id, language_word, word, language_translation, translation, "FALSE", time_stamp))
         conn.commit()
         # print("done")
+
+        # now check if done properly
+        # Todo: remove this in future as it is only for testing and smapping the long file
+
+        sql = "select id from vocabulary where user_id = %s and language_word = %s and word = %s and language_translation = %s and translation = %s"
+
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute(sql, (user_id, language_word, word, language_translation, translation))
+
+
+        arr = cur.fetchall()
+
+        log.log_info("--- check if new word was inserted ---")
+
+        for r in arr:
+            log.log_info("newly inserted word as id: " + str(r[0]))
+
+        log.log_info("--------------------------------------")
+
     return
 
 
