@@ -288,6 +288,11 @@ def handle_request(client_connection):
                     http_response += getFile("./css/style.css")
                 elif u == "/mobile-screenshot.png":
                     http_response += getFile("./html/mobile-screenshot.png")
+
+                elif u == "/top-image-1.jpg":
+                    http_response += getFile("./html/top-image-1.jpg")
+
+
                 else:
                     # handle other requests we ignore them...
                     message = ""
@@ -343,6 +348,8 @@ def serve_forever():
     ssl_socket.bind(SERVER_ADDRESS)
     ssl_socket.listen(REQUEST_QUEUE_SIZE)
 
+
+
     executor = ThreadPoolExecutor(max_workers=50)
 
     log.log_info('Serving HTTP on port {port} ...'.format(port=PORT))
@@ -351,6 +358,7 @@ def serve_forever():
         #client_connection, client_address = listen_socket.accept()
         try:
             client_connection, client_address = ssl_socket.accept()
+            log.log_info("client / user address: " + str( client_address) )
             a = executor.submit(handle_request, client_connection)
         except:
             print("Unexpected error:", sys.exc_info()[0])
