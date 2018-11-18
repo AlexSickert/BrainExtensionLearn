@@ -358,7 +358,7 @@ def serve_forever():
         #client_connection, client_address = listen_socket.accept()
         try:
             client_connection, client_address = ssl_socket.accept()
-            log.log_info("client / user address: " + str( client_address) )
+            log.log_info("client_user_address: " + str( client_address) )
             a = executor.submit(handle_request, client_connection)
         except:
             print("Unexpected error:", sys.exc_info()[0])
