@@ -390,7 +390,7 @@ def check_if_learned(word_id):
 def get_next_word_id(user_id, last_word_id):
     """
 
-    NOTE: consider also the funciton get_next_word_id_array(user_id, last_word_id) because it is similar !!!
+    NOTE: consider also the function get_next_word_id_array(user_id, last_word_id) because it is similar !!!
 
     Loads the id of the next word we want to learn. This can be either one of the 7 in the caroussel or if the
     carousel is less than 7 we add another word and then learn this.
@@ -400,29 +400,49 @@ def get_next_word_id(user_id, last_word_id):
     :return:
     """
 
-    if count_current(user_id) < 7:
+    count = count_current(user_id)
+
+    if count < 7:
         log.log_info("get_next_word_id - count_current less than 7" )
         # we need to add a new word question is if repeat old word or use new
-        while count_current(user_id) < 7:
+
+        do_continue = True
+        tmp_count = 0
+
+        while do_continue:
+
+            if count_current(user_id) >= 7:
+                do_continue = False
+
+            tmp_count += 1
+
+            # just to prevent endless loop
+            if tmp_count > 14:
+                log.log_error("get_next_word_id needed to abord because endless loop")
+                do_continue = False
+
             if add_new_word():
                 # ToDo: if there are no new words left, then we need to process old words and send info to user,
                 # that there are no new words left
 
                 if count_not_learned(user_id) > 0:
+                    log.log_info("more than zero learned words")
                     word_id = get_new_random(user_id)
                 else:
+                    log.log_info("zero learned words")
                     # if there are no new words left then use old words
-                    word_id = get_old_random(user_id)
+                    word_id = get_old_by_score(user_id)
 
             else:
                 # we can add old only if such words exist
                 # if not, then we add from new category
                 num_learned = count_learned(user_id)
                 if num_learned > 0:
-                    word_id = get_old_random(user_id)
+                    log.log_info("num_learned more than zero")
+                    word_id = get_old_by_score(user_id)
                 else:
+                    log.log_info("num_learned zero")
                     word_id = get_new_random(user_id)
-
 
             set_word_current(word_id)
 
@@ -476,14 +496,14 @@ def get_next_word_id_array(user_id, last_word_id):
                     word_id = get_new_random(user_id)
                 else:
                     # if there are no new words left then use old words
-                    word_id = get_old_random(user_id)
+                    word_id = get_old_by_score(user_id)
 
             else:
                 # we can add old only if such words exist
                 # if not, then we add from new category
                 num_learned = count_learned(user_id)
                 if num_learned > 0:
-                    word_id = get_old_random(user_id)
+                    word_id = get_old_by_score(user_id)
                 else:
                     word_id = get_new_random(user_id)
 
@@ -551,7 +571,7 @@ def set_word_current(word_id):
     conn.commit()
 
 
-def get_old_random(user_id):
+def get_old_by_score(user_id):
     """
     take one word from the pile of words we already learned
 
@@ -562,52 +582,41 @@ def get_old_random(user_id):
     conn = dba.get_connection()
     cur = conn.cursor()
 
-    sql = """
-    
-    SELECT 
-        id, 
-        (count_negative::float + 1) / count_positive::float as ratio  
-    FROM
-        vocabulary
-    WHERE
-        user_id = %s 
-    AND 
-        current = false
-    AND
-        count_positive > 0
-    ORDER BY    
-        ratio desc
-    LIMIT 3;   
-    
-    """
-    #  ORDER BY RAND()
 
     sql = """
 
-    SELECT 
-        id  
-    FROM
-        vocabulary
-    WHERE
-        user_id = %s 
-    AND 
-        current = false
-    AND
-        count_positive > 0
-    ORDER BY    
-        random() 
-    LIMIT 3;   
+        SELECT 
+            id, calc_rank 
+        FROM
+            vocabulary
+        WHERE
+            user_id = %s 
+        AND 
+            current = false
+        AND
+            count_positive > 0
+        ORDER BY    
+            calc_rank desc
+        LIMIT 2;   
 
-    """
+        """
 
     cur.execute(sql, (user_id,))
 
-    l = cur.fetchall()[0][0]
+    #l = cur.fetchall()[0][0]
 
-    # As we pull a word from the old words we need to track the success and hence it is an experiment so we set the
-    # experiment flag
+    arr = cur.fetchall()
+    print(arr)
 
-    set_experiment_state(l, True)
+    if len(arr) > 0:
+
+        i = int(random.random() * float(len(arr)))
+        l = arr[i][0]
+        set_experiment_state(l, True)
+    else:
+        l = -1
+
+    log.log_info("get_old_by_score returns " + str(l) + " for user id " + str(user_id))
 
     return l
 
@@ -622,8 +631,15 @@ def get_new_random(user_id):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND direction = TRUE AND count_positive = 0 ORDER BY random() LIMIT 1", (user_id,))
-    l = cur.fetchall()[0][0]
+    cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND direction = TRUE AND count_positive < 1 ORDER BY random() LIMIT 1", (user_id,))
+
+    arr = cur.fetchall()
+
+    if len(arr) > 0:
+        l = arr[0][0]
+    else:
+        l = -1
+
     return l
 
 
@@ -647,11 +663,12 @@ def count_current(user_id):
     :param user_id:
     :return:
     """
-    log.log_info("count_current")
+
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count(*)  FROM vocabulary where user_id = %s AND current = true", (user_id,) )
     l = cur.fetchall()[0][0]
+    log.log_info("count_current is " + str(l))
     return int(l)
 
 
