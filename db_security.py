@@ -64,6 +64,13 @@ def check_login(u, p):
     cur.execute("SELECT count(*)  FROM users WHERE email = %s AND password = %s", (u, p))
     ret = cur.fetchall()[0][0]
 
+    cur.execute("SELECT email,  password FROM users" , ())
+    xxx = cur.fetchall()[0][0]
+
+    print("----------------------------------")
+    print(xxx)
+    print("----------------------------------")
+
 
     print(ret)
     return ret
