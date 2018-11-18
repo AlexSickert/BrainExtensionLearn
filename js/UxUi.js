@@ -93,6 +93,13 @@ function UxUi() {
    * ToDo: Don't set values in all divs, just in the ones that are needed
    */
   this.setLearnFormValues = function(l1, w1, l2, w2) {
+
+    console.log("---");
+    console.log(l1);
+    console.log(l2);
+    console.log(w1);
+    console.log(w2);
+    console.log("---");
     //this.setHtmlInDiv("mainBody", this.getLearnForm());
     this.setHtmlInDiv("language1", l1.trim());
     this.setHtmlInDiv("word1", w1.trim());
@@ -586,16 +593,16 @@ function UxUi() {
 
 
   this.getLoginForm = function(txt) {
-    var s = "";
+    var s = "<br><br>";
     s += txt;
     s += "<br>";
     s += "<br>";
     s += "<table class='login'>";
     s += "<tr>";
-    s += "<td><span id='xxxxxx'>Email</span></td><td><input type='text' id='user' name='user' value='' /></td>";
+    s += "<td><span id='xxxxxx'>Email: </span></td><td><input type='text' id='user' name='user' value='' /></td>";
     s += "</tr>";
     s += "<tr>";
-    s += "<td><span id='xxxxxx'>Password</span></td><td><input type='password' id='password' name='password' value='' /></td>";
+    s += "<td><span id='xxxxxx'>Password: </span></td><td><input type='password' id='password' name='password' value='' /></td>";
     s += "</tr>";
     s += "</table>";
     s += "<br>";
@@ -611,7 +618,7 @@ function UxUi() {
 
 
   this.getAfterResetRegistration = function(txt) {
-    var s = "";
+    var s = "<br><br>";
     s += txt;
     s += "<br>";
     s += "<br>";
@@ -621,11 +628,11 @@ function UxUi() {
   };
 
   this.getRegistrationForm = function(txt) {
-    var s = "";
+    var s = "<br><br>";
     s += txt;
     s += "<br>";
     s += "<br>";
-    s += "<span id='xxxxxx'>Email</span><input type='text' id='user' name='user' value='' /><br>";
+    s += "<span id='xxxxxx'>Email: </span><input type='text' id='user' name='user' value='' /><br>";
     s += "<br>";
     s += "<br>";
     s += this.getButton("Register", "con.register()");
@@ -636,11 +643,11 @@ function UxUi() {
   };
 
   this.getPasswordResetForm = function(txt) {
-    var s = "";
+    var s = "<br><br>";
     s += txt;
     s += "<br>";
     s += "<br>";
-    s += "<span id='xxxxxx'>Email</span><input type='text' id='user' name='user' value='' /><br>";
+    s += "<span id='xxxxxx'>Email: </span><input type='text' id='user' name='user' value='' /><br>";
     s += "<br>";
     s += "<br>";
     s += this.getButton("Reset password", "con.resetPassword()");
