@@ -379,6 +379,9 @@ def distribute_actions(jo):
             rj['result'] = "success"
             rj['success'] = True
         else:
+
+            log.log_info("user already exists: " + user)
+
             rj['result'] = "failure"
             rj['success'] = False
 
