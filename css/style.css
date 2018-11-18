@@ -125,14 +125,26 @@ span.button {
 }
 
 span.buttonSmall {
-  padding: 10px;
+
   /* border: 0px solid #ffffff; */
-  background-color: #cccccc;
+  background-color: #eeeeee;
+  border: 1px solid #aaaaaa;
+
+  color: #444444;
+
   text-align: center;
+
+  padding: 10px;
+  margin: 40px;
+
+  line-height: 2;
+
+  border-radius: 10px;
 }
 
 /* this button gets modified by javascript*/
 span.buttonSmallBlue{
+
     font-size: 16px;
 }
 
@@ -260,10 +272,13 @@ input.naviButton{
 /* -------------------------------------------*/
 
 textarea {
-  width: 100%;
+  border:solid 1px #444444;
+  width: 80%;
+
 }
 
 textarea.contentEdit {
-  width: 100%;
+  border:solid 1px #444444;
+  width: 80%;
   height: 400px;
 }
