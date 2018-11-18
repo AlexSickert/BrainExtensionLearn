@@ -1,7 +1,7 @@
 """
 
-This script runs the prediction. It is the central point of the application in the sense that everythng else is
-more or less just infrastructure. Here is the magic point where we predict which workd will be forgotten soon.
+This script runs the prediction. It is the central point of the application in the sense that everything else is
+more or less just infrastructure. Here is the magic point where we predict which worked will be forgotten soon.
 
 
 """
@@ -132,10 +132,8 @@ def predict(user_id, scaler, clf):
 
         pro = clf.predict_proba(one_sample)
 
-
-
         #if ret[0] < 1.0:
-        print("classes: ", clf.classes_, " id: ", arr_ids[i], " result: ", ret, " forgotten: ", pro[0][0] , " learned: ", pro[0][1] )
+        #print("classes: ", clf.classes_, " id: ", arr_ids[i], " result: ", ret, " forgotten: ", pro[0][0] , " learned: ", pro[0][1] )
 
         probability_forgot_word = pro[0][0]
 
@@ -162,8 +160,6 @@ def train_and_predict_rs(arr, user_id):
 
     np_arr_dirty = np.asarray(arr)
 
-
-
     Y = np_arr_dirty[:,0]
     X = np_arr_dirty[:,1:]
 
@@ -175,9 +171,9 @@ def train_and_predict_rs(arr, user_id):
     X_train, scaler = scale_data(X_train)
     X_test = scaler.transform(X_test)
 
-    print(X_train)
+    #print(X_train)
     #print(X_test)
-    print(y_train)
+    #print(y_train)
     #print(y_test)
 
     #clf = tree.DecisionTreeClassifier()
@@ -208,7 +204,7 @@ def train_and_predict_rs(arr, user_id):
         if ret[0] == truth:
             c_pos += 1
 
-    print("score: ", c_pos / c_total)
+    #print("score: ", c_pos / c_total)
 
     #print(clf.feature_importances_)
 
@@ -218,11 +214,33 @@ def train_and_predict_rs(arr, user_id):
 
 
 def run_prediction_loop():
-    sql = "SELECT DISTINCT user_id FROM experiments"
+    sql = """ 
+    
+        SELECT DISTINCT
+            user_id
+        FROM
+            history
+        WHERE
+            time_stamp_server > %s
+
+        """
+
+    time_stamp = int(time.time())
+
+    #threshold = time_stamp - 1000
+    diff = 1 * 60 * 60 # hours minute second
+    threshold = int(time.time()) - diff
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute(sql, ())
+
+    cur.execute(sql, (threshold,))
+
+    # sql = "SELECT DISTINCT user_id FROM experiments"
+    #
+    # conn = dba.get_connection()
+    # cur = conn.cursor()
+    # cur.execute(sql, ())
 
     user_arr = rs_to_arr(cur.fetchall())
 
@@ -256,9 +274,7 @@ def run_prediction_loop():
 
     for user_id in user_arr:
 
-        print("----------------------------------------------------------------------------------------------------")
-
-        print("processing user ", user_id)
+        log.log_info("processing user id: " + str(user_id))
 
         conn = dba.get_connection()
         cur = conn.cursor()
@@ -266,7 +282,7 @@ def run_prediction_loop():
 
         arr = cur.fetchall()
 
-        print("number of data points ", len(arr))
+        log.log_info("number of data points " + str( len(arr)))
 
         if len(arr) > 10:
             train_and_predict_rs(arr, user_id)
@@ -277,5 +293,6 @@ def run_prediction_loop():
 while True:
 
     run_prediction_loop()
-    print("now sleeping")
-    time.sleep(60)
+    #print("now sleeping")
+    #time.sleep(60)
+    time.sleep(10)
