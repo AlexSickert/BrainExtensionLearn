@@ -28,6 +28,7 @@ import process_json as pj
 import log
 import sys, traceback
 import ssl
+import report_html as reph
 
 
 log.log_info("------------------ start server ----------------------")
@@ -291,6 +292,8 @@ def handle_request(client_connection):
 
                 elif u == "/top-image-1.jpg":
                     http_response += getFile("./html/top-image-1.jpg")
+                elif "report.html" in u:
+                    http_response += reph.get_report(u)
 
 
                 else:
