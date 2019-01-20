@@ -37,6 +37,7 @@
     var globalVisibleScreen = 0; // defaul 1 = learning app , 2 = edit word screen
     var globalBaseUrl = window.location.href;
     var globalWordId = ""; // id of word currenlty learning
+    var globalWordIdIndex = 0; // index in array of word currenlty learning
     var globalWord = "";
     var globalWordHidden = "";
     var uxui = new UxUi();
@@ -276,6 +277,9 @@
       <tr>
         <td colspan=3>
           <br><br> You can use the arrow keys of your keyboard (&#8592;&#8593;&#8594;&#8595;) to press the buttons.
+         <!-- <span onclick="con.getSettings()">testGetSettings</span>
+          <span onclick="con.setSettings()">testSetSettings</span>
+          -->
         </td>
       </tr>
     </table>
