@@ -10,6 +10,7 @@ function Controller() {
 
   var objDataAccess = new DataAccess();
   var objUxUi;
+  var settings;
 
   this.wordArray = [];
 
@@ -293,6 +294,45 @@ function Controller() {
     objDataAccess.ajaxPost(this, r);
   }
 
+
+  this.getGoodRandomId = function(){
+
+    if (this.wordArray.length > 0){
+
+        var len = this.wordArray.length;
+        // globalWordId
+        // it can be that while ajax is executing the sort order and content of array changed
+        for(i = 0; i < len; i++){
+            if(this.wordArray[i]["wordId"] == globalWordId){
+                globalWordIdIndex = i;
+            }
+        }
+
+
+        if (this.wordArray.length > 1){
+
+            var found = false;
+
+
+            while (found == false){
+
+                candidateId = Math.round(Math.random() * (len - 1));
+
+                if(candidateId != globalWordIdIndex){
+                    found = true;
+                }
+            }
+
+            return candidateId;
+
+        }else{
+            return 0;
+        }
+    }else{
+        return 0;
+    }
+  }
+
   // from the array we immediately load the next word and don't wait for the callback
   this.nextWordFromArray = function(){
 
@@ -300,16 +340,23 @@ function Controller() {
 
     if (this.wordArray.length > 0){
 
-        nextId = Math.round(Math.random() * (this.wordArray.length - 1));
+        //nextId = Math.round(Math.random() * (this.wordArray.length - 1));
+        nextId = this.getGoodRandomId();
 
         console.log("nextId = " + nextId);
 
         globalWordId = this.wordArray[nextId]["wordId"];
+        globalWordIdIndex = nextId
 
         var l1 = this.wordArray[nextId]["language1"];
         var l2 = this.wordArray[nextId]["language2"];
         var w1 = this.wordArray[nextId]["word1"];
         var w2 = this.wordArray[nextId]["word2"];
+
+        if(l1 == null){l1 = " ";};
+        if(l2 == null){l2 = " ";};
+        if(w1 == null){w1 = " ";};
+        if(w2 == null){w2 = " ";};
 
         console.log("l1 = " + l1);
         console.log("w1 = " + w1);
@@ -357,6 +404,33 @@ function Controller() {
   }
 
 
+  // handle settings
+  this.getSettings = function(){
+
+    var s = this.getCookie("session");
+    var r = new JsonGetSettings(s);
+    objDataAccess.ajaxPost(this, r);
+
+  }
+
+  this.setSettings = function(){
+
+    if(Math.random() > 0.5){
+        this.settings["Russian"]["From"] = false;
+    }else{
+        this.settings["Russian"]["From"] = true;
+    }
+
+    var s = this.getCookie("session");
+    var r = new JsonSetSettings(s, this.settings);
+    objDataAccess.ajaxPost(this, r);
+
+  }
+
+  //============================================================================
+  //
+  //  CALLBACK FUNCTIONS
+  //
   //============================================================================
   // function to handle call back from Ajax
 
@@ -407,6 +481,12 @@ function Controller() {
         var l2 = this.wordArray[nextId]["language2"];
         var w1 = this.wordArray[nextId]["word1"];
         var w2 = this.wordArray[nextId]["word2"];
+
+        if(l1 == null){l1 = " ";};
+        if(l2 == null){l2 = " ";};
+        if(w1 == null){w1 = " ";};
+        if(w2 == null){w2 = " ";};
+
 
         // put a random value to the gui
         objUxUi.setLearnFormValues(l1, w1, l2, w2);
@@ -467,8 +547,17 @@ function Controller() {
       objUxUi.setNavi("");
       objUxUi.setLearnForm();
 
+    } else if(responseObject["action"] === "getSettings"){
+
+      this.settings = responseObject["settings"];
+        // settings
+    } else if(responseObject["action"] === "setSettings"){
+
+      console.log("set settings object received. result is: success = " + responseObject["success"]);
+        // settings
     } else {
       console.log("ERROR in controller callBack - action not found: " + responseObject["action"]);
+      console.log(responseObject);
     }
   };
 
@@ -480,6 +569,13 @@ function Controller() {
   this.notImplemented = function() {
     objUxUi.makeToast("This functionality is not implemented yet. ");
   }
+
+
+  //============================================================================
+  //
+  //  TOAST
+  //
+  //============================================================================
 
   // check what kind of toas we make and if we make a makeToast
   this.makeToast = function(success, experiment, once_learned) {
