@@ -100,7 +100,25 @@ def process_answer(word_id, user_id, answer):
     return success, experiment, once_learned
 
 
+def get_calc_rank(word_id):
+
+    sql = "SELECT calc_rank from vocabulary WHERE id = %s"
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (word_id,))
+
+    try:
+        arr = cur.fetchall()
+        e = arr[0][0]
+    except:
+        e = 0
+    return e
+
+
 def add_to_history(user_id, word_id, answer):
+
+    r = get_calc_rank(word_id)
 
     if answer == "YES":
         result = True
@@ -114,11 +132,12 @@ def add_to_history(user_id, word_id, answer):
                user_id,
                word_id,
                result,
-               time_stamp_server                 
+               time_stamp_server,
+               calc_rank                 
            )
            VALUES
            (
-               %s, %s, %s, %s
+               %s, %s, %s, %s, %s
            )   
 
            """
@@ -131,9 +150,10 @@ def add_to_history(user_id, word_id, answer):
     cur.execute(sql, (user_id,
                       word_id,
                       result,
-                      time_stamp
-                      ))
+                      time_stamp,
+                      r))
     conn.commit()
+
 
 def add_transition(word_id, user_id, transition):
 
@@ -230,7 +250,8 @@ def process_experiment(word_id, user_id, answer):
         language_word,
         language_translation,        
         current,
-        once_successfully_learned 
+        once_successfully_learned,
+        calc_rank 
     FROM
         vocabulary
     WHERE
@@ -265,6 +286,7 @@ def process_experiment(word_id, user_id, answer):
         direction = arr[0][12]
         language_word = arr[0][13]
         language_translation = arr[0][14]
+        calc_rank = arr[0][17]
 
 
         sql = """ 
@@ -285,12 +307,13 @@ def process_experiment(word_id, user_id, answer):
                 language_translation,              
                 experiment_timestamp,
                 word_id,
-                success
+                success,
+                calc_rank
             
             )
             VALUES
             (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s 
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s , %s
             )   
         
             """
@@ -317,7 +340,7 @@ def process_experiment(word_id, user_id, answer):
                 language_word,
                 language_translation,
                 experiment_timestamp,
-                word_id, answer ))
+                word_id, answer, calc_rank ))
         conn.commit()
 
     # remove the experiment flag
