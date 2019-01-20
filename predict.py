@@ -19,7 +19,10 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 import random
 from sklearn import svm
+import pickle
+import os
 
+last_dataset_length = {}
 
 def rs_to_arr(rs):
     """
@@ -151,7 +154,7 @@ def boolean_to_float(arr):
     return ret
 
 
-def train_and_predict_rs(arr, user_id):
+def train_and_predict_rs(arr, user_id, train = True):
     """
     performa  training and prediction for one user
     :param arr:
@@ -183,6 +186,15 @@ def train_and_predict_rs(arr, user_id):
 
     clf = clf.fit(X_train, y_train)
 
+    # save model and scaler
+    # model-path
+    path = cfg.parameters["model-path"]
+    #print(path)
+
+    pickle.dump(clf, open(path + str(user_id) + "-model.pickle", "wb" ))
+    pickle.dump(scaler, open(path + str(user_id) + "-scaler.pickle", "wb" ))
+
+
     c_total = 0
     c_pos = 0
 
@@ -212,8 +224,27 @@ def train_and_predict_rs(arr, user_id):
 
     # now we predict if we forgot or not
 
+def predict_only(user_id):
+
+
+    path = cfg.parameters["model-path"]
+
+    exists = os.path.isfile(path + str(user_id) + "-model.pickle")
+
+    if exists:
+        f = open(path + str(user_id) + "-model.pickle", "rb")
+        clf = pickle.load(f)
+        f.close()
+        f = open(path + str(user_id) + "-scaler.pickle", "rb")
+        scaler = pickle.load(f)
+
+        predict(user_id, scaler, clf)
+
 
 def run_prediction_loop():
+
+    global last_dataset_length
+
     sql = """ 
     
         SELECT DISTINCT
@@ -228,7 +259,7 @@ def run_prediction_loop():
     time_stamp = int(time.time())
 
     #threshold = time_stamp - 1000
-    diff = 1 * 60 * 60 # hours minute second
+    diff = 0.1 * 60 * 60 # hours minute second
     threshold = int(time.time()) - diff
 
     conn = dba.get_connection()
@@ -284,8 +315,26 @@ def run_prediction_loop():
 
         log.log_info("number of data points " + str( len(arr)))
 
+        if user_id in last_dataset_length:
+            diff = len(arr) - last_dataset_length[user_id]
+        else:
+
+            diff = len(arr) - 0
+
+        last_dataset_length[user_id] = len(arr)
+
         if len(arr) > 10:
-            train_and_predict_rs(arr, user_id)
+
+            if diff > 0:
+                log.log_info("running train and predict, difference is: " + str(diff))
+                train_and_predict_rs(arr, user_id)
+                log.log_info("train and predict done")
+            else:
+                # then just predict without training
+                log.log_info("just predict without training because no new train data")
+                predict_only(user_id)
+                log.log_info("predicting done")
+
 
 
 # -------------------------------------------------------------------
