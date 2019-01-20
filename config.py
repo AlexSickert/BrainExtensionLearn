@@ -7,3 +7,12 @@ import json
 
 parameters = json.load(open('./config.json'))
 
+slaves_arr = parameters["slaves"]
+
+slaves = {}
+
+for s in slaves_arr:
+    slaves[s[0]] = [s[1], s[2]]
+
+
+slave_id = ""
