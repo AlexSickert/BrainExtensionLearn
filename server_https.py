@@ -29,6 +29,8 @@ import log
 import sys, traceback
 import ssl
 import report_html as reph
+import legal_html as leg
+import faq_html as faq
 
 
 log.log_info("------------------ start server ----------------------")
@@ -294,6 +296,10 @@ def handle_request(client_connection):
                     http_response += getFile("./html/top-image-1.jpg")
                 elif "report.html" in u:
                     http_response += reph.get_report(u)
+                elif "legal.html" in u:
+                    http_response += leg.get_legal()
+                elif "faq.html" in u:
+                    http_response += faq.get_faq()
 
 
                 else:
@@ -308,11 +314,13 @@ def handle_request(client_connection):
             http_response = make_header()
 
             if header_values["content-type"].strip() == "application/json":
+                # this is currently just used by the Google Spreadsheet function
                 log.log_info("JSON content")
                 jsonObj = parse.unquote(body)
                 message = pj.process_json(fragments, jsonObj)
             else:
-                message = po.process_post(fragments, form_values)
+                # this is uded by android and web app
+                message = po.process_post(form_values)
 
 
             b = bytearray()
@@ -342,9 +350,6 @@ def serve_forever():
 
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-
-    #listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
     ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True)
 
     ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
