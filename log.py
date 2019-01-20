@@ -2,13 +2,11 @@
 
 ToDo make this a separate thread and the methods just put items in a queue
 
-
 """
 
 
 import datetime
 import time
-
 
 
 
