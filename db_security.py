@@ -19,6 +19,21 @@ import random
 #     print(" password: ", row[1])
 
 
+slaves = cfg.slaves
+
+
+def get_random_slave_ip_port():
+
+    global slaves
+
+    i = random.randint(0,len(slaves))
+
+    ip = slaves[i][0]
+    port = slaves[i][1]
+
+    return ip, int(port)
+
+
 def random_string(l):
 
     id = ""
@@ -47,6 +62,7 @@ def check_session(s):
 
 
 def get_user_id_from_session(s):
+    # this should only be used by SLAVE, because user id is not unique in master
     try:
         conn = dba.get_connection()
         cur = conn.cursor()
@@ -56,6 +72,21 @@ def get_user_id_from_session(s):
         id = -1
     return id
 
+
+def get_user_and_slave_id_from_session(s):
+    # this should only be used by SLAVE, because user id is not unique in master
+    try:
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT user_id, slave_id  FROM session WHERE session_string = %s ", (s,))
+        arr = cur.fetchall()[0]
+        id = arr[0]
+        s = arr[1]
+    except:
+        id = -1
+    return id, 2
+
+
 # check if user and password correct
 def check_login(u, p):
 
@@ -63,14 +94,6 @@ def check_login(u, p):
     cur = conn.cursor()
     cur.execute("SELECT count(*)  FROM users WHERE email = %s AND password = %s", (u, p))
     ret = cur.fetchall()[0][0]
-
-    cur.execute("SELECT email,  password FROM users" , ())
-    xxx = cur.fetchall()[0][0]
-
-    print("----------------------------------")
-    print(xxx)
-    print("----------------------------------")
-
 
     print(ret)
     return ret
@@ -100,6 +123,7 @@ def make_save_session(u):
 
 
 def get_user_id(u):
+    # this should only be used by SLAVE
     conn = dba.get_connection()
     cur = conn.cursor()
 
@@ -107,6 +131,37 @@ def get_user_id(u):
     user_id = cur.fetchall()[0][0]
 
     return user_id
+
+
+def get_slave_ip_port(user_id):
+    # this can only be used by MASTER
+
+    print("get_slave_ip_port(user_id)", user_id)
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT slave_id  FROM master_slave_mapping WHERE session_or_user = %s ", (user_id,))
+
+    rs = cur.fetchall()
+
+    ip = ""
+    port = -1
+
+    if len(rs) > 0:
+        id = rs[0][0]
+    else:
+        id = ""
+
+    print("get_slave_ip_port(user_id) id = ", id)
+
+    if len(id) > 0:
+        id = id.strip()
+        arr = slaves[id]
+        ip = arr[0]
+        port = arr[1]
+
+    return ip, port
+
 
 def update_password(u, p):
     conn = dba.get_connection()
@@ -123,3 +178,32 @@ def register_user(u, p):
     cur.execute(sql, (u, p))
     conn.commit()
 
+
+def register_slave(session_or_user, slave):
+
+    session_or_user = session_or_user.strip()
+    slave = slave.strip()
+    if len(session_or_user) > 3:
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        sql = "DELETE FROM master_slave_mapping WHERE session_or_user = %s;"
+        cur.execute(sql, (session_or_user, ))
+        conn.commit()
+        sql = "INSERT INTO master_slave_mapping (session_or_user, slave_id) VALUES (%s, %s);"
+        cur.execute(sql, (session_or_user, slave))
+        conn.commit()
+    else:
+        log.log_error("cannot register register_slave(session_or_user, slave) because session_or_user too short: " + str(session_or_user))
+
+
+def get_slave_id_from_session_or_user(s):
+    # this should only be used by MASTER,
+    try:
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT slave_id  FROM master_slave_mapping WHERE session_or_user = %s ", (s,))
+        arr = cur.fetchall()[0]
+        id = str(arr[0])
+    except:
+        id = ""
+    return id.strip()
