@@ -198,3 +198,14 @@ function JsonGetLanguages(s) {
   this.action = "getLanguages";
   this.session = s;
 }
+
+function JsonGetSettings(s) {
+  this.action = "getSettings";
+  this.session = s;
+}
+
+function JsonSetSettings(s, data) {
+  this.action = "setSettings";
+  this.session = s;
+  this.settings = data;
+}
