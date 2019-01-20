@@ -17,14 +17,52 @@ import db_report as dbr
 import db_security as dbs
 import db_add_content as dbc
 import email_sender
-
+import os
+import settings
+import slave_request
+import urllib.request
+import config as cfg
+import http.client
+import ssl
 
 print("loading process_json.py")
 
 
-def process_json(fragments, json_string):
+def process_json_master(json_string):
+    """
+
+    This is used by the Google Spreadsheet upload
+
+    The master server needs to know to which slave to forward the message. We need to look up the server
+
+    :param json_string:
+    :return:
+    """
+
+    jo = json.loads(json_string)
+
+    user_id = sec.get_user_id(jo["user"]) # this is the email address
+
+    ip, port = sec.get_slave_ip_port(user_id)
+
+    if port > 0:
+        ret_obj = slave_request.get_from_slave(ip, port, jo)
+
+    else:
+        # wrong login coordinates
+        ret_obj = {}
+        ret_obj["error"] = True
+        ret_obj["function"] = jo["function"]
+        ret_obj["error_description"] = "could not find user"
+
+    return ret_obj
+
+
+def process_json(json_obj):
 
     """
+    This function is used by the SLAVE ONLY !!!
+
     This function is currently being used by teh GOOGLE SPREADSHEET upload
 
     :param fragments:
@@ -32,9 +70,7 @@ def process_json(fragments, json_string):
     :return:
     """
 
-    log.log_info("in function process_json...")
-    print(json_string)
-    jo = json.loads(json_string)
+    jo = json_obj
 
     # print(jo)
 
@@ -157,7 +193,6 @@ def distribute_actions(jo):
         rj['experiment'] = experiment
         rj['once_learned'] = once_learned
 
-
         result = json.dumps(rj)
 
         log.log_info("distribute_actions(jo) result for new word " + result)
@@ -271,8 +306,8 @@ def distribute_actions(jo):
     elif action == "logIn":
 
         # login and create session
-        user = jo["user"]
-        password = jo["password"]
+        user = jo["user"].strip()
+        password = jo["password"].strip()
         rj['action'] = "logIn"
 
         password = password.strip()
@@ -286,11 +321,17 @@ def distribute_actions(jo):
             rj['success'] = True
             rj['result'] = "success"
             rj['session'] = dbs.make_save_session(user)
+
+            # we need to register the session in the MASTER's database
+            register_user_and_session_at_master(rj['session'], user)
+
+
         else:
             rj['success'] = False
             rj['result'] = "failure"
             rj['session'] = ""
 
+        log.log_info("result - " + str(rj))
         result = json.dumps(rj)
 
     elif action == "logout":
@@ -374,6 +415,9 @@ def distribute_actions(jo):
             # ToDo: put in a separate thread to prevent slow down of process
             email_sender.send_mail(user, "registerUser", "password: " + p)
 
+            # wwe need to inform the MASTER about the registration.
+            register_user_and_session_at_master("", user)
+
             log.log_info("registering user " + user)
 
             rj['result'] = "success"
@@ -387,6 +431,30 @@ def distribute_actions(jo):
 
         result = json.dumps(rj)
 
+    elif action == "getSettings":
+
+        session = jo["session"]
+
+        rj['action'] = action
+        rj['settings'] = settings.get_settings(session)
+        rj['result'] = "success"
+        rj['success'] = True
+
+        result = json.dumps(rj)
+
+    elif action == "setSettings":
+
+        session = jo["session"]
+
+        data = jo["settings"]
+        settings.set_settings(session, data)
+
+        rj['action'] = action
+        rj['result'] = "success"
+        rj['success'] = True
+
+        result = json.dumps(rj)
+
     else:
         # then we have a problem because we do not know the request and we need to throw an error
         log.log_error("unknown method for processing JSON")
@@ -394,8 +462,30 @@ def distribute_actions(jo):
 
     return result
         
-        
-    
-    
-    
+
+def register_user_and_session_at_master(session, user):
+
+    # this is so that the master knows where to forward the request
+    # cfg.slave_id
+    # url = cfg.parameters["master-url"] + ":" + cfg.parameters["https"] + "/register-slave?security-key=YI64QZ8LMPJET0GV4CCV&"
+    # url += "register-session=" + session
+    # url += "&server=" + cfg.slave_id
+    # url += "&register-user=" + user
+    # log.log_info("calling MASTER via URL " + url)
+    # r = urllib.request.urlopen(url)
+    # log.log_info("MASTER responds " + str(r.read()))
+
+
+    conn = http.client.HTTPSConnection(cfg.parameters["master-url"], cfg.parameters["https"], context = ssl._create_unverified_context())
+
+    query = "/register-slave?security-key=YI64QZ8LMPJET0GV4CCV&"
+    query += "register-session=" + session
+    query += "&slave-id=" + cfg.slave_id
+    query += "&register-user=" + user
+
+    conn.putrequest('GET', query)
+    conn.endheaders()  # <---
+    r = conn.getresponse()
+    #print(r.read())
+    log.log_info("MASTER responds " + str(r.read()))
     
