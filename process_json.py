@@ -384,6 +384,7 @@ def distribute_actions(jo):
             p = dbs.random_string_simple(4)
             dbs.update_password(user, p)
             # ToDo: put in a separate thread to prevent slow down of process
+            # ToDo: make nice test in mail
             email_sender.send_mail(user, "resetPassword", "Password: " + p)
             rj['result'] = "success"
             rj['success'] = True
@@ -413,6 +414,7 @@ def distribute_actions(jo):
             dbs.register_user(user, p)
 
             # ToDo: put in a separate thread to prevent slow down of process
+            # ToDo: make nice test in mail
             email_sender.send_mail(user, "registerUser", "password: " + p)
 
             # wwe need to inform the MASTER about the registration.
