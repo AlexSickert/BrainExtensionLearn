@@ -42,6 +42,7 @@ def process_post(form_values):
         # we need to know to which salve server to route the request
         if "session" in data:
             session = data["session"]
+            log.log_info("session=" + str(session))
             ip, port = security.get_slave_ip_port_from_session(session.strip())
 
         # if the session cannot be linked to a user then we need to send user back to login because we don't know where
@@ -50,12 +51,16 @@ def process_post(form_values):
         if port == -1:
 
             log.log_info("action=" + str(data["action"]))
+            log.log_info("port is -1")
 
             if data["action"] == "logIn":
                 # this means we know the user and should get
                 # get user id from email address
                 #id = dbs.get_user_id(data["user"])
                 ip, port = security.get_slave_ip_port(data["user"])
+
+                if port == -1:
+                    log.log_error("this user is unknown: " + str(data["user"]))
 
                 #dbs.get_slave_id_from_session_or_user(data["user"])
 
