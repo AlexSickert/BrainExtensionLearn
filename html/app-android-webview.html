@@ -75,7 +75,7 @@
       <tr>
 
 
-        <td id="topbuttons2" class="blue">
+        <td id="topbuttons1" class="blue">
 
           <span id="addword" class="buttonSmallBlue" onclick="con.setAddVocForm()">Add</span>
 
@@ -84,16 +84,16 @@
           -->
         </td>
 
-        <td id="topbuttons3" class="blue">
-          <span id="more" class="buttonSmallBlue" onclick="con.setEditForm()">Edit</span>
+        <td id="topbuttons2" class="blue">
+          <span id="edit" class="buttonSmallBlue" onclick="con.setEditForm()">Edit</span>
         </td>
 
 
-        <td id="topbuttons4" class="blue">
+        <td id="topbuttons3" class="blue">
           <!--
           <span id="more" class="buttonSmallBlue" onclick="con.notImplemented()">more</span>
           -->
-          <span id="more" class="buttonSmallBlue" onclick="con.setResultsForm()">Results</span>
+          <span id="result" class="buttonSmallBlue" onclick="con.setResultsForm()">Results</span>
         </td>
 
         <td id="topbuttons4" class="blue">
@@ -214,9 +214,11 @@
 
     <table>
       <tr>
+        <!--
         <td id="dtopbuttons1" class="blue">
           <span id="exit" class="buttonSmallBlue" onclick="window.location.href='./'">Exit App</span>
         </td>
+        -->
 
         <td id="dtopbuttons2" class="blue">
           <!--
@@ -228,7 +230,7 @@
         </td>
 
         <td id="dtopbuttons3" class="blue">
-          <span id="addword" class="buttonSmallBlue" onclick="con.setEditForm()">Edit word</span>
+          <span id="addword" class="buttonSmallBlue" onclick="con.setEditForm()">Edit</span>
         </td>
 
         <td id="dtopbuttons4" class="blue">
@@ -236,11 +238,16 @@
           <span id="more" class="buttonSmallBlue"  onclick="con.notImplemented()">more</span>
         -->
 
-          <span id="more" class="buttonSmallBlue" onclick="con.setResultsForm()">Show Results</span>
+          <span id="more" class="buttonSmallBlue" onclick="con.setResultsForm()">Results</span>
           <!--
                                    <span id="more" class="buttonSmall" onclick="full_screen();">FS</span>
                                    -->
         </td>
+
+        <td id="dtopbuttons3" class="blue">
+          <span id="addword" class="buttonSmallBlue" onclick="con.setEditForm()">More</span>
+        </td>
+
       </tr>
     </table>
 
