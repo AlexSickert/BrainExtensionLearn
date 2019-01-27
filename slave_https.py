@@ -15,6 +15,8 @@ of the server is this:
 
 """
 
+import sys
+
 
 import socket
 import config as cfg
@@ -26,7 +28,7 @@ import process_post as po
 import process_get as pg
 
 import log
-import sys, traceback
+import traceback
 import ssl
 import report_html as reph
 import legal_html as leg
