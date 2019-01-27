@@ -9,11 +9,130 @@ import db_add_content as dba
 import random
 import time
 
+short_term_memory_length = 10
+
+
+def process_answer_ordered(word_id, user_id, answer):
+
+    """
+    ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
+
+    This method was developed January 2019
+
+    This function is used by
+
+    :param word_id:
+    :param user_id:
+    :param answer:
+    :return: if the answer lead to a success in terms of leanring
+    """
+
+    global short_term_memory_length
+
+    success = False
+    experiment = False
+    once_learned = False
+
+    # ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
+
+    log.log_info("process_answer " + answer)
+
+    #before we update the data in the database, we need to process the result incase it was an experiment
+
+    if len(str(word_id)) > 0:
+        experiment, once_learned = process_experiment(word_id, user_id, answer)
+
+        experiment_timestamp = int(time.time())
+
+        # set timestamp of last access
+        sql = "UPDATE vocabulary SET last_studied = %s WHERE id = %s "
+
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        cur.execute(sql, (experiment_timestamp, word_id))
+        conn.commit()
+
+        position = get_position(word_id)
+
+        if answer == "YES":
+
+            if experiment:
+                # it was an experiment and it was a success so we can push it to the "done" category
+                position = short_term_memory_length + 2
+            else:
+                position = position + 1
+
+            n = get_yes(word_id)
+            n = int(n) + 1
+            pn = "y" + get_np_string(word_id)
+            pn = pn[0:240]
+
+            sql = "UPDATE vocabulary SET count_positive = %s , pn_string = %s WHERE id = %s "
+            conn = dba.get_connection()
+            cur = conn.cursor()
+            cur.execute(sql, (n, pn, word_id) )
+            conn.commit()
+
+            # now check if we need to move the word to the 'learned' category
+            #if check_if_learned(word_id):
+            if check_if_learned_ordered(word_id):
+                sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
+                conn = dba.get_connection()
+                cur = conn.cursor()
+                cur.execute(sql, (word_id,))
+                conn.commit()
+                success = True
+
+        if answer == "NO":
+
+            if experiment:
+                position = int(short_term_memory_length / 2)
+            else:
+                if position > 3:
+                    position = int(position / 2)
+                else:
+                    position = 1
+
+            n = get_no(word_id)
+            n = int(n) + 1
+            pn = "n" + get_np_string(word_id)
+            pn = pn[0:240]
+            sql = "UPDATE vocabulary SET count_negative = %s , pn_string = %s WHERE id = %s "
+            conn = dba.get_connection()
+            cur = conn.cursor()
+            cur.execute(sql, (n, pn, word_id) )
+            conn.commit()
+
+        # update the position
+        set_position(word_id, position)
+
+
+        if experiment:
+            if not success:
+                # forgot the word
+                add_transition(word_id, user_id, 2)
+
+        else:
+            if once_learned:
+                # re-learned existing word
+                add_transition(word_id, user_id, 3)
+
+            else:
+                # learned new word
+                add_transition(word_id, user_id, 1)
+
+        add_to_history(user_id, word_id, answer)
+
+    # success flag is needed to decide if we make a toast on the client app or not
+    return success, experiment, once_learned
+
 
 def process_answer(word_id, user_id, answer):
 
     """
     ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
+
+    This method was used ontil end of 2018. Now new method
 
     This function is used by
 
@@ -217,8 +336,6 @@ def experiment_counter(word_id):
 
 def process_experiment(word_id, user_id, answer):
 
-
-
     """
     In essences, the function copies a line from the vocabulary table and inserts it in the experiments table
     In addition, it enriches the data with a timestamp and if the experiment was sucessfull.
@@ -410,6 +527,30 @@ def check_if_learned(word_id):
         return False
 
 
+def check_if_learned_ordered(word_id):
+
+    """
+    checks if we know the word well enough. This is the case if the positive answers are higher than the negative and
+    if the postiion in the ordered short term memory is larger than 9, which actually means we need to know the word
+    9 times in a row with no mistake
+
+    :param word_id:
+    :return:
+    """
+
+    y = get_yes(word_id)
+    n = get_no(word_id)
+    p = get_position(word_id)
+
+    if y > n +2:
+        if p > 9:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def get_next_word_id(user_id, last_word_id):
     """
 
@@ -549,6 +690,61 @@ def get_next_word_id_array(user_id, last_word_id):
     return ret
 
 
+def get_next_word_id_array_ordered_position(user_id, last_word_id):
+    """
+
+    Januar 2019 new locic where we use a longer short term memeory and when user knows a word we increase the position
+    of the word in an ordere table
+
+    :param user_id:
+    :param last_word_id:
+    :return:
+    """
+    global short_term_memory_length
+    # first we ensure there are enough current words
+
+    if count_current(user_id) < short_term_memory_length:
+        log.log_info("get_next_word_id - count_current less than 7" )
+        # we need to add a new word question is if repeat old word or use new
+        while count_current(user_id) < short_term_memory_length:
+            if add_new_word():
+                # ToDo: if there are no new words left, then we need to process old words and send info to user,
+                # that there are no new words left
+
+                if count_not_learned(user_id) > 0:
+                    word_id = get_new_random(user_id)
+                else:
+                    # if there are no new words left then use old words
+                    word_id = get_old_by_score(user_id)  # this is what we call an experiment
+
+            else:
+                # we can add old only if such words exist
+                # if not, then we add from new category
+                num_learned = count_learned(user_id)
+                if num_learned > 0:
+                    word_id = get_old_by_score(user_id) # this is what we call an experiment
+                else:
+                    word_id = get_new_random(user_id)
+
+
+            set_word_current(word_id)
+
+
+    # now we load all the current words as an array
+    ret = []
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT ID, short_memory_position  FROM vocabulary where user_id = %s AND current = true ORDER BY short_memory_position LIMIT " + str(short_term_memory_length + 1),
+        (user_id,))
+    l = cur.fetchall()
+
+    for id in l:
+        ret.append(id[0], id[1])
+
+    return ret
+
+
 def get_word(new_id):
 
     """
@@ -577,7 +773,6 @@ def get_word(new_id):
     return id, l1, w1, l2, w2
 
 
-
 def set_word_current(word_id):
     """
 
@@ -587,7 +782,7 @@ def set_word_current(word_id):
 
     log.log_info("set_word_current " + str(word_id))
 
-    sql = "UPDATE vocabulary SET current = TRUE WHERE id = %s "
+    sql = "UPDATE vocabulary SET current = TRUE, short_memory_position = 1 WHERE id = %s "
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute(sql, (word_id, ))
@@ -706,6 +901,31 @@ def get_yes(word_id):
     cur.execute("SELECT count_positive  FROM vocabulary where ID = %s", (word_id,) )
     l = cur.fetchall()[0][0]
     return l
+
+
+def get_position(word_id):
+    """
+    Get the short term memory position of the word
+    :param word_id:
+    :return:
+    """
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT short_memory_position  FROM vocabulary where ID = %s", (word_id,) )
+    l = cur.fetchall()[0][0]
+
+    if l is None:
+        l = 1
+
+    return int(l)
+
+def set_position(word_id, pos):
+
+    sql = "UPDATE vocabulary SET short_memory_position = %s WHERE id = %s "
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (pos, word_id))
+    conn.commit()
 
 
 def get_np_string(word_id):
