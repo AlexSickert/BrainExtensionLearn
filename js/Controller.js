@@ -280,7 +280,7 @@ function Controller() {
     var r = new JsonLoadWordArrayRequest("YES", globalWordId, s);
     objUxUi.setLearnFormValues("...", "...", "...", "...");
     objUxUi.showHiddenWord();
-    this.nextWordFromArray();
+    this.nextWordFromArray(true);
     objDataAccess.ajaxPost(this, r);
   }
 
@@ -290,7 +290,7 @@ function Controller() {
     var r = new JsonLoadWordArrayRequest("NO", globalWordId, s);
     objUxUi.setLearnFormValues("...", "...", "...", "...");
     objUxUi.showHiddenWord();
-    this.nextWordFromArray();
+    this.nextWordFromArray(false);
     objDataAccess.ajaxPost(this, r);
   }
 
@@ -333,15 +333,59 @@ function Controller() {
     }
   }
 
+  this.reOrderArray = function(answer){
+
+    // we assume that there is no updated array from server yet. This assumption is dangerous
+
+    // we know that each array element has always a value "position"
+
+    p = this.wordArray[0]["position"];  // the element we just learned
+
+    if(answer){
+        p = p +1;
+    }else{
+         if( p > 3){
+            p = Math.round( p/2 );
+         }
+    }
+
+    this.wordArray[0]["position"] = p
+
+    var arrayLength = this.wordArray.length;
+
+    var arr_new = [];
+    // we start with 1 and not 0 because we push this element later
+
+    for (var i = 1; i < arrayLength; i++) {
+
+        val = this.wordArray[i];
+        arr_new.push(val);
+
+        // p is always larger than 0 and so the element will at lease be put at position 2
+        if(i == p){
+            arr_new.push(this.wordArray[0])
+        }
+    }
+
+    this.wordArray = arr_new;
+
+
+
+  }
+
   // from the array we immediately load the next word and don't wait for the callback
-  this.nextWordFromArray = function(){
+  this.nextWordFromArray = function(answer){
 
     console.log("this.nextWordFromArray() this.wordArray.length = " + this.wordArray.length);
 
     if (this.wordArray.length > 0){
 
+        this.reOrderArray(answer)
+
         //nextId = Math.round(Math.random() * (this.wordArray.length - 1));
-        nextId = this.getGoodRandomId();
+        //nextId = this.getGoodRandomId();
+        // as we now use ordered array we dont need random and pick alway the first value
+        nextId = 0
 
         console.log("nextId = " + nextId);
 
@@ -471,7 +515,10 @@ function Controller() {
       console.log("pushToGui = " + pushToGui);
 
       if(pushToGui){
-        nextId = Math.round(Math.random() * this.wordArray.length);
+
+        // as we use now a sorted array we don't need random
+        //nextId = Math.round(Math.random() * this.wordArray.length);
+        nextId = 0
 
         console.log("nextId = " + nextId);
 
