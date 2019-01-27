@@ -7,6 +7,7 @@ Collection of functions to verify session and logins
 
 import db_security as dbs
 import config as cfg
+import log
 
 cache_user_ip_port = {}
 cache_session_ip_port = {}
@@ -31,16 +32,18 @@ def get_slave_ip_port(user):
     global cache_user_ip_port
 
     if user in cache_user_ip_port:
-
+        log.log_info("user from cache: " + str(user))
         ip = cache_user_ip_port[user]["ip"]
         port = cache_user_ip_port[user]["port"]
 
     else:
+        log.log_info("user not in cache yet: " + str(user))
         ip, port = dbs.get_slave_ip_port(user)
         cache_user_ip_port[user] = {}
         cache_user_ip_port[user]["ip"] = ip
         cache_user_ip_port[user]["port"] = port
 
+    log.log_info("user " + str(user) + " has ip and port: " + str(ip) + "/" + str(port))
     return ip, int(port)
 
 
@@ -58,8 +61,12 @@ def get_slave_ip_port_from_session(session):
 
         slave_id = dbs.get_slave_id_from_session_or_user(session)
 
-        ip = cfg.slaves[slave_id][0]
-        port = cfg.slaves[slave_id][1]
+        if len(str(slave_id)) > 0:
+            ip = cfg.slaves[slave_id][0]
+            port = cfg.slaves[slave_id][1]
+        else:
+            ip = ""
+            port = -1
 
         #ip, port = dbs.get_slave_ip_port(user_id)
 
