@@ -118,6 +118,7 @@ def get_connection():
     database = cfg.parameters["database"]
 
     conn = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
+    conn.set_client_encoding('UTF8')
 
     return conn
 
