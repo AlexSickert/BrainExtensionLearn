@@ -171,6 +171,7 @@ def distribute_actions(jo):
 
         log.log_info("user_id is " + str(user_id))
 
+
         success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
 
         log.log_info("process_answer done")
@@ -214,23 +215,30 @@ def distribute_actions(jo):
 
         log.log_info("user_id is " + str(user_id))
 
-        success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
+        # January 2019 we change this logic now using a ordered lost avoiding random
+        #success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
+        success, experiment, once_learned = dbl.process_answer_ordered(str(wordId), user_id, answer)
 
         log.log_info("process_answer done")
 
-        new_id_array = dbl.get_next_word_id_array(user_id, str(wordId))
+        # January 2019 trying out a new algorithm using a logic that does not use random, but ordered by logic
+        #new_id_array = dbl.get_next_word_id_array(user_id, str(wordId))
+
+        new_id_array = dbl.get_next_word_id_array_ordered_position(user_id, str(wordId))
 
         word_arr = []
 
         for new_id in new_id_array:
 
             row_j = {}
-            id, l1, w1, l2, w2 = dbl.get_word(new_id)
+            id, l1, w1, l2, w2 = dbl.get_word(new_id[0])
             row_j["wordId"] = id
             row_j["language1"] = dbac.get_language_label(l1)
             row_j["word1"] = w1
             row_j["language2"] = dbac.get_language_label(l2)
             row_j["word2"] = w2
+            row_j["position"] = new_id[1]
+
             word_arr.append(row_j)
 
         rj['action'] = action
