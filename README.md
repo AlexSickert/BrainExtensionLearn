@@ -1,3 +1,8 @@
+
+# icons
+
+https://www.flaticon.com/search?word=more
+
 # Brain Extension - Vocabulary
 
 A vocabulary training app and platform that is reduced to the essence. It uses data analytics features, artificial intelligence and machine learning to maximise learning speed.
@@ -40,4 +45,5 @@ When the application is access the server sends a minimal HTML code that loads a
 
 - A class to add and remove HTML components on the GUI
 - A class that controls the user interaction and data flow
-- A class that handles communication with the backend. This is done via JSON objects that are sent and received via AJAX calls. 
+- A class that handles communication with the backend. This is done via JSON objects that are sent and received via AJAX calls.
+
