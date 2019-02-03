@@ -7,6 +7,8 @@ import config as cfg
 import log
 import db_add_content as dba
 import random
+import hashlib
+
 #
 # conn = dba.get_connection()
 # cur = conn.cursor()
@@ -92,9 +94,12 @@ def check_login(u, p):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT count(*)  FROM users WHERE email = %s AND password = %s", (u, p))
+    hash_object = hashlib.md5(p.encode())
+    p_hash = hash_object.hexdigest()
+    log.log_info("p=" + p)
+    log.log_info("p_hash=" + p_hash)
+    cur.execute("SELECT count(*)  FROM users WHERE email = %s AND password = %s", (u, p_hash))
     ret = cur.fetchall()[0][0]
-
     print(ret)
     return ret
 
@@ -169,7 +174,11 @@ def update_password(u, p):
     conn = dba.get_connection()
     cur = conn.cursor()
     sql = "UPDATE users SET password = %s WHERE email = %s;"
-    cur.execute(sql, (p, u))
+    hash_object = hashlib.md5(p.encode())
+    p_hash = hash_object.hexdigest()
+    log.log_info("p=" + p)
+    log.log_info("p_hash=" + p_hash)
+    cur.execute(sql, (p_hash, u))
     conn.commit()
 
 
@@ -177,7 +186,11 @@ def register_user(u, p):
     conn = dba.get_connection()
     cur = conn.cursor()
     sql = "INSERT INTO users (email, password) VALUES (%s, %s);"
-    cur.execute(sql, (u, p))
+    hash_object = hashlib.md5(p.encode())
+    p_hash = hash_object.hexdigest()
+    log.log_info("p=" + p)
+    log.log_info("p_hash=" + p_hash)
+    cur.execute(sql, (u, p_hash))
     conn.commit()
 
 
