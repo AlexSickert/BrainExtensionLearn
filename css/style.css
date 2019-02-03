@@ -45,6 +45,9 @@ div {
 
 */
 
+
+/* ----------------- DIVS --------------------------*/
+
 div {
   display: block;
   visibility: visible;
@@ -104,6 +107,8 @@ div.greendiv {
   font-size: 1px;
 }
 
+/* ----------------- HTML --------------------------*/
+
 html {
 
   margin: 0px;
@@ -111,7 +116,7 @@ html {
 
 }
 
-
+/* ----------------- SPANS --------------------------*/
 
 span.breadcrumb {
   color: #999999;
@@ -169,7 +174,7 @@ span.spantest {
 
 }
 
-/* -------------------------------------------*/
+/* ----------------- TABLES --------------------------*/
 
 td.tdNarrow {
   width: 10%;
@@ -240,7 +245,6 @@ td.greentest {
 
 
 td.blue {
-  //background-color: #9ee7f5;
   background-color: #3B5998;
   color: #ffffff;
   font-weight: bold;
@@ -259,26 +263,34 @@ tr {
   padding: 0px;
 }
 
-/* -------------------------------------------*/
+/* ------------------ FORM ELEMENTS -------------------------*/
 
 input.naviButton{
   background-color: #3B5998;
   color: #ffffff;
   border: 1px solid #ffffff;
   font-weight: bold;
-
 }
-
-/* -------------------------------------------*/
 
 textarea {
   border:solid 1px #444444;
   width: 80%;
-
+  height: 20%;
+  font-size: 25px;
 }
 
 textarea.contentEdit {
   border:solid 1px #444444;
   width: 80%;
   height: 400px;
+  font-size: 25px;
+}
+
+select{
+    font-size: 25px;
+    padding: 10px;
+    background-color: #3B5998;
+    color: #ffffff;
+    border: 1px solid #ffffff;
+    font-weight: bold;
 }
