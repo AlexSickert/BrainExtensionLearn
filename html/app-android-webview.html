@@ -43,6 +43,8 @@
     var uxui = new UxUi();
     var con = new Controller();
 
+    var globalForceMobile = true;
+
     uxui.setController(con);
 
     function init() {
@@ -88,17 +90,18 @@
           <span id="edit" class="buttonSmallBlue" onclick="con.setEditForm()">Edit</span>
         </td>
 
-
+<!--
         <td id="topbuttons3" class="blue">
-          <!--
+
           <span id="more" class="buttonSmallBlue" onclick="con.notImplemented()">more</span>
-          -->
+
           <span id="result" class="buttonSmallBlue" onclick="con.setResultsForm()">Results</span>
         </td>
+        -->
 
         <td id="topbuttons4" class="blue">
 
-          <span id="more" class="buttonSmallBlue" onclick="con.notImplemented()">More</span>
+          <span id="more" class="buttonSmallBlue" onclick="con.setMoreForm()">More</span>
 
 
         </td>
