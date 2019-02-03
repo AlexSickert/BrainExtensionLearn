@@ -43,7 +43,7 @@ def get_from_slave(ip, port, obj):
 
     data_str = "".join(map(chr, data))
 
-    print(data_str)
+    #print(data_str)
 
     j = json.loads(data_str)
     ssl_socket.close()
