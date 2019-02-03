@@ -54,6 +54,8 @@ def process_answer_ordered(word_id, user_id, answer):
 
         position = get_position(word_id)
 
+        log.log_info("position up to now " + str(position))
+
         if answer == "YES":
 
             if experiment:
@@ -75,7 +77,7 @@ def process_answer_ordered(word_id, user_id, answer):
 
             # now check if we need to move the word to the 'learned' category
             #if check_if_learned(word_id):
-            if check_if_learned_ordered(word_id):
+            if check_if_learned_ordered(word_id, experiment):
                 sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
                 conn = dba.get_connection()
                 cur = conn.cursor()
@@ -104,6 +106,7 @@ def process_answer_ordered(word_id, user_id, answer):
             conn.commit()
 
         # update the position
+        log.log_info("new position " + str(position))
         set_position(word_id, position)
 
 
@@ -527,7 +530,7 @@ def check_if_learned(word_id):
         return False
 
 
-def check_if_learned_ordered(word_id):
+def check_if_learned_ordered(word_id, is_experiment):
 
     """
     checks if we know the word well enough. This is the case if the positive answers are higher than the negative and
@@ -542,12 +545,23 @@ def check_if_learned_ordered(word_id):
     n = get_no(word_id)
     p = get_position(word_id)
 
+    log.log_info("check_if_learned_ordered - y: " + str(y))
+    log.log_info("check_if_learned_ordered - n: " + str(n))
+    log.log_info("check_if_learned_ordered - p: " + str(p))
+
+    # when we run an experiment then the p value can be different. therefore we set it high enough
+    if is_experiment:
+        p = 99
+
     if y > n +2:
         if p > 9:
+            log.log_info("check_if_learned_ordered - return true")
             return True
         else:
+            log.log_info("check_if_learned_ordered - return False")
             return False
     else:
+        log.log_info("check_if_learned_ordered - return False II")
         return False
 
 
@@ -734,13 +748,31 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     ret = []
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute(
-        "SELECT ID, short_memory_position  FROM vocabulary where user_id = %s AND current = true ORDER BY short_memory_position LIMIT " + str(short_term_memory_length + 1),
-        (user_id,))
+    cur.execute("""
+    
+    SELECT 
+        ID, COALESCE(short_memory_position, 1)  
+    FROM 
+        vocabulary 
+    where 
+        user_id = %s AND current = true 
+        and direction = TRUE
+    ORDER BY 
+        COALESCE(short_memory_position, 1) ,
+        last_studied     
+        
+    LIMIT """ + str(short_term_memory_length + 1), (user_id,))
     l = cur.fetchall()
 
     for id in l:
-        ret.append(id[0], id[1])
+        if id[1] is None:
+            pos = 1
+        else:
+            pos = id[1]
+
+        ret.append([id[0], pos])
+
+        log.log_info(str(id[0]) + " => " + str(pos))
 
     return ret
 
@@ -911,7 +943,7 @@ def get_position(word_id):
     """
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT short_memory_position  FROM vocabulary where ID = %s", (word_id,) )
+    cur.execute("SELECT COALESCE(short_memory_position, 1)    FROM vocabulary where ID = %s", (word_id,) )
     l = cur.fetchall()[0][0]
 
     if l is None:
@@ -920,6 +952,8 @@ def get_position(word_id):
     return int(l)
 
 def set_position(word_id, pos):
+
+    log.log_info("set_position " + str(word_id) + " to " + str(pos))
 
     sql = "UPDATE vocabulary SET short_memory_position = %s WHERE id = %s "
     conn = dba.get_connection()
