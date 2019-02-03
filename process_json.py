@@ -219,6 +219,9 @@ def distribute_actions(jo):
         #success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
         success, experiment, once_learned = dbl.process_answer_ordered(str(wordId), user_id, answer)
 
+        log.log_info("was experiment? " + str(experiment))
+        log.log_info("was success? " + str(success))
+        log.log_info("once learned? " + str(once_learned))
         log.log_info("process_answer done")
 
         # January 2019 trying out a new algorithm using a logic that does not use random, but ordered by logic
@@ -389,7 +392,7 @@ def distribute_actions(jo):
         user = user.replace(" ", "")
 
         if dbs.check_user(user) > 0:
-            p = dbs.random_string_simple(4)
+            p = dbs.random_string_simple(6)
             dbs.update_password(user, p)
             # ToDo: put in a separate thread to prevent slow down of process
             # ToDo: make nice test in mail
