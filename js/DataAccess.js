@@ -178,6 +178,10 @@ function JsonReportRequest(s) {
   this.session = s;
 }
 
+function JsonStaticContentRequest(c) {
+  this.action = c;
+}
+
 function JsonLogInRequest(u, p) {
   this.action = "logIn";
   this.user = u;
