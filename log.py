@@ -59,7 +59,7 @@ def write_to_file(s, suffix=""):
     global log_path
 
     try:
-        print(s)
+        #print(s)
         d = date.today()
         if len(suffix) > 0:
             f = open(log_path + suffix + "-" + str(d) + ".log", "a+")
