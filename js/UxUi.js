@@ -20,45 +20,39 @@ function UxUi() {
 
     var s = "<table><tr>";
 
-    var homeButton = this.getButtonNavi("Exit", "window.location.href='./'");
+    //var homeButton = this.getButtonNavi("Exit", "window.location.href='./'");
 
-    s += "<td class='blue'>" + homeButton + "</td>";
+    //s += "<td class='blue'>" + homeButton + "</td>";
 
 
 
     if (current === "add") {
       s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
       //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Edit", "con.setEditForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("More", "con.setMoreForm()") + "</td>";
     }
 
     if (current === "learn" || current === "") {
       //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
       //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Add", "con.setAddVocForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Edit", "con.setEditForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("More", "con.setMoreForm()") + "</td>";
     }
 
     if (current === "edit" || current === "") {
       //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
       //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
       s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Add", "con.setAddVocForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("More", "con.setMoreForm()") + "</td>";
     }
 
-    if (current === "results") {
-      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Logout", "con.logOut()") + "</td>";
+    if (current === "results" || current === "more" || current === "settings") {
       s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
-      //s += "<td class='blue'>" + this.getButtonNavi("Settings", "con.setSettingsForm()") + "</td>";
-    }
-
-    if (current === "settings") {
-      //s += "<td class='blue'>" + this.getButtonNavi("Add words", "con.setAddVocForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Learn", "con.setLearnForm()") + "</td>";
-      s += "<td class='blue'>" + this.getButtonNavi("Results", "con.setResultsForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("Add", "con.setAddVocForm()") + "</td>";
+      s += "<td class='blue'>" + this.getButtonNavi("More", "con.setMoreForm()") + "</td>";
     }
 
     s += "</tr></table>";
@@ -71,13 +65,22 @@ function UxUi() {
   this.adjustNaviFont = function(){
 
     var h = this.getHeight() - 0;
+    var w = this.getWidth() - 0;
 
     var x = document.getElementsByClassName("buttonSmallBlue");
     var i;
     for (i = 0; i < x.length; i++) {
         x[i].style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+        x[i].style.width = Math.floor(w * 0.3) + "px";
+        x[i].style.height = Math.floor(h * 0.1) + "px";
     }
 
+    x = document.getElementsByClassName("blue");
+    for (i = 0; i < x.length; i++) {
+        x[i].style.fontSize = Math.floor(h * 0.1 * 0.4) + "px";
+        x[i].style.width = Math.floor(w * 0.3) + "px";
+        x[i].style.height = Math.floor(h * 0.1) + "px";
+    }
   }
 
   this.setLearnForm = function() {
@@ -148,6 +151,17 @@ function UxUi() {
 
   this.setSettingsForm = function() {
     this.setHtmlInDiv("mainBody", this.getSettingsForm());
+  };
+
+
+  this.setMoreForm = function() {
+    this.setHtmlInDiv("mainBody", this.getMoreForm());
+  };
+
+  this.setStaticContentForm = function(s) {
+    var h = Math.floor((this.getHeight() - 0) * 0.85);
+    s = "<div style='width: 100%; height: " + h + "px; overflow-y: scroll;' >" + s + "</div>";
+    this.setHtmlInDiv("mainBody", s);
   };
 
   this.setResultsForm = function() {
@@ -224,11 +238,13 @@ function UxUi() {
    */
   this.getValue = function(id) {
     //return document.getElementById(id).innerHTML;
+    console.log("getValue from id: " + id);
     return document.getElementById(id).value;
   };
 
   this.setValue = function(id, value) {
     //return document.getElementById(id).innerHTML;
+    console.log("setValue in id: " + id);
     document.getElementById(id).value = value;
   };
 
@@ -259,6 +275,10 @@ function UxUi() {
     var device = "d";
 
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      device = "m";
+    }
+
+    if(globalForceMobile){
       device = "m";
     }
 
@@ -381,9 +401,9 @@ function UxUi() {
 
     // set width
 
-    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.2) + "px";
+    document.getElementById("topbuttons1").style.width = Math.floor(w * 0.3) + "px";
     document.getElementById("topbuttons2").style.width = Math.floor(w * 0.3) + "px";
-    document.getElementById("topbuttons3").style.width = Math.floor(w * 0.2) + "px";
+    //document.getElementById("topbuttons3").style.width = Math.floor(w * 0.2) + "px";
     document.getElementById("topbuttons4").style.width = Math.floor(w * 0.3) + "px";
 
     document.getElementById("language1").style.width = Math.floor(w) + "px";
@@ -399,7 +419,7 @@ function UxUi() {
 
     document.getElementById("topbuttons1").style.height = Math.floor(h * 0.1) + "px";
     document.getElementById("topbuttons2").style.height = Math.floor(h * 0.1) + "px";
-    document.getElementById("topbuttons3").style.height = Math.floor(h * 0.1) + "px";
+    //document.getElementById("topbuttons3").style.height = Math.floor(h * 0.1) + "px";
     document.getElementById("topbuttons4").style.height = Math.floor(h * 0.1) + "px";
 
     document.getElementById("language1").style.height = Math.floor(h * 0.1) + "px";
@@ -674,21 +694,63 @@ function UxUi() {
   };
 
   this.getAddVocForm = function() {
+
+    // layout depends on system
     var s = "";
-    s += "<input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
-    s += "<input type='text' id='adVocWord' name='adVocWord'  />";
-    s += "<input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
-    s += "<input type='text' id='adVocTranslationWord' name='adVocTranslationWord'  />";
-    s += this.getButton("Save Word", "con.saveAddVoc()");
-    s += "<hr>";
-    s += "<textarea id='adVocText' rows='4' style='width:80%;'></textarea>";
-    s += this.getButton("Save Text", "con.saveAddVoc()");
-    s += "<hr>";
-    s += "<textarea id='adVocUrl' rows='4' style='width:80%;'></textarea>";
-    s += this.getButton("Process Text from URL", "con.saveAddVoc()");
+
+    if(globalForceMobile){
+        s += "<center>";
+        s += "Language";
+        //s += "<br><input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
+        s += "<br>" + this.getLanguageDropDown('adVocLanguage', controller.getCookie("adVocLanguage"));
+        s += "<br><textarea id='adVocWord' name='adVocWord' rows='4'></textarea>";
+        s += "<br><br>";
+        s += "Language";
+        //s += "<br><input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
+        s += "<br>" + this.getLanguageDropDown('adVocTranslationLanguage', controller.getCookie("adVocTranslationLanguage"));
+        s += "<br><textarea id='adVocTranslationWord' name='adVocTranslationWord' rows='4'></textarea>";
+        s += "<br>";
+        s += "<br>";
+        s += this.getButton("Save Word", "con.saveAddVoc()");
+        s += "</center>";
+    }else{
+
+        s += "<input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
+        s += "<input type='text' id='adVocWord' name='adVocWord'  />";
+        s += "<input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
+        s += "<input type='text' id='adVocTranslationWord' name='adVocTranslationWord'  />";
+        s += this.getButton("Save Word", "con.saveAddVoc()");
+        s += "<hr>";
+        s += "<textarea id='adVocText' rows='4' style='width:80%;'></textarea>";
+        s += this.getButton("Save Text", "con.saveAddVoc()");
+        s += "<hr>";
+        s += "<textarea id='adVocUrl' rows='4' style='width:80%;'></textarea>";
+        s += this.getButton("Process Text from URL", "con.saveAddVoc()");
+
+    }
 
     return s;
   };
+
+
+  this.getLanguageDropDown = function(id, selectedValue){
+
+    languages = ["en", "ru", "de", "es", "fr", "it", "pt"];
+    labels = ["English", "русский", "deutsch", "español", "français", "italiano", "português"];
+    var s = "<select id ='" + id + "'>";
+    var arrayLength = languages.length;
+    for (var i = 0; i < arrayLength; i++) {
+        if(languages[i] == selectedValue){
+            s += "<option value='" + languages[i] + "' selected >" + labels[i] + "</option>";
+        }else{
+            s += "<option value='" + languages[i] + "' >" + labels[i] + "</option>";
+        }
+    }
+
+    s += "</select>";
+    return s;
+  }
+
 
   this.getEditVocForm = function() {
     var s = "";
@@ -707,6 +769,27 @@ function UxUi() {
     s += "<span id='settingLabel1'>label1</span><input type='text' id='settingValue1' name='settingValue1' value='1' /><br>";
     s += "<span id='settingLabel2'>label2</span><input type='text' id='settingValue2' name='settingValue2' value='2' /><br>";
     s += "<span id='settingLabel3'>label3</span><input type='text' id='settingValue3' name='settingValue3' value='3' /><br>";
+    return s;
+  };
+
+  this.getMoreForm = function() {
+    var s = "";
+    s += "<center>";
+    s += "<br><br>";
+    s += this.getButton("Results", "con.setResultsForm()");
+    s += "<br><br>";
+    s += this.getButton("Settings", "con.setSettingsForm()");
+    s += "<br><br>";
+    s += this.getButton("FAQ", "con.setStaticContentForm('faq')");
+    s += "<br><br>";
+    s += this.getButton("Contact/Feedback", "con.setStaticContentForm('feedback-contact')");
+    s += "<br><br>";
+    s += this.getButton("Terms and Conditions", "con.setStaticContentForm('terms')");
+    s += "<br><br>";
+    s += this.getButton("Privacy Policy", "con.setStaticContentForm('privacy')");
+    s += "<br><br>";
+    s += this.getButton("Logout", "con.logOut()");
+    s += "</center>";
     return s;
   };
 
