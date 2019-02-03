@@ -1,7 +1,5 @@
 
-# icons
 
-https://www.flaticon.com/search?word=more
 
 # Brain Extension - Vocabulary
 
@@ -47,3 +45,6 @@ When the application is access the server sends a minimal HTML code that loads a
 - A class that controls the user interaction and data flow
 - A class that handles communication with the backend. This is done via JSON objects that are sent and received via AJAX calls.
 
+## icons
+
+https://www.flaticon.com/search?word=more
