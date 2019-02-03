@@ -107,7 +107,7 @@ def get_header_values(data):
         if len(l) > 0:
             i += 1
             if i == 1:
-                print(l)
+                #print(l)
                 log.log_info("first line string: " + str(l))
                 try:
                     method, url, protocol = l.split(" ")
@@ -187,7 +187,7 @@ HTTP/1.1 200 OK
     return http_response
 
 
-def handle_request(client_connection):
+def handle_request(client_connection, ip_address, port):
 
     """
     This is the method that is being executed in separate threads.
@@ -200,6 +200,7 @@ def handle_request(client_connection):
     try:
         start_execution = datetime.datetime.now()
         log.log_info("------------------ REQUEST RECEIVED ----------------------")
+        log.log_info("request from IP: " + ip_address)
 
         request = client_connection.recv(1024)
         # print(request)
@@ -339,7 +340,7 @@ def handle_request(client_connection):
                 message = pj.process_json_master(jsonObj)
             else:
                 # this is uded by android and web app
-                message = po.process_post(form_values)
+                message = po.process_post(form_values, ip_address)
 
 
             b = bytearray()
@@ -388,8 +389,8 @@ def serve_forever():
         #client_connection, client_address = listen_socket.accept()
         try:
             client_connection, client_address = ssl_socket.accept()
-            log.log_info("client_user_address: " + str( client_address) )
-            a = executor.submit(handle_request, client_connection)
+            #log.log_info("client_user_address: " + str( client_address) )
+            a = executor.submit(handle_request, client_connection, str(client_address[0]), client_address[1])
         except:
             print("Unexpected error:", sys.exc_info()[0])
             log.log_error("Error in try-catch of main server loop: " + str(sys.exc_info()[0]))
