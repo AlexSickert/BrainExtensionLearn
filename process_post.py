@@ -12,8 +12,30 @@ import log
 
 log.log_info("loading process_post.py")
 
+file_cache = {}
 
-def process_post(form_values):
+def getFile(path):
+
+    """
+    little helper function
+    :return:
+    """
+
+    global file_cache
+
+    if path in file_cache:
+        log.log_info("getFile(path) getting from cache")
+        return file_cache[path]
+
+    else:
+        log.log_info("getFile(path) loading from file system")
+        file = open(path, 'r')
+        s = file.read()
+        file.close()
+        file_cache[path] = s
+        return s
+
+def process_post(form_values, ip_address):
 
     # this is used by MASTER !!!
 
@@ -45,52 +67,91 @@ def process_post(form_values):
             log.log_info("session=" + str(session))
             ip, port = security.get_slave_ip_port_from_session(session.strip())
 
-        # if the session cannot be linked to a user then we need to send user back to login because we don't know where
-        # to route
+            # if the session cannot be linked to a user then we need to send user back to login because we don't know where
+            # to route
 
-        if port == -1:
+            if port == -1:
 
-            log.log_info("action=" + str(data["action"]))
-            log.log_info("port is -1")
+                log.log_info("action=" + str(data["action"]))
+                log.log_info("port is -1")
 
+                if data["action"] == "logIn":
+                    # this means we know the user and should get
+                    # get user id from email address
+                    #id = dbs.get_user_id(data["user"])
+                    ip, port = security.get_slave_ip_port(data["user"])
+
+                    if port == -1:
+                        log.log_error("this user is unknown: " + str(data["user"]))
+
+                    #dbs.get_slave_id_from_session_or_user(data["user"])
+
+                if data["action"] == "registerUser":
+                    # we might already know this user and therefore better if we first check
+                    # get_slave_ip_port(user_id)
+                    id = dbs.get_slave_ip_port(data["user"].strip())
+
+                    if id < 0:
+                        # this means we don't know the user and forward to a random server
+                        ip, port = dbs.get_random_slave_ip_port()
+                    else:
+                        ip, port = security.get_slave_ip_port(data["user"].strip())
+
+                if data["action"] == "checkSession":
+                    session = data["session"]
+                    ip, port = security.get_slave_ip_port_from_session(session.strip())
+
+                    if port == -1:
+                        log.log_info("invalid session. Master sends back to client immediately without forwarding to slave")
+                        res_obj = data
+                        log.log_info("invalid session " + session)
+                        res_obj['sessionValid'] = False
+
+            if int(port) > 0:
+                log.log_info(("sending data to slave"))
+                res_obj = slave_request.get_from_slave(ip, port, data)
+                log.log_info(("answer from slave received"))
+            else:
+                log.log_error("port is not larger than 0")
+        else:
+            # it is possible that login comes without a session
             if data["action"] == "logIn":
-                # this means we know the user and should get
-                # get user id from email address
-                #id = dbs.get_user_id(data["user"])
+
                 ip, port = security.get_slave_ip_port(data["user"])
 
                 if port == -1:
                     log.log_error("this user is unknown: " + str(data["user"]))
 
-                #dbs.get_slave_id_from_session_or_user(data["user"])
-
-            if data["action"] == "registerUser":
-                # we might already know this user and therefore better if we first check
-                # get_slave_ip_port(user_id)
-                id = dbs.get_slave_ip_port(data["user"].strip())
-
-                if id < 0:
-                    # this means we don't know the user and forward to a random server
-                    ip, port = dbs.get_random_slave_ip_port()
+                if int(port) > 0:
+                    log.log_info(("sending data to slave"))
+                    res_obj = slave_request.get_from_slave(ip, port, data)
+                    log.log_info(("answer from slave received"))
                 else:
-                    ip, port = security.get_slave_ip_port(data["user"].strip())
-
-            if data["action"] == "checkSession":
-                session = data["session"]
-                ip, port = security.get_slave_ip_port_from_session(session.strip())
-
-                if port == -1:
-                    log.log_info("invalid session. Master sends back to client immediately without forwarding to slave")
+                    log.log_error("port is not larger than 0")
+                    # Todo: proper error handling
                     res_obj = data
-                    log.log_info("invalid session " + session)
-                    res_obj['sessionValid'] = False
 
-        if int(port) > 0:
-            log.log_info(("sending data to slave"))
-            res_obj = slave_request.get_from_slave(ip, port, data)
-            log.log_info(("answer from slave received"))
-        else:
-            log.log_error("port is not larger than 0")
+            elif data["action"] == "resetPassword":
+
+                ip, port = security.get_slave_ip_port(data["user"])
+
+                if int(port) > 0:
+                    log.log_info(("sending data to slave"))
+                    res_obj = slave_request.get_from_slave(ip, port, data)
+                    log.log_info(("answer from slave received"))
+                else:
+                    log.log_error("port is not larger than 0")
+                    # Todo: proper error handling
+                    res_obj = data
+
+            else:
+                # if there is no session element, then maybe we want to stream other things
+                # these can only be static content
+                #todo: this is not finished yet - need to differentiate between the various kinds of content and add real content
+                log.log_info("action=" + str(data["action"]))
+                res_obj = data
+                res_obj['content'] = getFile("./html/" + str(data["action"]) + ".txt")
+
 
         #res = pj.distribute_actions(data)
 
