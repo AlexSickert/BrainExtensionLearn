@@ -176,9 +176,6 @@ function Controller() {
     objUxUi.showDiv("mainBody");
     objUxUi.setNavi("edit");
     objUxUi.setEditVocForm();
-
-
-
     return;
   };
 
@@ -192,8 +189,8 @@ function Controller() {
     objUxUi.setNavi("add");
     objUxUi.setAddVocForm();
     // add value form cookies
-    objUxUi.setValue("adVocLanguage", this.getCookie("adVocLanguage"));
-    objUxUi.setValue("adVocTranslationLanguage", this.getCookie("adVocTranslationLanguage"));
+    //objUxUi.setValue("adVocLanguage", this.getCookie("adVocLanguage"));
+    //objUxUi.setValue("adVocTranslationLanguage", this.getCookie("adVocTranslationLanguage"));
     return;
   };
 
@@ -201,6 +198,8 @@ function Controller() {
     globalVisibleScreen = 1;
     objUxUi.setNavi("learn");
     objUxUi.setLearnForm();
+    // now load a word from the array
+    this.nextWordFromArray(true);
     return;
   };
 
@@ -221,22 +220,43 @@ function Controller() {
     var s = this.getCookie("session");
     var r = new JsonReportRequest(s);
     objDataAccess.ajaxPost(this, r);
+    return;
+  };
 
-
-
+  // load static content without session - like fax, terms, privacy...
+  this.setStaticContentForm = function(s) {
+    globalVisibleScreen = 0;
+    objUxUi.hideTrainingUi();
+    objUxUi.showDiv("mainNavi");
+    objUxUi.showDiv("mainBody");
+    objUxUi.setNavi("more");
+    objUxUi.setLoading();
+    objUxUi.setStaticContentForm("Content loading...");
+    var r = new JsonStaticContentRequest(s);
+    objDataAccess.ajaxPost(this, r);
     return;
   };
 
 
+
+  this.setMoreForm = function() {
+    globalVisibleScreen = 0;
+    objUxUi.hideTrainingUi();
+    objUxUi.showDiv("mainNavi");
+    objUxUi.showDiv("mainBody");
+    objUxUi.setNavi("more");
+    objUxUi.setMoreForm();
+    return;
+  };
 
   /*
    * loads a given url and its language from web and ads it to database
    */
   this.saveAddVoc = function() {
     var l = objUxUi.getValue("adVocLanguage");
-    var u = objUxUi.getValue("adVocUrl");
+    var u = ""; //objUxUi.getValue("adVocUrl");
     var w = objUxUi.getValue("adVocWord");
-    var t = objUxUi.getValue("adVocText");
+    var t = ""; //objUxUi.getValue("adVocText");
     var tl = objUxUi.getValue("adVocTranslationLanguage");
     var tw = objUxUi.getValue("adVocTranslationWord");
 
@@ -254,7 +274,6 @@ function Controller() {
 
     var s = this.getCookie("session");
     var r = new JsonAddVocRequest(l, u, w, t, "adVocFromUrl", tl, tw, s);
-    var r = new JsonAddVocRequest("german", "", "hallo", "", "adVocFromUrl", "franch", "salut", "asdfasf");
     objDataAccess.ajaxPost(this, r);
   };
 
@@ -333,42 +352,102 @@ function Controller() {
     }
   }
 
+  this.debugArray = function(arr, info){
+
+    console.log("------------ " + info + " ------------------");
+
+    var arrayLength = arr.length;
+    var ele = "";
+
+    console.log(arrayLength)
+
+    for (var i = 0; i < arrayLength; i++) {
+        //console.log(i);
+        //console.log(arr);
+        ele = arr[i];
+        //console.log(arr);
+        console.log(ele);
+
+    }
+    console.log("------------------------------");
+
+  }
+
   this.reOrderArray = function(answer){
 
-    // we assume that there is no updated array from server yet. This assumption is dangerous
+    /*
 
-    // we know that each array element has always a value "position"
+    as the array might get replaced we need to check what index the just processed word has. if the word cannot be found
+    then we do not change anything in the array.
 
-    p = this.wordArray[0]["position"];  // the element we just learned
-
-    if(answer){
-        p = p +1;
-    }else{
-         if( p > 3){
-            p = Math.round( p/2 );
-         }
-    }
-
-    this.wordArray[0]["position"] = p
+    */
 
     var arrayLength = this.wordArray.length;
+    var currIndex = -1;
 
-    var arr_new = [];
-    // we start with 1 and not 0 because we push this element later
-
-    for (var i = 1; i < arrayLength; i++) {
-
-        val = this.wordArray[i];
-        arr_new.push(val);
-
-        // p is always larger than 0 and so the element will at lease be put at position 2
-        if(i == p){
-            arr_new.push(this.wordArray[0])
-        }
+    for (var i = 0; i < arrayLength; i++) {
+        if(this.wordArray[i]["wordId"] == globalWordId){currIndex = i};
     }
 
-    this.wordArray = arr_new;
+    if(currIndex >= 0){  // we process only if the current array has the word
 
+     // we know that each array element has always a value "position"
+
+        p = this.wordArray[currIndex]["position"];  // the element we just looked at
+
+        console.log("wordId processing " + this.wordArray[currIndex]["wordId"]);
+
+        this.debugArray(this.wordArray, "before");
+
+        console.log("position is now " + p);
+
+        if(answer){
+            console.log("answer is YES");
+            p = p +1; // shift position one step backward
+        }else{
+             console.log("answer is NO");
+             if( p > 3){
+                p = Math.round( p/2 );  // no answer causes distance from start to get reduced 50%
+             }
+        }
+
+        console.log("new position: " + p);
+
+
+
+        this.wordArray[currIndex]["position"] = p;
+
+        this.debugArray(this.wordArray, "new position");
+
+        arrayLength = this.wordArray.length;
+
+        var arr_new = [];
+        // we start with 1 and not 0 because we push this element later
+
+        for (var i = 0; i < arrayLength; i++) {
+
+            if(i == p){
+                arr_new.push(this.wordArray[currIndex])
+            }else{
+                if(this.wordArray[i]["wordId"] != this.wordArray[currIndex]["wordId"]){
+                    arr_new.push(this.wordArray[i]);
+                }
+
+            }
+        }
+
+        if(p >= arrayLength){
+            arr_new.push(this.wordArray[currIndex]);
+        }
+
+        this.wordArray = arr_new;
+
+
+        this.debugArray(this.wordArray, "rearranged array");
+
+
+
+    }
 
 
   }
@@ -385,12 +464,22 @@ function Controller() {
         //nextId = Math.round(Math.random() * (this.wordArray.length - 1));
         //nextId = this.getGoodRandomId();
         // as we now use ordered array we dont need random and pick alway the first value
-        nextId = 0
+        var nextId = 0
+
+        //globalWordIdIndex = nextId; // this is not true and cannot be used becuase it might be that array is getting replaced
+        // we set it therefore to nulll
+        globalWordIdIndex = null;
+
+        //we need to prevent that we load the same word like last time.
+        if(globalWordId == this.wordArray[0]["wordId"]){
+            nextId = 1;
+        }else{
+            nextId = 0;
+        }
+
+        globalWordId = this.wordArray[nextId]["wordId"]
 
         console.log("nextId = " + nextId);
-
-        globalWordId = this.wordArray[nextId]["wordId"];
-        globalWordIdIndex = nextId
 
         var l1 = this.wordArray[nextId]["language1"];
         var l2 = this.wordArray[nextId]["language2"];
@@ -602,7 +691,11 @@ function Controller() {
 
       console.log("set settings object received. result is: success = " + responseObject["success"]);
         // settings
-    } else {
+    } else if(responseObject["action"] === "faq" || responseObject["action"] === "privacy" || responseObject["action"] === "terms" || responseObject["action"] === "feedback-contact"){
+
+      objUxUi.setStaticContentForm(responseObject["content"]);
+        // settings
+    }else {
       console.log("ERROR in controller callBack - action not found: " + responseObject["action"]);
       console.log(responseObject);
     }
