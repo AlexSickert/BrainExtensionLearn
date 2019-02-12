@@ -194,6 +194,9 @@ function Controller() {
     return;
   };
 
+
+
+
   this.setLearnForm = function() {
     globalVisibleScreen = 1;
     objUxUi.setNavi("learn");
@@ -275,6 +278,70 @@ function Controller() {
     var s = this.getCookie("session");
     var r = new JsonAddVocRequest(l, u, w, t, "adVocFromUrl", tl, tw, s);
     objDataAccess.ajaxPost(this, r);
+  };
+
+  this.translateAddVoc = function() {
+    var l = objUxUi.getValue("adVocLanguage");
+    var u = ""; //objUxUi.getValue("adVocUrl");
+    var w = objUxUi.getValue("adVocWord");
+    var t = ""; //objUxUi.getValue("adVocText");
+    var tl = objUxUi.getValue("adVocTranslationLanguage");
+    var tw = objUxUi.getValue("adVocTranslationWord");
+
+    // save in cookie
+    this.setCookie("adVocLanguage", l);
+    this.setCookie("adVocTranslationLanguage", tl);
+
+    //objUxUi.setAddVocFormMessage("processing...");
+
+    console.log("adVocLanguage = " + l);
+    console.log("adVocWord = " + w);
+    console.log("adVocTranslationLanguage = " + tl);
+
+    var s = this.getCookie("session");
+    var r = new JsonTranslateVocRequest(l, w, tl, s);
+    objDataAccess.ajaxPost(this, r);
+  };
+
+
+
+   // function to process the bulk upload via copy/paste from Excel
+  this.saveVocBulkCopyPaste = function() {
+
+    var tab = objUxUi.getValue("adVocBulkCopyPaste");
+
+    objUxUi.setAddVocFormMessage("processing...");
+
+    // we need to ensure we have consistent table structure and values
+    tab = tab.replace("\n\r", "\n");
+    tab = tab.replace("\r\n", "\n");
+
+    rows = tab.split("\n");
+
+    var arrayLength = rows.length;
+    console.log("rows: " + arrayLength);
+    for (var i = 0; i < arrayLength; i++) {
+        if(rows[i].length > 1){
+            fields = rows[i].split("\t");
+            //Do something
+            console.log("fields: " + fields.length);
+
+            var fieldsLength = fields.length;
+            for (var k = 0; k < fieldsLength; k++) {
+                field = fields[k];
+                console.log("field = " + field.length);
+            }
+        }
+
+    }
+
+    // by now we need to be sure that values are OK and we can process on backend
+    var s = this.getCookie("session");
+    var r = new JsonBulkAddVocRequest(tab, s);
+    objDataAccess.ajaxPost(this, r);
+
+
+    return;
   };
 
 
@@ -449,6 +516,31 @@ function Controller() {
 
     }
 
+
+  }
+
+  /*
+
+  We create something similar to a exponential distribution to prevent that we too often chose the same words and
+  some words further down the array show up too seldom
+
+  */
+  this.chooseNextWordFromArrayByDistribution = function(){
+
+    // get array length
+
+    // get random number
+
+    // if < 0.6 then 1, < 0.9 2, else 3
+
+    // l = array length
+    // bucketSize = l/3
+    // min =  (bucket - 1) *  bucketSize
+    // max = bucket * bucketSize
+
+    // random integer within range like here https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+
+    // make sure it is not equal to globalWordId, otherwise get other random od this bucket
 
   }
 
@@ -695,6 +787,16 @@ function Controller() {
 
       objUxUi.setStaticContentForm(responseObject["content"]);
         // settings
+
+    } else if (responseObject["action"] === "translateWord" ){
+
+        objUxUi.setTranslationAddVoc(responseObject["translation"]);
+
+    } else if (responseObject["action"] === "bulkAddVoc" ){
+
+
+        objUxUi.setAddVocFormMessage("New words were uploaded. ");
+
     }else {
       console.log("ERROR in controller callBack - action not found: " + responseObject["action"]);
       console.log(responseObject);
