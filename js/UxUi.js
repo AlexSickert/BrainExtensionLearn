@@ -184,6 +184,11 @@ function UxUi() {
     this.setHtmlInDiv("mainBody", s);
   };
 
+  this.setTranslationAddVoc = function(s){
+    // used when a translation comes back from server
+    this.setValue("adVocTranslationWord", s);
+  }
+
   // set the results in the html code and display
   this.setResults = function(learned, newWords) {
     var s = this.getResultsForm(learned, newWords);
@@ -698,34 +703,36 @@ function UxUi() {
     // layout depends on system
     var s = "";
 
-    if(globalForceMobile){
-        s += "<center>";
-        s += "Language";
-        //s += "<br><input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
-        s += "<br>" + this.getLanguageDropDown('adVocLanguage', controller.getCookie("adVocLanguage"));
-        s += "<br><textarea id='adVocWord' name='adVocWord' rows='4'></textarea>";
-        s += "<br><br>";
-        s += "Language";
-        //s += "<br><input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
-        s += "<br>" + this.getLanguageDropDown('adVocTranslationLanguage', controller.getCookie("adVocTranslationLanguage"));
-        s += "<br><textarea id='adVocTranslationWord' name='adVocTranslationWord' rows='4'></textarea>";
-        s += "<br>";
-        s += "<br>";
-        s += this.getButton("Save Word", "con.saveAddVoc()");
-        s += "</center>";
-    }else{
+    s += "<center>";
+    s += "Language";
+    //s += "<br><input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
+    s += "<br>" + this.getLanguageDropDown('adVocLanguage', controller.getCookie("adVocLanguage"));
+    s += "<br><textarea id='adVocWord' name='adVocWord' rows='4'></textarea>";
+    s += "<br><br>";
+    s += "Language";
+    //s += "<br><input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
+    s += "<br>" + this.getLanguageDropDown('adVocTranslationLanguage', controller.getCookie("adVocTranslationLanguage"));
+    s += "<br><textarea id='adVocTranslationWord' name='adVocTranslationWord' rows='4'></textarea>";
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Translate Word", "con.translateAddVoc()");
+    s += "<br>";
+    s += "<br>";
+    s += this.getButton("Save Word", "con.saveAddVoc()");
+    s += "</center>";
 
-        s += "<input type='text' id='adVocLanguage' name='adVocLanguage' value = '' />";
-        s += "<input type='text' id='adVocWord' name='adVocWord'  />";
-        s += "<input type='text' id='adVocTranslationLanguage' name='adVocTranslationLanguage' value = '' />";
-        s += "<input type='text' id='adVocTranslationWord' name='adVocTranslationWord'  />";
-        s += this.getButton("Save Word", "con.saveAddVoc()");
-        s += "<hr>";
-        s += "<textarea id='adVocText' rows='4' style='width:80%;'></textarea>";
-        s += this.getButton("Save Text", "con.saveAddVoc()");
-        s += "<hr>";
-        s += "<textarea id='adVocUrl' rows='4' style='width:80%;'></textarea>";
-        s += this.getButton("Process Text from URL", "con.saveAddVoc()");
+    if(! globalForceMobile){
+
+        // we add additional bulk upload form
+        s += "<center>";
+        s += "<br>";
+        s += "Bulk upload copy/paste from Excel or Google Speadsheet or Open Office etc.";
+        s += "<br>";
+        s += "<br><textarea id='adVocBulkCopyPaste' name='adVocBulkCopyPaste' rows='3'></textarea>";
+        s += "<br>";
+        s += this.getButton("Save Words", "con.saveVocBulkCopyPaste()");
+        s += "</center>";
+
 
     }
 
