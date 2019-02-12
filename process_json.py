@@ -248,6 +248,8 @@ def distribute_actions(jo):
         rj['error'] = False
         rj['error_description'] = ""
         rj['success'] = success
+        rj['bucket-sizes'] = 3
+        rj['bucket-distribution'] = [0.6, 0.9]
         rj['experiment'] = experiment
         rj['once_learned'] = once_learned
         rj["words"] = word_arr
@@ -461,6 +463,22 @@ def distribute_actions(jo):
 
         data = jo["settings"]
         settings.set_settings(session, data)
+
+        rj['action'] = action
+        rj['result'] = "success"
+        rj['success'] = True
+
+        result = json.dumps(rj)
+
+    elif action == "bulkAddVoc":
+
+        table_text = jo["text"]
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+
+        dbac.add_words_bulk(user_id, table_text)
 
         rj['action'] = action
         rj['result'] = "success"
