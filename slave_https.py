@@ -95,7 +95,8 @@ def handle_request(client_connection):
         obj_str = request.decode()
         jo = json.loads(obj_str)
 
-        print(jo)
+        # the next line throws and error when object contains cyrillic. So don't uncomment!
+        #print(jo)
 
         ret_str = distribute_actions(jo)
 
