@@ -32,6 +32,7 @@ import report_html as reph
 import legal_html as leg
 import faq_html as faq
 import process_get as pget
+import traffic
 
 
 log.log_info("------------------ start server ----------------------")
@@ -379,8 +380,6 @@ def serve_forever():
     ssl_socket.bind(SERVER_ADDRESS)
     ssl_socket.listen(REQUEST_QUEUE_SIZE)
 
-
-
     executor = ThreadPoolExecutor(max_workers=50)
 
     log.log_info('MASTER Serving HTTPS on port {port} ...'.format(port=PORT))
@@ -390,6 +389,7 @@ def serve_forever():
         try:
             client_connection, client_address = ssl_socket.accept()
             #log.log_info("client_user_address: " + str( client_address) )
+            traffic.track(client_address[0], True)
             a = executor.submit(handle_request, client_connection, str(client_address[0]), client_address[1])
         except:
             print("Unexpected error:", sys.exc_info()[0])
