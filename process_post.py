@@ -7,6 +7,7 @@ import process_json as pj
 import security
 import slave_request
 import db_security as dbs
+from translate import simple as simple_translate
 
 import log
 
@@ -34,6 +35,31 @@ def getFile(path):
         file.close()
         file_cache[path] = s
         return s
+
+
+def get_translation(json_obj):
+
+    """
+    this.language = l;
+    this.translationLanguage = tl;
+    this.word = w;
+    this.translation = "";
+    this.action = "translateWord";
+    this.session = s;
+
+    :return:
+    """
+
+    log.log_info("get_translation(json_obj)")
+    lang_from = json_obj["language"]
+    lang_to = json_obj["translationLanguage"]
+    word = json_obj["word"]
+
+    translation = simple_translate.translate(lang_from, lang_to, word)
+
+    return translation
+
+
 
 def process_post(form_values, ip_address):
 
@@ -108,9 +134,17 @@ def process_post(form_values, ip_address):
                         res_obj['sessionValid'] = False
 
             if int(port) > 0:
-                log.log_info(("sending data to slave"))
-                res_obj = slave_request.get_from_slave(ip, port, data)
-                log.log_info(("answer from slave received"))
+
+                # translateWord
+                if data["action"] == "translateWord":
+                    log.log_info("now translating a word")
+                    res_obj = data
+                    res_obj["translation"] = get_translation(data)
+
+                else:
+                    log.log_info(("sending data to slave"))
+                    res_obj = slave_request.get_from_slave(ip, port, data)
+                    log.log_info(("answer from slave received"))
             else:
                 log.log_error("port is not larger than 0")
         else:
