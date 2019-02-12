@@ -106,6 +106,33 @@ def add_one_word(user_id, language_word, word, language_translation, translation
     return
 
 
+def add_words_bulk(user_id, text):
+    """
+    This is bulk up load when user copy/pastes content as table in form
+    :param user_id:
+    :param text:
+    :return:
+    """
+    text = text.strip()
+    rows = text.split("\n")
+    time_stamp = int(time.time())
+    is_first_row = True
+    for row in rows:
+        fields = row.split("\t")
+        if len(fields) > 1:
+            if is_first_row:
+                l1 = fields[0]
+                l2 = fields[1]
+                is_first_row = False
+            else:
+                voc = fields[0]
+                trans = fields[1]
+                if len(str(voc).strip()) > 0:
+                    if len(str(trans).strip()) > 0:
+                        add_one_word_txt(user_id, l1, voc, l2, trans, True, "", "", time_stamp)
+                        add_one_word_txt(user_id, l2, trans, l1, voc, False, "", "", time_stamp)
+
+
 def get_connection():
     """
     gets the database connection.
@@ -289,4 +316,50 @@ def get_language_code(str):
     return 99
 
 
+def get_translation(source_lang, target_lang, txt_to_translate):
 
+    translation_exists = False
+    translation = ""
+
+    sql = """
+        select 
+            translation 
+        from 
+            translations 
+        where 
+            language_from = %s 
+            and 
+            language_to = %s 
+            and 
+            text_to_translate = %s
+           
+        """
+
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (source_lang, target_lang, txt_to_translate))
+
+    arr = cur.fetchall()
+
+    for r in arr:
+        translation_exists = True
+        translation = str(r[0])
+
+    return translation_exists, translation
+
+
+def insert_translation(language_from, language_to, text_to_translate, translation):
+
+    sql = """
+        insert into 
+            translations 
+            (language_from, language_to, text_to_translate, translation)
+        values (%s, %s, %s, %s );
+          
+        """
+
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (language_from, language_to, text_to_translate, translation))
+    conn.commit()
+    
