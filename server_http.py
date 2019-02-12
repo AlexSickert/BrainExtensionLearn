@@ -28,6 +28,7 @@ import process_json as pj
 import log
 import sys, traceback
 import ssl
+import traffic
 
 
 log.log_info("------------------ start server ----------------------")
@@ -240,6 +241,7 @@ def serve_forever():
         try:
             # client_connection, client_address = ssl_socket.accept()
             client_connection, client_address = listen_socket.accept()
+            traffic.track(client_address[0], False)
             a = executor.submit(handle_request, client_connection)
         except:
             print("Unexpected error:", sys.exc_info()[0])
