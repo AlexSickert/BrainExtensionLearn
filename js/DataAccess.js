@@ -144,6 +144,23 @@ function JsonAddVocRequest(l, u, w, t, a, tl, tw, s) {
   this.session = s;
 }
 
+function JsonBulkAddVocRequest(t, s) {
+  // used to upload tab separated tables copy/pasted from spreadsheet
+  this.text = t;
+  this.action = "bulkAddVoc";
+  this.session = s;
+}
+
+
+function JsonTranslateVocRequest(l, w, tl, s) {
+  this.language = l;
+  this.translationLanguage = tl;
+  this.word = w;
+  this.translation = "";
+  this.action = "translateWord";
+  this.session = s;
+}
+
 function JsonLoadWordRequest(answer, wordId, sess) {
   this.action = "loadWord";
   this.answer = answer;
