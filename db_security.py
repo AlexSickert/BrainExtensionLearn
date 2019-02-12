@@ -223,3 +223,36 @@ def get_slave_id_from_session_or_user(s):
     except:
         id = ""
     return id.strip()
+
+
+def insert_into_db(ip, time_stamp, delta_last_all, delta_last_this, is_https):
+
+    sql = """
+        INSERT INTO 
+            traffic 
+            (ip_address, time_stamp, delta_this_ip_last, delta_all_last, https) 
+        VALUES 
+            (%s, %s, %s, %s, %s);        
+        
+        """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (ip, time_stamp, delta_last_this, delta_last_all, is_https))
+    conn.commit()
+
+
+def insert_ip_loction(ip, time_stamp, location):
+    sql = """
+        INSERT INTO 
+            ip_to_location 
+            (ip_address, time_stamp, json) 
+        VALUES 
+            (%s, %s, %s);        
+
+        """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute(sql, (ip, time_stamp, location))
+    conn.commit()
