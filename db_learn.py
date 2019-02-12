@@ -9,7 +9,7 @@ import db_add_content as dba
 import random
 import time
 
-short_term_memory_length = 10
+short_term_memory_length = 15
 
 
 def process_answer_ordered(word_id, user_id, answer):
@@ -541,6 +541,8 @@ def check_if_learned_ordered(word_id, is_experiment):
     :return:
     """
 
+    global short_term_memory_length
+
     y = get_yes(word_id)
     n = get_no(word_id)
     p = get_position(word_id)
@@ -554,7 +556,7 @@ def check_if_learned_ordered(word_id, is_experiment):
         p = 99
 
     if y > n +2:
-        if p > 9:
+        if p >= short_term_memory_length:
             log.log_info("check_if_learned_ordered - return true")
             return True
         else:
@@ -718,7 +720,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     # first we ensure there are enough current words
 
     if count_current(user_id) < short_term_memory_length:
-        log.log_info("get_next_word_id - count_current less than 7" )
+        log.log_info("get_next_word_id - count_current less than short_term_memory_length" )
         # we need to add a new word question is if repeat old word or use new
         while count_current(user_id) < short_term_memory_length:
             if add_new_word():
@@ -751,7 +753,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     cur.execute("""
     
     SELECT 
-        ID, COALESCE(short_memory_position, 1)  
+        ID, COALESCE(short_memory_position, 1), word, translation
     FROM 
         vocabulary 
     where 
@@ -772,7 +774,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
 
         ret.append([id[0], pos])
 
-        log.log_info(str(id[0]) + " => " + str(pos))
+        log.log_info("get_next_word_id_array_ordered_position() " + str(id[0]) + " => " + str(pos) + "[" + str(id[2]).strip() + " => " + str(id[3]).strip() + "]")
 
     return ret
 
