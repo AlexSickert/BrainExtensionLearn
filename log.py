@@ -28,6 +28,16 @@ def log_error(x):
     item.append(s)
     log_q.put(item)
 
+def log_prediction(x):
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
+    s = st + ";" + str(x)
+    #print(s)
+
+    item = []
+    item.append("p")
+    item.append(s)
+    log_q.put(item)
 
 def log_info(x):
     ts = time.time()
@@ -95,6 +105,9 @@ def log_worker():
 
                     if item[0] == "e":
                         write_to_file(item[1], suffix="ERROR")
+
+                    if item[0] == "p":
+                        write_to_file(item[1], suffix="PREDICTION")
 
                     log_q.task_done()
                 except Exception as ex:
