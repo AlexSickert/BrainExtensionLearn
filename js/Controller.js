@@ -452,8 +452,11 @@ function Controller() {
     var arrayLength = this.wordArray.length;
     var currIndex = -1;
 
+    // find the index of the word we just tested
     for (var i = 0; i < arrayLength; i++) {
-        if(this.wordArray[i]["wordId"] == globalWordId){currIndex = i};
+        if(this.wordArray[i]["wordId"] == globalWordId){
+            currIndex = i;
+        };
     }
 
     if(currIndex >= 0){  // we process only if the current array has the word
@@ -470,18 +473,24 @@ function Controller() {
 
         if(answer){
             console.log("answer is YES");
-            p = p +1; // shift position one step backward
+            // speed up with pushing backwards when the anser is yes
+            if (p < 5){
+                p = p + 2;
+            }else{
+                p = p +1; // shift position one step backward
+            }
+
         }else{
              console.log("answer is NO");
-             if( p > 3){
-                p = Math.round( p/2 );  // no answer causes distance from start to get reduced 50%
+             if( p > 2){
+                // p = Math.round( p/2 );  // no answer causes distance from start to get reduced 50%
+                p = p - 2;
              }
         }
 
         console.log("new position: " + p);
 
-
-
+        // adjust the target position of the word just tested
         this.wordArray[currIndex]["position"] = p;
 
         this.debugArray(this.wordArray, "new position");
@@ -493,30 +502,25 @@ function Controller() {
 
         for (var i = 0; i < arrayLength; i++) {
 
+            // insert the word at the new position
+            // the rest of the array stays unchanged
             if(i == p){
                 arr_new.push(this.wordArray[currIndex])
             }else{
                 if(this.wordArray[i]["wordId"] != this.wordArray[currIndex]["wordId"]){
                     arr_new.push(this.wordArray[i]);
                 }
-
             }
         }
 
+        // if p is larger than array index
         if(p >= arrayLength){
             arr_new.push(this.wordArray[currIndex]);
         }
 
         this.wordArray = arr_new;
-
-
         this.debugArray(this.wordArray, "rearranged array");
-
-
-
     }
-
-
   }
 
   /*
