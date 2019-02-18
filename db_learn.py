@@ -11,8 +11,129 @@ import time
 
 short_term_memory_length = 15
 
+cache_short_term_memory = {}
 
-def process_answer_ordered(word_id, user_id, answer):
+
+def remove_word_from_cache(user_id, word_id):
+
+    global cache_short_term_memory
+
+    log.log_info("removing word id from array: " + str(word_id))
+
+    old_arr = cache_short_term_memory[user_id]
+    new_arr = []
+
+    log.log_info("remove_word_from_cache - array length before: " + str(len(old_arr)))
+
+
+    for ele in old_arr:
+
+
+        if int(ele[0]) == int(word_id):
+            log.log_info("remove_word_from_cache we remove word_id " + str(ele[0]) + " == " + str(word_id))
+        else:
+            new_arr.append(ele)
+
+    log.log_info("remove_word_from_cache - array length after: " + str(len(new_arr)))
+
+    cache_short_term_memory[user_id] = new_arr
+
+
+def add_to_cache(user_id, word_id, position):
+
+    global cache_short_term_memory
+
+    if user_id in cache_short_term_memory:
+        log.log_info("add_to_cache(user_id, word_id, position) - user exists in cache")
+        arr = cache_short_term_memory[user_id]
+
+        exists = False
+
+        for e in arr:
+            if word_id == e[0]:
+                exists = True
+
+        if exists == False:
+            log.log_info("add_to_cache(user_id, word_id, position) - word does not exists but we add now: " + str(word_id) + " pos: " + str(position))
+
+            # we append at the beginning of array
+            new_arr = []
+            new_arr.append([word_id, position])
+
+            for ele in cache_short_term_memory[user_id]:
+                new_arr.append(ele)
+
+            cache_short_term_memory[user_id] = new_arr
+    else:
+        log.log_info("add_to_cache(user_id, word_id, position) - user not existing in cache")
+        cache_short_term_memory[user_id] = []
+        cache_short_term_memory[user_id].append([word_id, position])
+
+
+def exists_in_cache(user_id, word_id):
+
+    ret = False
+    if user_id in cache_short_term_memory:
+        if word_id in cache_short_term_memory[user_id]:
+            ret = True
+    return ret
+
+
+def cache_length_for_user(user_id):
+
+    if user_id in cache_short_term_memory:
+        ret = len(cache_short_term_memory[user_id])
+    else:
+        cache_short_term_memory[user_id] = []
+        ret = 0
+    return ret
+
+
+def re_order_and_update_cache(user_id, word_id, new_position):
+
+    global cache_short_term_memory
+
+    arr = cache_short_term_memory[user_id]
+    currIndex = -1;
+
+    log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length before: " + str(len(arr)))
+
+    # find in which position the word is located
+    for i in range(len(arr)):
+        ele = arr[i]
+        if int(ele[0]) == int(word_id):
+            currIndex = i
+
+    new_arr = []
+    if currIndex >=0:
+
+        for i in range(len(arr)):
+
+            if i == new_position:
+                log.log_info("appending the word that goes to a new position " + str(word_id) + " pos: " + str(new_position))
+                # me arrived at that point in the array where the word should be placed
+                new_arr.append([word_id, new_position])
+
+            ele = arr[i]
+            if int(ele[0]) == int(word_id):
+                log.log_info("ignoring word_id in re_order_and_update_cache ")
+            else:
+                log.log_info("appending in re_order_and_update_cache " + str(ele[0]))
+                new_arr.append(ele)
+
+        if new_position >= len(arr):
+            log.log_info(" re_order_and_update_cache() .. special case: if new_position >= len(arr) ")
+            new_arr.append([word_id, new_position])
+
+        cache_short_term_memory[user_id] = new_arr
+
+    else:
+        log.log_error("word not found in cache " + str(word_id) + " for user " + str(user_id))
+
+    log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length after: " + str(len(cache_short_term_memory[user_id])))
+
+
+def process_answer_with_sorted_array(word_id, user_id, answer):
 
     """
     ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
@@ -54,7 +175,7 @@ def process_answer_ordered(word_id, user_id, answer):
 
         position = get_position(word_id)
 
-        log.log_info("position up to now " + str(position))
+        log.log_info("position of word id " + str(word_id) + " up to now " + str(position))
 
         if answer == "YES":
 
@@ -62,7 +183,10 @@ def process_answer_ordered(word_id, user_id, answer):
                 # it was an experiment and it was a success so we can push it to the "done" category
                 position = short_term_memory_length + 2
             else:
-                position = position + 1
+                if position < 5:
+                    position += 2
+                else:
+                    position += 1
 
             n = get_yes(word_id)
             n = int(n) + 1
@@ -78,11 +202,14 @@ def process_answer_ordered(word_id, user_id, answer):
             # now check if we need to move the word to the 'learned' category
             #if check_if_learned(word_id):
             if check_if_learned_ordered(word_id, experiment):
+                log.log_info("this word was now successfully learned and we set current = false: " + str(word_id))
                 sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
                 conn = dba.get_connection()
                 cur = conn.cursor()
                 cur.execute(sql, (word_id,))
                 conn.commit()
+                log.log_info("word was learned and we remove it from cache: " + str(word_id))
+                remove_word_from_cache(user_id, word_id)
                 success = True
 
         if answer == "NO":
@@ -90,10 +217,9 @@ def process_answer_ordered(word_id, user_id, answer):
             if experiment:
                 position = int(short_term_memory_length / 2)
             else:
-                if position > 3:
-                    position = int(position / 2)
-                else:
-                    position = 1
+                if position > 2:
+                    position = position - 2
+
 
             n = get_no(word_id)
             n = int(n) + 1
@@ -106,9 +232,10 @@ def process_answer_ordered(word_id, user_id, answer):
             conn.commit()
 
         # update the position
-        log.log_info("new position " + str(position))
-        set_position(word_id, position)
+        log.log_info("new position of word id " + str(word_id) + " is " + str(position))
+        set_position_in_db(word_id, position)
 
+        re_order_and_update_cache(user_id, word_id, position)
 
         if experiment:
             if not success:
@@ -706,6 +833,37 @@ def get_next_word_id_array(user_id, last_word_id):
     return ret
 
 
+def fill_cache_from_db(user_id):
+    """
+    copies from db into the cache
+    :param user_id:
+    :return:
+    """
+
+    log.log_info("in fill_cache_from_db(user_id)")
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+
+    sql = """
+         SELECT id, COALESCE(short_memory_position, 1)
+         FROM  vocabulary
+         WHERE user_id = %s 
+         and current = true
+         and COALESCE(last_studied, 0) > 1
+         order by COALESCE(short_memory_position, 1)
+         LIMIT 100
+         """
+
+    cur.execute(sql, (user_id,))
+    arr = cur.fetchall()
+
+    log.log_info("in fill_cache_from_db(user_id) - array has length " + str(len(arr)))
+
+    for row in arr:
+        add_to_cache(user_id, row[0], row[1])
+
+
 def get_next_word_id_array_ordered_position(user_id, last_word_id):
     """
 
@@ -717,12 +875,29 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     :return:
     """
     global short_term_memory_length
-    # first we ensure there are enough current words
+    global cache_short_term_memory
 
-    if count_current(user_id) < short_term_memory_length:
-        log.log_info("get_next_word_id - count_current less than short_term_memory_length" )
+
+
+    # if there are still words missing then we add from the "non current"
+    # first we ensure there are enough current words if array too short, then we add to array
+
+    log.log_info("cache length is now " + str(cache_length_for_user(user_id)))
+
+    if cache_length_for_user(user_id) < short_term_memory_length:
+
+        # first we load the words from db that are already defined as current
+        # we should run this only at startup
+        if cache_length_for_user(user_id) < 1:
+            fill_cache_from_db(user_id)
+
+        log.log_info("get_next_word_id - count_current less than short_term_memory_length - need to add new words" )
+
         # we need to add a new word question is if repeat old word or use new
-        while count_current(user_id) < short_term_memory_length:
+        while cache_length_for_user(user_id) < short_term_memory_length:
+
+            log.log_info("in while loop... ")
+
             if add_new_word():
                 # ToDo: if there are no new words left, then we need to process old words and send info to user,
                 # that there are no new words left
@@ -742,41 +917,44 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
                 else:
                     word_id = get_new_random(user_id)
 
-
             set_word_current(word_id)
 
+            position = get_position_of_word(word_id)
 
-    # now we load all the current words as an array
-    ret = []
+            # now we add the word to cache.
+            # this adding is only successfull if word does not exist in cache
+            add_to_cache(user_id, word_id, position)
+
+            log.log_info("cache length is now " + str(cache_length_for_user(user_id)))
+
+    else:
+        log.log_info("no changes of array length in get_next_word_id_array_ordered_position to do ")
+
+    log.log_info("end of function cache length is now " + str(cache_length_for_user(user_id)))
+
+    return cache_short_term_memory[user_id]
+
+
+def get_position_of_word(word_id):
+
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("""
-    
-    SELECT 
-        ID, COALESCE(short_memory_position, 1), word, translation
-    FROM 
-        vocabulary 
-    where 
-        user_id = %s AND current = true 
-        and direction = TRUE
-    ORDER BY 
-        COALESCE(short_memory_position, 1) ,
-        last_studied     
-        
-    LIMIT """ + str(short_term_memory_length + 1), (user_id,))
+
+    sql = """
+
+        SELECT COALESCE(short_memory_position, 1)
+        FROM  vocabulary
+        WHERE id = %s 
+        LIMIT 1
+
+        """
+
+    cur.execute(sql, (word_id,))
     l = cur.fetchall()
+    pos = l[0][0]
 
-    for id in l:
-        if id[1] is None:
-            pos = 1
-        else:
-            pos = id[1]
+    return pos
 
-        ret.append([id[0], pos])
-
-        log.log_info("get_next_word_id_array_ordered_position() " + str(id[0]) + " => " + str(pos) + "[" + str(id[2]).strip() + " => " + str(id[3]).strip() + "]")
-
-    return ret
 
 
 def get_word(new_id):
@@ -831,9 +1009,14 @@ def get_old_by_score(user_id):
     :return:
     """
 
+    log.log_info(" in get_old_by_score(user_id) ")
+
     conn = dba.get_connection()
     cur = conn.cursor()
 
+    # age of old word needs to be at least from yesterday
+    delta = 24 * 60 * 60
+    threshold = int(time.time()) - delta
 
     sql = """
 
@@ -847,18 +1030,22 @@ def get_old_by_score(user_id):
             current = false
         AND
             count_positive > 0
+        AND
+            last_studied < %s
         ORDER BY    
-            calc_rank desc
+            /* changed following line on 16th feb 2019 because yes = 1 and we need to know failures so asc and desc*/
+            /* calc_rank desc */ 
+            calc_rank asc
         LIMIT 2;   
 
         """
 
-    cur.execute(sql, (user_id,))
+    cur.execute(sql, (user_id, threshold))
 
     #l = cur.fetchall()[0][0]
 
     arr = cur.fetchall()
-    print(arr)
+    #print(arr)
 
     if len(arr) > 0:
 
@@ -953,7 +1140,7 @@ def get_position(word_id):
 
     return int(l)
 
-def set_position(word_id, pos):
+def set_position_in_db(word_id, pos):
 
     log.log_info("set_position " + str(word_id) + " to " + str(pos))
 
