@@ -217,7 +217,7 @@ def distribute_actions(jo):
 
         # January 2019 we change this logic now using a ordered lost avoiding random
         #success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
-        success, experiment, once_learned = dbl.process_answer_ordered(str(wordId), user_id, answer)
+        success, experiment, once_learned = dbl.process_answer_with_sorted_array(str(wordId), user_id, answer)
 
         log.log_info("was experiment? " + str(experiment))
         log.log_info("was success? " + str(success))
@@ -230,7 +230,7 @@ def distribute_actions(jo):
         new_id_array = dbl.get_next_word_id_array_ordered_position(user_id, str(wordId))
 
         word_arr = []
-
+        # ToDo: this is here very inefficient code that creates a lot of traffic on database. Integrate in previous function call
         for new_id in new_id_array:
 
             row_j = {}
@@ -241,6 +241,13 @@ def distribute_actions(jo):
             row_j["language2"] = dbac.get_language_label(l2)
             row_j["word2"] = w2
             row_j["position"] = new_id[1]
+
+            log_str = str(row_j["wordId"]) + ", "
+            log_str += str(row_j["position"]) + ", "
+            log_str += str(row_j["word1"]) + ", "
+            log_str += str(row_j["word2"]) + ", "
+
+            log.log_info(log_str)
 
             word_arr.append(row_j)
 
