@@ -21,6 +21,9 @@ import random
 from sklearn import svm
 import pickle
 import os
+import train_models
+
+print("libraries loaded")
 
 last_dataset_length = {}
 
@@ -75,7 +78,7 @@ def update_forgot_score(id, score):
     #print("updated")
     
 
-def predict(user_id, scaler, clf):
+def predict(user_id, clf):
 
     """
     :param user_id:
@@ -85,11 +88,14 @@ def predict(user_id, scaler, clf):
 
     sql = """ 
         SELECT    
+            pn_string,
             count_positive,
             count_negative,
             (CAST (count_positive AS FLOAT) /  CAST (CASE WHEN count_negative < 1 THEN 1 ELSE count_negative END  AS FLOAT)  ) as ratio,
             last_studied as age,     
             direction,
+            COALESCE(count_experiments, 0) ,
+            COALESCE(count_forgotten, 0),
             id
         FROM
             vocabulary
@@ -111,34 +117,57 @@ def predict(user_id, scaler, clf):
     arr_upgraded = []
     arr_ids = []
 
-    for i in range(len(arr)):
+    for i in arr: # for each user
+        #print("-------------------------------")
         r = []
-        for x in range(5):
-            if x == 3:
-                r.append(ts_now - arr[i][x])
-            else:
-                r.append(arr[i][x])
-        arr_ids.append(arr[i][5])
+
+        pn_string = i[0]  # pn string
+
+        max_pos_length_ratio = 0
+
+        if "n" in pn_string:
+            pn_arr = pn_string.split("n")
+
+            for s in pn_arr:
+                if "y" in s:  # to exclude words like "None"
+                    ratio = len(s) / len(pn_string)  # length of yes vs. total length of string
+                    if ratio > max_pos_length_ratio:
+                        max_pos_length_ratio = ratio
+
+        r.append(max_pos_length_ratio)
+        r.append(i[1]) # count pos
+        r.append(i[2])  # count neg
+        r.append(i[3])  # ratio
+        r.append(ts_now - i[4]) # age
+        if i[5] == True:
+            r.append(1)  # direction
+        else:
+            r.append(0)
+
+        r.append(i[6])  # count experiments
+        r.append(i[7])  # count forgotten
+
+        #ensure floating pont numbers
+        for x in range(len(r)):
+            r[x] = float(r[x])
+
+        arr_ids.append(i[8])
         arr_upgraded.append(r)
 
     arr_predict = np.asarray(arr_upgraded)
 
-    arr_scaled = scaler.transform(arr_predict)
+    #arr_scaled = scaler.transform(arr_predict)
+    arr_scaled = arr_predict
 
     for i in range(len(arr_scaled)):
 
         #print(X_test[i])
         one_sample = arr_scaled[i].reshape(1, -1)
+        #print(one_sample)
         ret = clf.predict(one_sample)
-        #print("id: ", arr_ids[i])
-        #print(ret[0])
+        #print("prediction result: " + str(ret[0]))
 
-        pro = clf.predict_proba(one_sample)
-
-        #if ret[0] < 1.0:
-        #print("classes: ", clf.classes_, " id: ", arr_ids[i], " result: ", ret, " forgotten: ", pro[0][0] , " learned: ", pro[0][1] )
-
-        probability_forgot_word = pro[0][0]
+        probability_forgot_word = ret[0]
 
         update_forgot_score(arr_ids[i], probability_forgot_word)
 
@@ -168,23 +197,9 @@ def train_and_predict_rs(arr, user_id, train = True):
 
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.33, random_state = 42)
 
-    y_train = boolean_to_float(y_train)
-    y_test = boolean_to_float(y_test)
 
-    X_train, scaler = scale_data(X_train)
-    X_test = scaler.transform(X_test)
 
-    #print(X_train)
-    #print(X_test)
-    #print(y_train)
-    #print(y_test)
-
-    #clf = tree.DecisionTreeClassifier()
-    clf = svm.SVC(gamma='auto', probability=True)
-
-    #X_train = X_train.astype(float)
-
-    clf = clf.fit(X_train, y_train)
+    clf = train_models.train_and_choose_best(X_train, X_test, y_train, y_test)
 
     # save model and scaler
     # model-path
@@ -192,35 +207,12 @@ def train_and_predict_rs(arr, user_id, train = True):
     #print(path)
 
     pickle.dump(clf, open(path + str(user_id) + "-model.pickle", "wb" ))
-    pickle.dump(scaler, open(path + str(user_id) + "-scaler.pickle", "wb" ))
 
+    log.log_prediction("saved model in file system")
 
-    c_total = 0
-    c_pos = 0
+    #pickle.dump(scaler, open(path + str(user_id) + "-scaler.pickle", "wb" ))
 
-    for i in range(len(X_test)):
-
-        #print(X_test[i])
-        one_sample = X_test[i].reshape(1, -1)
-        ret = clf.predict(one_sample)
-        pro = clf.predict_proba(one_sample)
-        #print("result: ", ret , " forgot_probab: ", pro[0][0])
-
-        probability_forgot_word = pro[0][0]
-
-
-        truth = y_test[i]
-        #print("truth: ", truth)
-        c_total += 1
-
-        if ret[0] == truth:
-            c_pos += 1
-
-    #print("score: ", c_pos / c_total)
-
-    #print(clf.feature_importances_)
-
-    predict(user_id, scaler, clf)
+    predict(user_id, clf) # predicts the forgot coefficinet for all words
 
     # now we predict if we forgot or not
 
@@ -235,10 +227,85 @@ def predict_only(user_id):
         f = open(path + str(user_id) + "-model.pickle", "rb")
         clf = pickle.load(f)
         f.close()
-        f = open(path + str(user_id) + "-scaler.pickle", "rb")
-        scaler = pickle.load(f)
+        #f = open(path + str(user_id) + "-scaler.pickle", "rb")
+        #scaler = pickle.load(f)
 
-        predict(user_id, scaler, clf)
+        predict(user_id, clf)
+
+
+def prepare_dataset(arr):
+
+    """
+
+    Extract from sql recordset the values we need in the form that we need them
+
+                success,
+            pn_string,
+            count_positive,
+            count_negative,
+            (CAST (count_positive AS FLOAT) /  CAST (CASE WHEN count_negative < 1 THEN 1 ELSE count_negative END  AS FLOAT)  ) as ratio,
+            (experiment_timestamp - last_studied) as age,
+            --average_pos_length,
+            --max_pos_length,
+            --last_pos_length,
+            --pos_neg_length_ratio,
+            direction,
+            COALESCE(count_experiments, 0) ,
+            COALESCE(count_forgotten, 0)
+            --language_word,
+            --language_translation,
+            --word_id
+
+
+
+    :param arr:
+    :return:
+    """
+
+    ret = []
+
+    for e in arr:
+
+        row = []
+        if e[0] == True:
+            row.append(1)
+        else:
+            row.append(0)
+
+        pn_string = e[1]
+
+        max_pos_length_ratio = 0
+
+        if "n" in pn_string:
+            pn_arr = pn_string.split("n")
+
+            for s in pn_arr:
+                if "y" in s: # to exclude words like "None"
+                    r = len(s) / len(pn_string)  # length of yes vs. total length of string
+                    if r > max_pos_length_ratio:
+                        max_pos_length_ratio = r
+
+        row.append(max_pos_length_ratio)
+        row.append(e[2]) # coutn pos
+        row.append(e[3]) # count neg
+        row.append(e[4]) # ratio
+        row.append(e[5]) # age
+        if e[6] == True:   # direction
+            row.append(1)
+        else:
+            row.append(0)
+        row.append(e[7])  # experiments
+        row.append(e[8])  # num times forgotten
+
+        # ensure floating pont numbers
+        for i in range(len(row)):
+            row[i] = float(row[i])
+
+    #print(row)
+
+        ret.append(row)
+
+    return ret
 
 
 def run_prediction_loop():
@@ -267,33 +334,21 @@ def run_prediction_loop():
 
     cur.execute(sql, (threshold,))
 
-    # sql = "SELECT DISTINCT user_id FROM experiments"
-    #
-    # conn = dba.get_connection()
-    # cur = conn.cursor()
-    # cur.execute(sql, ())
-
     user_arr = rs_to_arr(cur.fetchall())
 
-    # print(user_arr)
+    #print(user_arr)
 
     sql = """ 
         SELECT    
             success,
-            --pn_string,
+            pn_string,
             count_positive,
             count_negative,
             (CAST (count_positive AS FLOAT) /  CAST (CASE WHEN count_negative < 1 THEN 1 ELSE count_negative END  AS FLOAT)  ) as ratio,
-            (experiment_timestamp - last_studied) as age,
-            --average_pos_length,
-            --max_pos_length,
-            --last_pos_length,
-            --pos_neg_length_ratio,      
-            direction
-            --language_word,
-            --language_translation,  
-            --word_id
-                
+            (experiment_timestamp - last_studied) as age,  
+            direction,
+            COALESCE(count_experiments, 0) ,
+            COALESCE(count_forgotten, 0) 
         FROM
             experiments
         WHERE
@@ -327,6 +382,9 @@ def run_prediction_loop():
 
             if diff > 0:
                 log.log_info("running train and predict, difference is: " + str(diff))
+
+                arr = prepare_dataset(arr)
+
                 train_and_predict_rs(arr, user_id)
                 log.log_info("train and predict done")
             else:
