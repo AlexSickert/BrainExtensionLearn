@@ -115,13 +115,18 @@ def process_post(form_values, ip_address):
                 if data["action"] == "registerUser":
                     # we might already know this user and therefore better if we first check
                     # get_slave_ip_port(user_id)
-                    id = dbs.get_slave_ip_port(data["user"].strip())
+                    ip, port = dbs.get_slave_ip_port(data["user"].strip())
 
-                    if id < 0:
+                    if port < 0:
                         # this means we don't know the user and forward to a random server
                         ip, port = dbs.get_random_slave_ip_port()
                     else:
                         ip, port = security.get_slave_ip_port(data["user"].strip())
+
+                    log.log_info("with session registerUser = using ip: " + ip)
+                    log.log_info("with session registerUser = using port: " + str(port))
+                    res_obj = slave_request.get_from_slave(ip, port, data)
+                    log.log_info("answer from slave received " + str(res_obj))
 
                 if data["action"] == "checkSession":
                     session = data["session"]
@@ -132,6 +137,19 @@ def process_post(form_values, ip_address):
                         res_obj = data
                         log.log_info("invalid session " + session)
                         res_obj['sessionValid'] = False
+
+                elif data["action"] == "resetPassword":
+
+                    ip, port = security.get_slave_ip_port(data["user"])
+
+                    if int(port) > 0:
+                        log.log_info(("sending data to slave"))
+                        res_obj = slave_request.get_from_slave(ip, port, data)
+                        log.log_info(("answer from slave received"))
+                    else:
+                        log.log_error("port is not larger than 0")
+                        # Todo: proper error handling
+                        res_obj = data
 
             if int(port) > 0:
 
@@ -177,6 +195,22 @@ def process_post(form_values, ip_address):
                     log.log_error("port is not larger than 0")
                     # Todo: proper error handling
                     res_obj = data
+
+            elif data["action"] == "registerUser":
+                # we might already know this user and therefore better if we first check
+                # get_slave_ip_port(user_id)
+                ip, port = dbs.get_slave_ip_port(data["user"].strip())
+
+                if port < 0:
+                    # this means we don't know the user and forward to a random server
+                    ip, port = dbs.get_random_slave_ip_port()
+                else:
+                    ip, port = security.get_slave_ip_port(data["user"].strip())
+
+                log.log_info("no session registerUser = using ip: " + ip)
+                log.log_info("no session registerUser = using port: " + str(port))
+                res_obj = slave_request.get_from_slave(ip, port, data)
+                log.log_info("answer from slave received " + str(res_obj))
 
             else:
                 # if there is no session element, then maybe we want to stream other things
