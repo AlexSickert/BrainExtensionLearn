@@ -263,6 +263,33 @@ tr {
   padding: 0px;
 }
 
+/* ---- table style for desktop ----*/
+
+#dlanguage1{
+    color: grey;
+    font-weight: bold;
+    font-size: 1.5em;
+    font-style: italic;
+}
+
+
+#dlanguage2{
+    color: grey;
+    font-weight: bold;
+    font-size: 1.5em;
+    font-style: italic;
+}
+
+#dword1{
+    color: black;
+    font-size: 2.0em;
+}
+
+#dword2{
+    color: black;
+    font-size: 2.0em;
+}
+
 /* ------------------ FORM ELEMENTS -------------------------*/
 
 input.naviButton{
