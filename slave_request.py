@@ -10,8 +10,6 @@ import socket
 import config as cfg
 import json
 
-# host = cfg.parameters["slave-ip"]
-# port = int(cfg.parameters["slave-port"])
 
 
 def get_from_slave(ip, port, obj):
@@ -50,11 +48,3 @@ def get_from_slave(ip, port, obj):
 
     return j
 
-# test
-# j = {}
-# j["a"] = 12345
-# j["b"] = "sadlkjfh asldkjfh laksd"
-#
-# for i in range(1000):
-#     j["c"] = i
-#     get_from_slave(j)
