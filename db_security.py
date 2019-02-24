@@ -22,16 +22,18 @@ import hashlib
 
 
 slaves = cfg.slaves
+slaves_arr = cfg.slaves_arr
 
 
 def get_random_slave_ip_port():
 
-    global slaves
+    global slaves_arr
 
-    i = random.randint(0,len(slaves))
+    log.log_info("length of slaves_arr: " + str(len(slaves_arr)))
+    i = random.randint(0,len(slaves)-1)
 
-    ip = slaves[i][0]
-    port = slaves[i][1]
+    ip = slaves_arr[i][1]
+    port = slaves_arr[i][2]
 
     return ip, int(port)
 
@@ -141,9 +143,9 @@ def get_user_id(u):
 def get_slave_ip_port(user_id):
     # this can only be used by MASTER
 
-    print("get_slave_ip_port(user_id)", user_id)
+    log.log_info("get_slave_ip_port(user_id)" + str(user_id))
 
-    user_id = user_id.strip().lower()
+    user_id = str(user_id).strip().lower()
 
     conn = dba.get_connection()
     cur = conn.cursor()
@@ -159,7 +161,7 @@ def get_slave_ip_port(user_id):
     else:
         id = ""
 
-    print("get_slave_ip_port(user_id) id = ", id)
+        log.log_info("get_slave_ip_port(user_id) id = " + str(id))
 
     if len(id) > 0:
         id = id.strip()
