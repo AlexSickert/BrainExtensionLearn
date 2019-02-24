@@ -10,7 +10,6 @@ import random
 import time
 
 short_term_memory_length = 15
-
 cache_short_term_memory = {}
 
 
@@ -867,8 +866,8 @@ def fill_cache_from_db(user_id):
 def get_next_word_id_array_ordered_position(user_id, last_word_id):
     """
 
-    Januar 2019 new locic where we use a longer short term memeory and when user knows a word we increase the position
-    of the word in an ordere table
+    January 2019 new logic where we use a longer short term memeory and when user knows a word we increase the position
+    of the word in an ordered table
 
     :param user_id:
     :param last_word_id:
@@ -954,7 +953,6 @@ def get_position_of_word(word_id):
     pos = l[0][0]
 
     return pos
-
 
 
 def get_word(new_id):
@@ -1189,7 +1187,7 @@ def count_learned(user_id):
     """
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT count(*)  FROM vocabulary where count_positive > 0 AND user_id = %s", (user_id,) )
+    cur.execute("SELECT count(ID)  FROM vocabulary where count_positive > 0 AND user_id = %s", (user_id,) )
     l = cur.fetchall()[0][0]
     return l
 
@@ -1203,6 +1201,6 @@ def count_not_learned(user_id):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT count(*)  FROM vocabulary where current = false AND count_positive < 1 AND direction = TRUE AND user_id = %s", (user_id,) )
+    cur.execute("SELECT count(ID)  FROM vocabulary where current = false AND count_positive < 1 AND direction = TRUE AND user_id = %s", (user_id,) )
     l = cur.fetchall()[0][0]
     return l
