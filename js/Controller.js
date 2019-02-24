@@ -573,6 +573,15 @@ function Controller() {
             nextId = 0;
         }
 
+        // in 3% of the cases we chose the ned of the array to prevent words laying aroudn there too long
+        var rnd = Math.random();
+
+        if(rnd <= 0.03){
+            //alert("using end...");
+            nextId = this.wordArray.length -1;
+            //alert(nextId);
+        }
+
         globalWordId = this.wordArray[nextId]["wordId"]
 
         console.log("nextId = " + nextId);
