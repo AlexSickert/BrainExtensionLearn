@@ -43,7 +43,7 @@ def get_slave_ip_port(user):
         cache_user_ip_port[user]["ip"] = ip
         cache_user_ip_port[user]["port"] = port
 
-    log.log_info("user " + str(user) + " has ip and port: " + str(ip) + "/" + str(port))
+    log.log_info("get_slave_ip_port - user " + str(user) + " has ip and port: " + str(ip) + "/" + str(port))
     return ip, int(port)
 
 
@@ -60,6 +60,8 @@ def get_slave_ip_port_from_session(session):
         #user_id, slave_id = dbs.get_user_and_slave_id_from_session(session)
 
         slave_id = dbs.get_slave_id_from_session_or_user(session)
+
+        log.log_info("get_slave_ip_port_from_session - session " + str(session) + " has slave_id: " + str(slave_id) )
 
         if len(str(slave_id)) > 0:
             ip = cfg.slaves[slave_id][0]
