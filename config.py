@@ -15,4 +15,4 @@ for s in slaves_arr:
     slaves[s[0]] = [s[1], s[2]]
 
 
-slave_id = ""
+slave_id = "" # the real value is being set by command line argument.
