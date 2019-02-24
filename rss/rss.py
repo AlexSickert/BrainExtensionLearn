@@ -462,13 +462,55 @@ body {
   -moz-text-size-adjust: none;
   -ms-text-size-adjust: 100%;
   font-size: 30px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 td{
 
 padding: 5px; 
 font-size: 30px;
+font-family: Arial, Helvetica, sans-serif;
 
+}
+
+td.language{
+    padding-top: 10px;
+    color: red;
+}
+
+td.source{
+    padding-top: 10px;
+    color: #444444;
+    text-align: right;
+    
+}
+
+/* unvisited link */
+a:link {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* selected link */
+a:active {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
 }
 
 
@@ -491,11 +533,11 @@ for entry in db:
 
     html += "\n<tr>"
 
-    html += "<td >"
+    html += "<td class='language'>"
     html += entry["language"]
     html += "</td> "
 
-    html += " <td >"
+    html += " <td class='source'>"
     html += entry["source"]
     html += "</td> "
 
@@ -503,7 +545,7 @@ for entry in db:
 
     html += "\n<tr>"
 
-    html += "<td colspan=\"2\" style='border-bottom: 15px solid #cccccc;'>"
+    html += "<td colspan=\"2\" style='border-bottom: 3px solid #cccccc; padding-bottom: 10px;'>"
     html += wrap_link(entry["title"], entry["link"])
     html += "</td>"
 
@@ -513,7 +555,6 @@ for entry in db:
         enc = str(entry["encoding"]).strip()
     else:
         enc = str(entry["target_encoding"]).strip()
-
 
     process_db_entry(entry["language"], entry["source"], entry["title"], entry["link"], enc)
 
