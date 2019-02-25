@@ -1068,7 +1068,8 @@ def get_new_random(user_id):
 
     conn = dba.get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND direction = TRUE AND count_positive < 1 ORDER BY random() LIMIT 1", (user_id,))
+    #cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND direction = TRUE AND count_positive < 1 ORDER BY random() LIMIT 1", (user_id,))
+    cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND count_positive < 1 ORDER BY random() LIMIT 1", (user_id,))
 
     arr = cur.fetchall()
 
@@ -1202,5 +1203,6 @@ def count_not_learned(user_id):
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT count(ID)  FROM vocabulary where current = false AND count_positive < 1 AND direction = TRUE AND user_id = %s", (user_id,) )
+
     l = cur.fetchall()[0][0]
     return l
