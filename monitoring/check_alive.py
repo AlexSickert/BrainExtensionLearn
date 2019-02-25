@@ -8,14 +8,12 @@ import time
 from datetime import datetime
 
 
-
-
-
 config_params = json.load(open('./config.json'))
 
-
-
 url = config_params["url"]
+
+server_id = config_params["server-id"]
+
 err = False
 test_time = str(datetime.now())
 err_text = test_time
@@ -33,7 +31,6 @@ def send_mail(to_email, email_subject, email_message):
 
     global e_pass
     global e_user
-
 
     FROM = e_user
     TO = [to_email]
@@ -60,12 +57,11 @@ def send_mail(to_email, email_subject, email_message):
     server_ssl.close()
     print( 'successfully sent the mail')
 
-
-
 try:
     resp = req.urlopen(url, timeout=time_out).read()
     print("OK, server can be reached")
     err_text += "\r\nOK, server can be reached"
+
 except:
     print("Timeout occured. Server cannot be reached.")
     err = True
@@ -98,11 +94,10 @@ except:
     err = True
     err_text += "\r\nSomething went wrong during login."
 
-
 if err:
     # first we send a mail
     print("sending mail...")
-    send_mail("alex.solensky@gmail.com", "BrainVok Server Problem [" + test_time + "]", err_text)
+    send_mail("alex.solensky@gmail.com", "BrainVok Server (" + server_id + ") Problem [" + test_time + "]", err_text)
     #then we restart the server
 
     print("restarting server...")
