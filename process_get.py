@@ -16,14 +16,14 @@ def process_get(header_parameters, url_parameters):
                 print("need to register session", url_parameters["register-session"])
 
                 session = url_parameters["register-session"]
-
-                dbc.register_slave(session, slave_id)
+                user = url_parameters["register-user"] # user must always exist
+                dbc.register_slave(session, slave_id, user)
 
             if "register-user" in url_parameters:
 
                 print("need to register user", url_parameters["register-user"])
                 user = url_parameters["register-user"]
-                dbc.register_slave(user, slave_id)
+                dbc.register_slave(user, slave_id, user)
 
     message = "all good"
     b = bytearray()
