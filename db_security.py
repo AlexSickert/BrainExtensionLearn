@@ -8,6 +8,7 @@ import log
 import db_add_content as dba
 import random
 import hashlib
+import time
 
 #
 # conn = dba.get_connection()
@@ -123,7 +124,12 @@ def make_save_session(u):
     user_id = cur.fetchall()[0][0]
 
     sql = "INSERT INTO session (user_id, session_string) VALUES (%s, %s);"
-    s = random_string(20)
+
+    if u in ["user-1@data-yield.com", "user-2@data-yield.com", "monitoring@data-yield.com"]:
+        s = random_string(10) + "$testuser$"
+    else:
+        s = random_string(20)
+
     cur.execute(sql, (user_id, s))
     conn.commit()
     return s
@@ -196,19 +202,28 @@ def register_user(u, p):
     conn.commit()
 
 
-def register_slave(session_or_user, slave):
+def register_slave(session_or_user, slave, user_email):
 
     session_or_user = session_or_user.strip().lower()
     slave = slave.strip() # do not make this lower case !!!
+    ts = time.time()
+
     if len(session_or_user) > 3:
+
         conn = dba.get_connection()
         cur = conn.cursor()
-        #sql = "DELETE FROM master_slave_mapping WHERE session_or_user = %s;"
-        #cur.execute(sql, (session_or_user, ))
-        #conn.commit()
+        sql = "DELETE FROM master_slave_mapping WHERE session_or_user = %s;"
+        cur.execute(sql, (session_or_user, ))
+        conn.commit()
+
+        #sql = "INSERT INTO master_slave_mapping (session_or_user, slave_id, user_email, time_stamp) VALUES (%s, %s, %s, %s);"
+        #cur.execute(sql, (session_or_user, slave, user_email, ts))
+
         sql = "INSERT INTO master_slave_mapping (session_or_user, slave_id) VALUES (%s, %s);"
         cur.execute(sql, (session_or_user, slave))
+
         conn.commit()
+
     else:
         log.log_error("cannot register register_slave(session_or_user, slave) because session_or_user too short: " + str(session_or_user))
 
