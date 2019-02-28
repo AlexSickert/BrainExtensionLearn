@@ -18,6 +18,7 @@ def get_from_slave(ip, port, obj):
     ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=False)
     ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+    print("get_from_slave ", (ip, port))
     ssl_socket.connect((ip, port))
 
     # convert object to json string
