@@ -35,9 +35,11 @@ import legal_html as leg
 import faq_html as faq
 import json
 import process_json as pj
-
+import clean_up
 
 log.log_info("------------------ start server ----------------------")
+
+clean_up.clean_slave()
 
 # use command line argument to choose server identiy
 if len(sys.argv) > 1:
