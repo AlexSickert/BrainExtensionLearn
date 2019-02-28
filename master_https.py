@@ -33,6 +33,9 @@ import legal_html as leg
 import faq_html as faq
 import process_get as pget
 import traffic
+import clean_up
+
+clean_up.clean_master()
 
 
 log.log_info("------------------ start server ----------------------")
