@@ -125,6 +125,8 @@ def distribute_actions(jo):
     
     action = jo["action"]
 
+    log.log_info("action is: " + str(action))
+
     if action == "addOneWord":
 
         session = jo["session"]
