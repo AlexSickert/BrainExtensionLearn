@@ -44,6 +44,7 @@ def get_slave_ip_port(user):
         cache_user_ip_port[user]["port"] = port
 
     log.log_info("get_slave_ip_port - user " + str(user) + " has ip and port: " + str(ip) + "/" + str(port))
+
     return ip, int(port)
 
 
