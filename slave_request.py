@@ -29,7 +29,8 @@ def get_from_slave(ip, port, obj):
 
     b.extend(map(ord, obj_str))
 
-    ssl_socket.send(b)
+    #ssl_socket.send(b)
+    ssl_socket.sendall(b)
 
     BUFF_SIZE = 4096 # 4 KiB
     data = b''
@@ -39,6 +40,7 @@ def get_from_slave(ip, port, obj):
         if len(part) < BUFF_SIZE:
             # either 0 or end of data
             break
+
 
     data_str = "".join(map(chr, data))
 
