@@ -84,6 +84,8 @@ def process_post(form_values, ip_address):
         j = parse.unquote(x)
         data = json.loads(j)
 
+        res_obj = None
+
         ip = ""
         port = -1
 
@@ -224,6 +226,12 @@ def process_post(form_values, ip_address):
         #res = pj.distribute_actions(data)
 
         # the return value needs to be a string already
+
+
+        if res_obj is None:
+
+            log.log_error("res_obj is NONE in process post process_post(form_values, ip_address) - input data was: " + str(form_values))
+            res_obj = {}
 
         res = json.dumps(res_obj)
 
