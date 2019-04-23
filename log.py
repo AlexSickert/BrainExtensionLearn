@@ -39,6 +39,18 @@ def log_prediction(x):
     item.append(s)
     log_q.put(item)
 
+
+def log_ip_2_location(x):
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
+    s = st + ";" + str(x)
+    #print(s)
+
+    item = []
+    item.append("i")
+    item.append(s)
+    log_q.put(item)
+
 def log_info(x):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
@@ -108,6 +120,8 @@ def log_worker():
 
                     if item[0] == "p":
                         write_to_file(item[1], suffix="PREDICTION")
+                    if item[0] == "i":
+                        write_to_file(item[1], suffix="IP-2-LOCATION")
 
                     log_q.task_done()
                 except Exception as ex:
