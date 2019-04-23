@@ -37,13 +37,16 @@ import clean_up
 
 clean_up.clean_master()
 
-
-log.log_info("------------------ start server ----------------------")
+log.log_info("==========================================================================")
+log.log_info("==========================================================================")
+log.log_info("==========================================================================")
+log.log_info("------------------ start master https server ----------------------")
 
 SERVER_ADDRESS = (HOST, PORT) = '', int(cfg.parameters["https"])
 REQUEST_QUEUE_SIZE = 50
 
 file_cache = {}
+
 
 def getHtml():
 
@@ -323,8 +326,6 @@ def handle_request(client_connection, ip_address, port):
                     http_response += faq.get_faq()
                 elif "register-slave" in u:
                     http_response += pget.process_get(header_values, url_parameter)
-
-
                 else:
                     # handle other requests we ignore them...
                     message = ""
@@ -345,7 +346,6 @@ def handle_request(client_connection, ip_address, port):
             else:
                 # this is uded by android and web app
                 message = po.process_post(form_values, ip_address)
-
 
             b = bytearray()
             b.extend(map(ord, message))
@@ -374,8 +374,6 @@ def serve_forever():
 
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
-
     #listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
     ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True)
 
@@ -397,6 +395,9 @@ def serve_forever():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             log.log_error("Error in try-catch of main server loop: " + str(sys.exc_info()[0]))
+
+            if "KeyboardInterrupt" in str(sys.exc_info()[0]):
+                exit()
 
 
 
