@@ -15,12 +15,18 @@ import db_security
 import urllib.request as req
 import json
 import config as cfg
-
+import log
 
 ip_2_location_cache = {}
 ip_last_request_timestamp = {}
 time_stamp_last_call = 0
 traffic_q = queue.Queue()
+
+# load the cache on startup
+cache_arr = db_security.get_ip_to_location()
+
+for row in cache_arr:
+    ip_2_location_cache[row[0]] = row[1]
 
 
 def track(ip_address, is_https):
@@ -62,12 +68,14 @@ def get_location(ip_address):
     global ip_2_location_cache
 
     if ip_address in ip_2_location_cache:
+        log.log_ip_2_location("ip address was in cache: " + str(ip_address) + " and the content is " + str(ip_2_location_cache[ip_address]))
         return ip_2_location_cache[ip_address]
 
     else:
-
+        log.log_ip_2_location("getting location for ip address from service: " + str(ip_address))
         loc = get_location_from_service(ip_address)
         ip_2_location_cache[ip_address] = loc
+        log.log_ip_2_location("getting location for ip address from service resulted in this response: " + str(loc))
         return loc
 
 
@@ -87,7 +95,7 @@ def traffic_worker():
                 try:
 
                     # this writes it to the log file created by bash
-                    print(item[1])
+                    log.log_ip_2_location("IP to be found by ip to location" + str(item[1]))
 
                     ip = item[0]
                     ts = item[1]
@@ -114,8 +122,8 @@ def traffic_worker():
                     traffic_q.task_done()
 
                 except Exception as ex:
-                    print("error in export  traffic_worker()")
-                    print("error in export  traffic_worker(): ", str(ex))
+                    log.log_ip_2_location("error in export  traffic_worker()")
+                    log.log_ip_2_location("error in export  traffic_worker(): ", str(ex))
         else:
             time.sleep(1)
 
