@@ -153,17 +153,13 @@ function Controller() {
     var r = new JsonEditWordRequest(globalWordId, fromWord, toWord, s);
     //objDataAccess.ajaxPostJson(this, "json", r);
     objDataAccess.ajaxPost(this, r);
+    //this.nextWordFromArray(true);
+    //this.setLearnForm();
+    this.nextWordFromArray(true);
 
   }
 
 
-  //===================================================
-
-
-  this.testJson = function() {
-    var r = new JsonAddVocRequest("ldghfg", "udfghdfg", "wdfghdfgh", "tdfhf", "testJson");
-    objDataAccess.ajaxPostJson(this, "json", r);
-  }
 
   //===================================================
   // function to handle Ui Interaction
@@ -784,9 +780,10 @@ function Controller() {
       }
     } else if (responseObject["action"] === "editWord") {
 
+
       // after editing a word
-      objUxUi.setNavi("");
-      objUxUi.setLearnForm();
+      //objUxUi.setNavi("");
+      //objUxUi.setLearnForm();
 
     } else if(responseObject["action"] === "getSettings"){
 
