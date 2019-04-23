@@ -4,7 +4,8 @@ import time
 import threading
 import config as cfg
 import db_add_content as dba
-
+import db_security as sec
+import process_json
 
 def clean_master():
 
@@ -16,6 +17,8 @@ def clean_master():
 
     print("clean up MASTER done")
 
+    sec.debug_master_slave_mapping()
+
 
 def clean_slave():
     conn = dba.get_connection()
@@ -25,6 +28,20 @@ def clean_slave():
     conn.commit()
 
     print("clean up SLAVE done")
+
+
+def re_register_at_master():
+
+    # get list of users and send them to master
+
+    users = sec.get_users()
+
+    for user in users:
+        print("registering at MASTER: " + str(user))
+        process_json.register_user_and_session_at_master("", user)
+
+
+
 
 #
 # def clean_up_worker():
