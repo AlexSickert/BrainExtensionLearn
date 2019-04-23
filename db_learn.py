@@ -9,7 +9,7 @@ import db_add_content as dba
 import random
 import time
 
-short_term_memory_length = 15
+short_term_memory_length = 10
 cache_short_term_memory = {}
 
 
