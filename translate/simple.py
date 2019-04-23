@@ -15,7 +15,7 @@ import db_add_content
 import log
 import urllib.parse
 
-auth_key = cfg.parameters["deep_l_access_token"]
+auth_keys = cfg.parameters["deep_l_access_token"]
 
 
 def translate(source_lang, target_lang, txt_to_translate):
@@ -28,7 +28,7 @@ def translate(source_lang, target_lang, txt_to_translate):
     :param txt_to_translate:
     :return:
     """
-    global auth_key
+    global auth_keys
 
     log.log_info("translate(source_lang, target_lang, txt_to_translate)")
 
@@ -51,32 +51,46 @@ def translate(source_lang, target_lang, txt_to_translate):
 
         if not trans_exists:
 
-            url = "https://api.deepl.com/v2/translate?text=" + urllib.parse.quote_plus(txt_to_translate)
-            url += "&source_lang=" + source_lang
-            url += "&target_lang=" + target_lang
-            url += "&auth_key=" + auth_key
-            print(url)
-            log.log_info(url)
-            resp = req.urlopen(url, timeout=10).read()
-            res_txt = resp.decode()
-            log.log_info(res_txt)
-            res_obj = json.loads(res_txt)
+            success = False
+            try_count = 0
 
-            trans = ""
-            counter = 0
+            while not success:
 
-            if "translations" in res_obj:
-                for t in res_obj["translations"]:
-                    if "text" in t:
-                        if counter > 0:
-                            trans += " | "
-                        trans += t["text"]
-                        counter += 1
+                auth_key = auth_keys[try_count]
 
-            print("result: ")
-            print("trans")
-            db_add_content.insert_translation(source_lang, target_lang, txt_to_translate, trans)
-            print("insterted in db")
+                try_count += 1
+
+                log.log_info("try counter of translate: " + str(try_count) + " of " + str(len(auth_keys)))
+
+                if try_count >= len(auth_keys):
+                    success = True # its actually not true, but we need to stop as no other option
+
+                url = "https://api.deepl.com/v2/translate?text=" + urllib.parse.quote_plus(txt_to_translate)
+                url += "&source_lang=" + source_lang
+                url += "&target_lang=" + target_lang
+                url += "&auth_key=" + auth_key
+
+                log.log_info(url)
+                resp = req.urlopen(url, timeout=10).read()
+                res_txt = resp.decode()
+                log.log_info(res_txt)
+                res_obj = json.loads(res_txt)
+
+                trans = ""
+                counter = 0
+
+                if "translations" in res_obj:
+                    for t in res_obj["translations"]:
+                        if "text" in t:
+                            if counter > 0:
+                                trans += " | "
+
+                            trans += t["text"]
+                            counter += 1
+
+                if len(trans) > 0:
+                    success = True
+                    db_add_content.insert_translation(source_lang, target_lang, txt_to_translate, trans)
 
     except Exception as e:
 
