@@ -416,9 +416,9 @@ function UxUi() {
     document.getElementById("language2").style.width = Math.floor(w) + "px";
     document.getElementById("word2").style.width = Math.floor(w) + "px";
 
-    document.getElementById("bottombuttons1").style.width = Math.floor(w * 0.35) + "px";
-    document.getElementById("bottombuttons2").style.width = Math.floor(w * 0.30) + "px";
-    document.getElementById("bottombuttons3").style.width = Math.floor(w * 0.35) + "px";
+    document.getElementById("bottombuttons1").style.width = Math.floor(w * 0.5) + "px";
+    //document.getElementById("bottombuttons2").style.width = Math.floor(w * 0.30) + "px";
+    document.getElementById("bottombuttons3").style.width = Math.floor(w * 0.5) + "px";
 
     // set height
 
@@ -433,7 +433,7 @@ function UxUi() {
     document.getElementById("word2").style.height = Math.floor(h * 0.25) + "px";
 
     document.getElementById("bottombuttons1").style.height = Math.floor(h * 0.2) + "px";
-    document.getElementById("bottombuttons2").style.height = Math.floor(h * 0.2) + "px";
+    //document.getElementById("bottombuttons2").style.height = Math.floor(h * 0.2) + "px";
     document.getElementById("bottombuttons3").style.height = Math.floor(h * 0.2) + "px";
 
     // modify font size
@@ -496,7 +496,7 @@ function UxUi() {
     document.getElementById("word2").style.fontSize = Math.floor(s2) + "px";
 
     document.getElementById("bottombuttons1").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
-    document.getElementById("bottombuttons2").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
+    //document.getElementById("bottombuttons2").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
     document.getElementById("bottombuttons3").style.fontSize = Math.floor(h * 0.2 * 0.3) + "px";
 
 
