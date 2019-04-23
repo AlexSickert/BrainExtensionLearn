@@ -41,6 +41,8 @@ log.log_info("------------------ start server ----------------------")
 
 clean_up.clean_slave()
 
+
+
 # use command line argument to choose server identiy
 if len(sys.argv) > 1:
     server_id = sys.argv[1]
@@ -53,6 +55,9 @@ port = int(cfg.slaves[server_id][1])
 print("server listening to port", port)
 SERVER_ADDRESS = (HOST, PORT) = '', port
 REQUEST_QUEUE_SIZE = 50
+
+# we first need to ensure that the slave_id is set - therefore we can run this line only here
+clean_up.re_register_at_master()
 
 
 def distribute_actions(jo):
