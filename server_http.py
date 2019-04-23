@@ -31,7 +31,10 @@ import ssl
 import traffic
 
 
-log.log_info("------------------ start server ----------------------")
+log.log_info("==========================================================================")
+log.log_info("==========================================================================")
+log.log_info("==========================================================================")
+log.log_info("------------------ start http server ----------------------")
 
 SERVER_ADDRESS = (HOST, PORT) = '', int(cfg.parameters["http"])
 REQUEST_QUEUE_SIZE = 50
@@ -230,7 +233,6 @@ def serve_forever():
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listen_socket.bind(SERVER_ADDRESS)
     listen_socket.listen(REQUEST_QUEUE_SIZE)
-
 
     executor = ThreadPoolExecutor(max_workers=50)
 
