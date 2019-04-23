@@ -29,6 +29,8 @@ a_pass = config_params["password"]
 e_user = config_params["mail_user"]
 e_pass = config_params["mail_password"]
 
+slave_id = config_params["slave_id"]
+
 
 def send_mail(to_email, email_subject, email_message):
 
@@ -106,7 +108,7 @@ except:
 if err:
     # first we send a mail
     print("sending mail...")
-    send_mail("alex.solensky@gmail.com", "BrainVok SLAVE Problem [" + test_time + "]", err_text)
+    send_mail("alex.solensky@gmail.com", "BrainVok SLAVE " + slave_id + " Problem [" + test_time + "]", err_text)
     #then we restart the server
 
     print("restarting server...")
