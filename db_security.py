@@ -10,17 +10,6 @@ import random
 import hashlib
 import time
 
-#
-# conn = dba.get_connection()
-# cur = conn.cursor()
-# cur.execute("SELECT email, password  FROM users  ", ())
-# ret = cur.fetchall()
-#
-# for row in ret:
-#     print("--------------------------")
-#     print("email: ", row[0])
-#     print(" password: ", row[1])
-
 
 slaves = cfg.slaves
 slaves_arr = cfg.slaves_arr
@@ -146,6 +135,42 @@ def get_user_id(u):
     return user_id
 
 
+def get_users():
+    """
+    get all users - not byu id, but by their email address
+    :return:
+    """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+
+    ret = []
+
+    cur.execute("SELECT distinct email  FROM users ")
+    arr = cur.fetchall()
+
+    for row in arr:
+        #print(row[0])
+        ret.append(str(row[0]).strip())
+
+    return ret
+
+
+def debug_master_slave_mapping():
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT slave_id, session_or_user  FROM master_slave_mapping ")
+    rs = cur.fetchall()
+    log.log_info("---------------------------------")
+    log.log_info("master slave mapping: ")
+
+    for r in rs:
+        log.log_info("row: " + str(r))
+
+    log.log_info("---------------------------------")
+
+
 def get_slave_ip_port(user_id):
     # this can only be used by MASTER
 
@@ -166,14 +191,17 @@ def get_slave_ip_port(user_id):
         id = rs[0][0]
     else:
         id = ""
-
-        log.log_info("get_slave_ip_port(user_id) id = " + str(id))
+        log.log_info("get_slave_ip_port(user_id) - got empty rs for id = " + str(id))
+        debug_master_slave_mapping()
 
     if len(id) > 0:
         id = id.strip()
         arr = slaves[id]
         ip = arr[0]
         port = arr[1]
+    else:
+        # we have a problem and debug the values
+        debug_master_slave_mapping()
 
     return ip, port
 
@@ -224,8 +252,27 @@ def register_slave(session_or_user, slave, user_email):
 
         conn.commit()
 
+    elif len(user_email) > 3:
+
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        sql = "DELETE FROM master_slave_mapping WHERE session_or_user = %s;"
+        cur.execute(sql, (session_or_user,))
+        conn.commit()
+
+        # sql = "INSERT INTO master_slave_mapping (session_or_user, slave_id, user_email, time_stamp) VALUES (%s, %s, %s, %s);"
+        # cur.execute(sql, (session_or_user, slave, user_email, ts))
+
+        sql = "INSERT INTO master_slave_mapping (session_or_user, slave_id) VALUES (%s, %s);"
+        cur.execute(sql, (user_email, slave))
+
+        conn.commit()
+
     else:
-        log.log_error("cannot register register_slave(session_or_user, slave) because session_or_user too short: " + str(session_or_user))
+        log.log_error("cannot register register_slave(session_or_user, slave) because session_or_user or user_email too short: " + str(session_or_user))
+        log.log_error("session_or_user : " + str(session_or_user))
+        log.log_error("user_email : " + str(user_email))
+
 
 
 def get_slave_id_from_session_or_user(s):
@@ -240,6 +287,16 @@ def get_slave_id_from_session_or_user(s):
     except:
         id = ""
     return id.strip()
+
+
+def get_ip_to_location():
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    sql = "SELECT distinct ip_address, json from ip_to_location limit 1000"
+    cur.execute(sql)
+    arr = cur.fetchall()
+    return arr
 
 
 def insert_into_db(ip, time_stamp, delta_last_all, delta_last_this, is_https):
