@@ -27,6 +27,9 @@ e_user = config_params["mail_user"]
 e_pass = config_params["mail_password"]
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+
 def send_mail(to_email, email_subject, email_message):
 
     global e_pass
@@ -57,42 +60,48 @@ def send_mail(to_email, email_subject, email_message):
     server_ssl.close()
     print( 'successfully sent the mail')
 
-try:
-    resp = req.urlopen(url, timeout=time_out).read()
-    print("OK, server can be reached")
-    err_text += "\r\nOK, server can be reached"
+# ----------------------------------------------------------------------------------------------------------------------
 
-except:
-    print("Timeout occured. Server cannot be reached.")
-    err = True
-    err_text += "\r\nTimeout occured. Server cannot be reached."
+if config_params["test-ping"]:
+
+    try:
+        resp = req.urlopen(url, timeout=time_out).read()
+        print("OK, server can be reached")
+        err_text += "\r\nOK, server can be reached"
+
+    except:
+        print("Timeout occured. Server cannot be reached.")
+        err = True
+        err_text += "\r\nTimeout occured. Server cannot be reached."
 
 # ----------------------------------------------------------------------------------------------------------------------
 
-try:
+if config_params["test-login"]:
 
-    dj = {}
-    dj["user"] = a_user
-    dj["password"] = a_pass
-    dj["action"] = "logIn"
+    try:
 
-    d="objJSON=" + json.dumps(dj)
+        dj = {}
+        dj["user"] = a_user
+        dj["password"] = a_pass
+        dj["action"] = "logIn"
 
-    dby = d.encode("utf-8")
+        d="objJSON=" + json.dumps(dj)
 
-    resp = req.urlopen(url, data=dby, timeout=time_out).read()
-    jt = resp.decode()
-    jo = json.loads(jt)
+        dby = d.encode("utf-8")
 
-    session = jo["session"]
-    print(jo)
+        resp = req.urlopen(url, data=dby, timeout=time_out).read()
+        jt = resp.decode()
+        jo = json.loads(jt)
 
-    err_text += "\r\nOK, Login is possible."
+        session = jo["session"]
+        print(jo)
 
-except:
-    print("Something went wrong during login.")
-    err = True
-    err_text += "\r\nSomething went wrong during login."
+        err_text += "\r\nOK, Login is possible."
+
+    except:
+        print("Something went wrong during login.")
+        err = True
+        err_text += "\r\nSomething went wrong during login."
 
 if err:
     # first we send a mail
