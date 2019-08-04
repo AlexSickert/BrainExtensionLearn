@@ -92,7 +92,12 @@ def re_order_and_update_cache(user_id, word_id, new_position):
 
     global cache_short_term_memory
 
-    arr = cache_short_term_memory[user_id]
+    if user_id in cache_short_term_memory:
+        arr = cache_short_term_memory[user_id]
+    else:
+        arr = []
+
+
     currIndex = -1;
 
     log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length before: " + str(len(arr)))
@@ -618,6 +623,7 @@ def update_vocabulary_counter(word_id,  experiment, forgotten, answer):
     cur.execute(sql, (experiment, forgotten, word_id))
     conn.commit()
 
+
 def set_experiment_state(word_id, is_experiment):
 
     """
@@ -727,7 +733,7 @@ def get_next_word_id(user_id, last_word_id):
                 log.log_error("get_next_word_id needed to abord because endless loop")
                 do_continue = False
 
-            if add_new_word():
+            if add_new_word(user_id):
                 # ToDo: if there are no new words left, then we need to process old words and send info to user,
                 # that there are no new words left
 
@@ -794,7 +800,7 @@ def get_next_word_id_array(user_id, last_word_id):
         log.log_info("get_next_word_id - count_current less than 7" )
         # we need to add a new word question is if repeat old word or use new
         while count_current(user_id) < 7:
-            if add_new_word():
+            if add_new_word(user_id):
                 # ToDo: if there are no new words left, then we need to process old words and send info to user,
                 # that there are no new words left
 
@@ -876,8 +882,6 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     global short_term_memory_length
     global cache_short_term_memory
 
-
-
     # if there are still words missing then we add from the "non current"
     # first we ensure there are enough current words if array too short, then we add to array
 
@@ -897,7 +901,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
 
             log.log_info("in while loop... ")
 
-            if add_new_word():
+            if add_new_word(user_id):
                 # ToDo: if there are no new words left, then we need to process old words and send info to user,
                 # that there are no new words left
 
@@ -1081,15 +1085,38 @@ def get_new_random(user_id):
     return l
 
 
-def add_new_word():
+def add_new_word(user_id):
     """
     Decide if we want to add a word from the pile of new words or from the pile of old words that need repetition
+
+    The decision depends on the percentage fo successfully leanrned words. If the predictions says that more than XX%
+    of the words are not forgotten, then we add a new word.
+
+    if the ratio is 0.0 then we add new words because the ration could not be calculated. but if the ratio is between
+    0.05 and 0.8 then we repeat old words first. if the ratio is > 0.85 then we add new words
+
     :return:
     """
 
-    r = random.random()
+    parameter_name = "percentage_learned"
 
-    if r > 0.5:
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    sql = "SELECT value FROM parameters WHERE user_id = %s AND key = %s"
+    cur.execute(sql, (user_id, parameter_name))
+
+    ratio_learned = float(cur.fetchall()[0][0])
+
+    # r = random.random()
+    #
+    # if r > 0.5:
+    #     return True
+    # else:
+    #     return False
+
+    if ratio_learned < 0.05:
+        return True
+    elif ratio_learned > 0.85:
         return True
     else:
         return False
