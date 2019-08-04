@@ -9,15 +9,15 @@ import time
 from datetime import datetime
 
 # sleep 30 seconds to prevent conflict with same process in master
-time.sleep(30)
+#time.sleep(30)
 
 
 config_params = json.load(open('./config.json'))
 
 
-
 url = config_params["url"]
-err = False
+err_master = False
+err_slave = False
 test_time = str(datetime.now())
 err_text = test_time
 
@@ -64,9 +64,6 @@ def send_mail(to_email, email_subject, email_message):
     print( 'successfully sent the mail')
 
 
-
-
-
 try:
     resp = req.urlopen(url, timeout=time_out).read()
     # print(resp)
@@ -74,38 +71,40 @@ try:
     err_text += "\r\nOK, server can be reached"
 except:
     print("Timeout occured. Server cannot be reached.")
-    err = True
+    err_master = True
     err_text += "\r\nTimeout occured. Server cannot be reached."
 
 # -------------------------------------------------------------------------------------
-try:
 
-    dj = {}
-    dj["user"] = a_user
-    dj["password"] = a_pass
-    dj["action"] = "logIn"
+if not err_master:
 
-    d="objJSON=" + json.dumps(dj)
+    try:
 
-    dby = d.encode("utf-8")
+        dj = {}
+        dj["user"] = a_user
+        dj["password"] = a_pass
+        dj["action"] = "logIn"
 
-    resp = req.urlopen(url, data=dby, timeout=time_out).read()
-    jt = resp.decode()
-    jo = json.loads(jt)
+        d="objJSON=" + json.dumps(dj)
 
-    session = jo["session"]
-    print(jo)
+        dby = d.encode("utf-8")
 
-    err_text += "\r\nOK, Login is possible."
-    print(err_text)
-except:
-    print("Something went wrong during login.")
-    err = True
-    err_text += "\r\nSomething went wrong during login."
+        resp = req.urlopen(url, data=dby, timeout=time_out).read()
+        jt = resp.decode()
+        jo = json.loads(jt)
+
+        session = jo["session"]
+        print(jo)
+
+        err_text += "\r\nOK, Login is possible."
+        print(err_text)
+    except:
+        print("Something went wrong during login.")
+        err_slave = True
+        err_text += "\r\nSomething went wrong during login."
 
 
-
-if err:
+if err_slave:
     # first we send a mail
     print("sending mail...")
     send_mail("alex.solensky@gmail.com", "BrainVok SLAVE " + slave_id + " Problem [" + test_time + "]", err_text)
