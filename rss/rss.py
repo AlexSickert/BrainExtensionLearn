@@ -34,8 +34,10 @@ def save_dictionary(name, data):
     fileObject = open(file_name, 'wb')
     pickle.dump(data, fileObject)
 
+
 def hasNumbers(inputString):
     return any(char.isdigit() for char in inputString)
+
 
 def handle_one_text(language, txt):
 
@@ -311,7 +313,7 @@ def html_2_text(html):
     return txt
 
 
-def save_text_as_file(lang, txt):
+def save_text_as_file(lang, txt, url, source):
 
     #create folder if not exists
 
@@ -324,15 +326,23 @@ def save_text_as_file(lang, txt):
             print("error making directory")
 
 
+    h = hash(url)
 
+    if h < 1:
+        h = -1 * h
 
-    fn = dirname + lang + "-" + str(time.time()) + ".txt"
-
+    fn = dirname + lang + "_" + str(source) + "_" + str(h) + ".txt"
+    fn = fn.replace(" ", "_")
     f = open(fn, "w+", encoding="utf-8")
     f.write(txt)
     f.close()
 
     #print("alksdjf ;alkjsdf ;alkjsdf ;laj**************+++++++++")
+
+    ret = lang + "_" + str(source) + "_" + str(h) + ".txt"
+    ret = ret.replace(" ", "_")
+
+    return ret
 
 
 def process_db_entry(lan, source, title, link, enc):
@@ -354,10 +364,11 @@ def process_db_entry(lan, source, title, link, enc):
 
             txt_read = str(resp, encoding=enc)
             txt_read = html_2_text_for_reading(txt_read)
-            save_text_as_file(lan, txt_read)
-
+            ret = save_text_as_file(lan, txt_read, link, source)
+            return ret
         except:
             print("error")
+            return ""
 
 
 
@@ -376,48 +387,54 @@ def process_link(language, source, encoding, url, target_encoding):
     if len(url) < 10:
         return
 
+    try:
 
-    resp = req.urlopen(url).read()
+        resp = req.urlopen(url).read()
 
-    # s = str(resp, encoding='utf-8')
-    # s = str(resp, encoding='ISO-8859-1')
-    s = str(resp, encoding=encoding)
+        # s = str(resp, encoding='utf-8')
+        # s = str(resp, encoding='ISO-8859-1')
+        s = str(resp, encoding=encoding)
 
-    root = ET.fromstring(s)
+        root = ET.fromstring(s)
 
-    for item in root.iter('item'):
+        for item in root.iter('item'):
 
-        entry = {}
-        entry["language"] = language
-        entry["source"] = source
-        entry["encoding"] = encoding
-        entry["target_encoding"] = target_encoding
+            entry = {}
+            entry["language"] = language
+            entry["source"] = source
+            entry["encoding"] = encoding
+            entry["target_encoding"] = target_encoding
 
-        # print("#######################################################")
+            # print("#######################################################")
 
-        for title in item.iter('title'):
-            # print(html_2_text(title.text))
-            entry["title"] = html_2_text(title.text)
+            for title in item.iter('title'):
+                # print(html_2_text(title.text))
+                entry["title"] = html_2_text(title.text)
 
-        #print("-------------------------------------------------------")
+            #print("-------------------------------------------------------")
 
-        for title in item.iter('description'):
-            # print(html_2_text(title.text))
-            entry["description"] = html_2_text(title.text)
+            for title in item.iter('description'):
+                # print(html_2_text(title.text))
+                entry["description"] = html_2_text(title.text)
 
-        #print("-------------------------------------------------------")
+            #print("-------------------------------------------------------")
 
-        for title in item.iter('encoded'):
-            # print(html_2_text(title.text))
-            entry["encoded"] = html_2_text(title.text)
+            for title in item.iter('encoded'):
+                # print(html_2_text(title.text))
+                entry["encoded"] = html_2_text(title.text)
 
-        #print("-------------------------------------------------------")
+            #print("-------------------------------------------------------")
 
-        for title in item.iter('link'):
-            # print("LINK: " + title.text)
-            entry["link"] = str(title.text).strip()
+            for title in item.iter('link'):
+                # print("LINK: " + title.text)
+                entry["link"] = str(title.text).strip()
 
-        db.append(entry)
+            db.append(entry)
+
+    except Exception as ex:
+
+        print("error: ", ex)
+
 
 
 # ======================================================================================================================
@@ -546,17 +563,21 @@ for entry in db:
     html += "\n<tr>"
 
     html += "<td colspan=\"2\" style='border-bottom: 3px solid #cccccc; padding-bottom: 10px;'>"
-    html += wrap_link(entry["title"], entry["link"])
-    html += "</td>"
-
-
 
     if len(entry["target_encoding"]) < 3:
         enc = str(entry["encoding"]).strip()
     else:
         enc = str(entry["target_encoding"]).strip()
 
-    process_db_entry(entry["language"], entry["source"], entry["title"], entry["link"], enc)
+    rss_link_local = process_db_entry(entry["language"], entry["source"], entry["title"], entry["link"], enc)
+
+    #
+    if rss_link_local is not None:
+        html += wrap_link(entry["title"], "./rss_content_" + rss_link_local)
+    else:
+        html += wrap_link(entry["title"], entry["link"])
+
+    html += "</td>"
 
     html += "</tr>"
 
