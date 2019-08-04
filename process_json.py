@@ -293,31 +293,41 @@ def distribute_actions(jo):
         log.log_info("session was " + str(session))
         user_id = dbs.get_user_id_from_session(session)
 
-        new_words, learned_words = dbr.get_simple_report(user_id)
+        new_words, learned_words, ratio_learned = dbr.get_simple_report(user_id)
 
-        html = "<table>"
-        html += "<tr>"
-        html += "<td>"
-        html += "new words:"
-        html += "</td>"
-        html += "<td>"
-        html += str(new_words)
-        html += "</td>"
-        html += "</tr>"
-        html += "<tr>"
-        html += "<td>"
-        html += "learned words:"
-        html += "</td>"
-        html += "<td>"
-        html += str(learned_words)
-        html += "</td>"
-        html += "</tr>"
-        html += "</table>"
+        # html = "<table>"
+        # html += "<tr>"
+        # html += "<td>"
+        # html += "new words:"
+        # html += "</td>"
+        # html += "<td>"
+        # html += str(new_words)
+        # html += "</td>"
+        # html += "</tr>"
+        # html += "<tr>"
+        # html += "<td>"
+        # html += "learned words:"
+        # html += "</td>"
+        # html += "<td>"
+        # html += str(learned_words)
+        # html += "</td>"
+        # html += "</tr>"
+        # html += "<tr>"
+        # html += "<td>"
+        # html += "From these " + str(learned_words) + " words you probably know " + str(
+        #     ratio_learned) + " percent because you forgot them since you learned them."
+        #
+        # html += "</td>"
+        # html += "</tr>"
+        # html += "</table>"
+
+        log.log_info("asdfasdfasdfasdfa " + str(ratio_learned))
 
         rj['action'] = action
         rj['newWords'] = new_words
         rj['learnedWords'] = learned_words
-        rj['html'] = html
+        rj['ratioLearned'] = ratio_learned
+        rj['html'] = ""
         rj['error'] = False
         rj['error_description'] = ""
 

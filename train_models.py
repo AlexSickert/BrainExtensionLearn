@@ -43,7 +43,6 @@ model_names = ["GradientBoostingRegressor",
                ]
 
 
-
 def get_result_MSE(y_true, y_predicted):
 
     err = met.mean_squared_error(y_true, y_predicted)
@@ -52,6 +51,7 @@ def get_result_MSE(y_true, y_predicted):
     err = np.sqrt(err)
 
     return err
+
 
 def train_and_choose_best(X_train, X_test, y_train, y_test):
 
@@ -95,12 +95,15 @@ def train_and_choose_best(X_train, X_test, y_train, y_test):
 
     log.log_prediction("best model: " + best_model_name)
 
+    predictions = "---------- predictions of test set -----------------\n"
     for i in range(len(y_test_best)):
 
         s = "predicted:; " + str(y_predicted_best[i])
         s += ";truth:; " + str(y_test_best[i])
-        log.log_prediction(s)
+        predictions += s + "\n"
 
+    predictions += "---------------------------------------------------\n"
+    log.log_prediction(predictions)
 
     return best_model
 

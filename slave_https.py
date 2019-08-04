@@ -66,6 +66,8 @@ def distribute_actions(jo):
 
     if "action" in jo:
         ret_str = pj.distribute_actions(jo)
+
+        # cfg.slave_id
     else:
         # google spreadsheed uses "function"
         f = jo["function"]

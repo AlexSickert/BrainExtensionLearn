@@ -125,14 +125,18 @@ def predict(user_id, clf):
 
         max_pos_length_ratio = 0
 
-        if "n" in pn_string:
-            pn_arr = pn_string.split("n")
+        if pn_string is not None:
 
-            for s in pn_arr:
-                if "y" in s:  # to exclude words like "None"
-                    ratio = len(s) / len(pn_string)  # length of yes vs. total length of string
-                    if ratio > max_pos_length_ratio:
-                        max_pos_length_ratio = ratio
+            if len(str(pn_string)) > 0:
+
+                if "n" in pn_string:
+                    pn_arr = pn_string.split("n")
+
+                    for s in pn_arr:
+                        if "y" in s:  # to exclude words like "None"
+                            ratio = len(s) / len(pn_string)  # length of yes vs. total length of string
+                            if ratio > max_pos_length_ratio:
+                                max_pos_length_ratio = ratio
 
         r.append(max_pos_length_ratio)
         r.append(i[1]) # count pos
@@ -159,6 +163,9 @@ def predict(user_id, clf):
     #arr_scaled = scaler.transform(arr_predict)
     arr_scaled = arr_predict
 
+    counter_learned = 0
+    denominator_learned = 0
+
     for i in range(len(arr_scaled)):
 
         #print(X_test[i])
@@ -169,7 +176,44 @@ def predict(user_id, clf):
 
         probability_forgot_word = ret[0]
 
-        update_forgot_score(arr_ids[i], probability_forgot_word)
+        denominator_learned += 1
+        if probability_forgot_word < 0.5:
+            counter_learned += 1
+
+    # update the percentage of learned vocabulary
+
+    if denominator_learned > 1:
+        ratio = counter_learned / denominator_learned
+    else:
+        ratio = 0.0
+
+    log.log_info("user " + str(user_id) + " has a learned ratio of " + str(ratio) + " count learned = " + str(counter_learned) + " count all = " + str(denominator_learned))
+    update_forgot_score(arr_ids[i], probability_forgot_word)
+    update_learned_percentage(user_id, ratio)
+
+
+def update_learned_percentage(user_id, ratio):
+
+    parameter_name = "percentage_learned"
+
+    sql = "SELECT count(*) FROM parameters WHERE user_id = %s AND key = %s"
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    #print(user_id, parameter_name, ratio)
+    cur.execute(sql, (user_id, parameter_name))
+    arr = cur.fetchall()
+
+    if arr[0][0] < 1:
+        # insert
+        sql = "INSERT INTO parameters (user_id, key, value) VALUES (%s,%s,%s) "
+        cur.execute(sql, (user_id, parameter_name, ratio))
+    else:
+        #update
+        sql = "UPDATE parameters set value = %s WHERE user_id = %s and key = %s"
+        cur.execute(sql, (ratio, user_id, parameter_name))
+
+    conn.commit()
 
 
 def boolean_to_float(arr):
@@ -216,8 +260,8 @@ def train_and_predict_rs(arr, user_id, train = True):
 
     # now we predict if we forgot or not
 
-def predict_only(user_id):
 
+def predict_only(user_id):
 
     path = cfg.parameters["model-path"]
 
@@ -332,6 +376,7 @@ def run_prediction_loop():
     conn = dba.get_connection()
     cur = conn.cursor()
 
+    threshold = 0
     cur.execute(sql, (threshold,))
 
     user_arr = rs_to_arr(cur.fetchall())
@@ -373,7 +418,6 @@ def run_prediction_loop():
         if user_id in last_dataset_length:
             diff = len(arr) - last_dataset_length[user_id]
         else:
-
             diff = len(arr) - 0
 
         last_dataset_length[user_id] = len(arr)
@@ -382,9 +426,7 @@ def run_prediction_loop():
 
             if diff > 0:
                 log.log_info("running train and predict, difference is: " + str(diff))
-
                 arr = prepare_dataset(arr)
-
                 train_and_predict_rs(arr, user_id)
                 log.log_info("train and predict done")
             else:
@@ -399,6 +441,7 @@ def run_prediction_loop():
 
 while True:
 
+    print("running prediction")
     run_prediction_loop()
     #print("now sleeping")
     #time.sleep(60)
