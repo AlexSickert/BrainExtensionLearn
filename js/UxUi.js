@@ -190,8 +190,8 @@ function UxUi() {
   }
 
   // set the results in the html code and display
-  this.setResults = function(learned, newWords) {
-    var s = this.getResultsForm(learned, newWords);
+  this.setResults = function(learned, newWords, ratioLearned) {
+    var s = this.getResultsForm(learned, newWords, ratioLearned);
     this.setHtmlInDiv("mainBody", s);
   };
 
@@ -805,11 +805,18 @@ function UxUi() {
     return s;
   };
 
-  this.getResultsForm = function(learned, newWords) {
-    var s = "<br><br>";
-    s += "<span id='resultLabel1'>words learned so far: " + learned + "</span><br>";
-    s += "<span id='resultLabel1'>words remaining to learn: " + newWords + "</span><br>";
-    return s;
+  this.getResultsForm = function(learned, newWords, ratioLearned) {
+    try{
+        var s = "<br><br>";
+        s += "<span id='resultLabel1'>Words learned so far: " + learned + "</span><br>";
+        s += "<span id='resultLabel1'>Words remaining to learn: " + newWords + "</span><br>";
+        var x = 100 - parseFloat(ratioLearned);
+        var y = x.toString().substring(0, 5);
+        s += "<span id='resultLabel1'>From the " + learned + " words learned you probably forgot " + y + " percent.</span><br>";
+        return s;
+    }catch(error) {
+        return "<span id='resultLabel1'> " + error + " percent.</span><br>";
+    }
   };
 
   this.makeToast = function(s,c) {
