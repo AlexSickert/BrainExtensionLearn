@@ -739,7 +739,8 @@ function Controller() {
     } else if (responseObject["action"] === "report") {
       var newWords = responseObject["newWords"];
       var learnedWords = responseObject["learnedWords"];
-      objUxUi.setResults(learnedWords, newWords);
+      var ratioLearned = responseObject["ratioLearned"];
+      objUxUi.setResults(learnedWords, newWords, ratioLearned);
     } else if (responseObject["action"] === "checkSession") {
       // if session valid then we can start the application
       // otherwise we go to login form
