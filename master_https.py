@@ -48,6 +48,7 @@ REQUEST_QUEUE_SIZE = 50
 file_cache = {}
 
 
+
 def getHtml():
 
     """
@@ -62,7 +63,7 @@ def getHtml():
     return s
 
 
-def getFile(path):
+def getFile(path, use_cache = True):
 
     """
     little helper function
@@ -71,10 +72,19 @@ def getFile(path):
 
     global file_cache
 
-    if path in file_cache:
-        log.log_info("getFile(path) getting from cache")
-        return file_cache[path]
+    if use_cache:
 
+        if path in file_cache:
+            log.log_info("getFile(path) getting from cache")
+            return file_cache[path]
+
+        else:
+            log.log_info("getFile(path) loading from file system")
+            file = open(path, 'rb')
+            s = file.read()
+            file.close()
+            file_cache[path] = s
+            return s
     else:
         log.log_info("getFile(path) loading from file system")
         file = open(path, 'rb')
@@ -82,6 +92,54 @@ def getFile(path):
         file.close()
         file_cache[path] = s
         return s
+
+
+def getRssContent(u):
+
+    log.log_info("in getRssContent(u) and u = " + str(u))
+
+    txt = "nothing"
+
+    if "rss_content_" in u:
+
+        try:
+            s = u.split("rss_content_")
+            fn = s[1]
+            fn = "./rss/texts/" + fn
+
+            file = open(fn, 'r')
+            txt = file.read()
+            file.close()
+        except Exception as ex:
+            log.log_error("error opening file " + fn + " error: " + ex)
+            txt = "error reading file"
+
+    # ToDo add here needed code to make text nice and readable and right font and alos with js...
+
+    html = """
+    
+        <html>
+            <head>
+                <meta charset="UTF-8">
+            </head>
+        
+        
+    
+    """
+
+    html += txt
+
+    html += """
+       
+    </html>
+    """
+
+    #ret = bytearray()
+    #ret.extend(map(ord, html.encode('utf8')))
+
+    ret = bytearray(html, encoding="utf-8")
+
+    return ret
 
 
 def get_header_values(data):
@@ -302,20 +360,29 @@ def handle_request(client_connection, ip_address, port):
                 if u == "/app-ios-webview":
                     http_response += getFile("./html/app-ios-webview.html")
                 if u == "/rss.html":
-                    http_response += getFile("./html/rss.html")
+                    http_response += getFile("./html/rss.html", False)
+                elif "rss_content" in u:
+                    http_response += getRssContent(u)
                 elif u == "/Controller.js":
                     http_response += getFile("./js/Controller.js")
                 elif u == "/UxUi.js":
                     http_response += getFile("./js/UxUi.js")
                 elif u == "/DataAccess.js":
                     http_response += getFile("./js/DataAccess.js")
+                elif u == "/rss.js":
+                    http_response += getFile("./js/rss.js", False)
                 elif u == "/favicon.ico":
                     http_response += getFile("./html/favicon.ico")
                 elif u == "/style.css":
                     http_response += getFile("./css/style.css")
+                elif u == "/rss.css":
+                    http_response += getFile("./css/rss.css", False)
                 elif u == "/mobile-screenshot.png":
                     http_response += getFile("./html/mobile-screenshot.png")
-
+                elif "Screenshot_" in u:
+                    u = str(u).replace("/", "")
+                    u = str(u).replace("..", ".")
+                    http_response += getFile("./html/" + u.strip())
                 elif u == "/top-image-1.jpg":
                     http_response += getFile("./html/top-image-1.jpg")
                 elif "report.html" in u:

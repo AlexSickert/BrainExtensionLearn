@@ -14,6 +14,7 @@ import config as cfg
 import db_add_content
 import log
 import urllib.parse
+import ssl
 
 auth_keys = cfg.parameters["deep_l_access_token"]
 
@@ -71,7 +72,10 @@ def translate(source_lang, target_lang, txt_to_translate):
                 url += "&auth_key=" + auth_key
 
                 log.log_info(url)
-                resp = req.urlopen(url, timeout=10).read()
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+                resp = req.urlopen(url, context=ctx, timeout=10).read()
                 res_txt = resp.decode()
                 log.log_info(res_txt)
                 res_obj = json.loads(res_txt)

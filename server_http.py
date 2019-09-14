@@ -203,6 +203,9 @@ def handle_request(client_connection):
         log.log_info("get_header_values(req) ...")
         method, url, protocol, header_values, url_parameter = get_header_values(req)
 
+        log_str = str(method) + "|" + str(url) + "|" + str(protocol) + "|" + str(url_parameter) + "|" + str(header_values)
+        log.log_info(log_str)
+
         log.log_info("get_header_values(req) DONE ")
 
         http_response = make_header()

@@ -31,7 +31,7 @@ import ssl
 import report_html as reph
 import legal_html as leg
 import faq_html as faq
-
+import random
 
 log.log_info("------------------ start server ----------------------")
 
@@ -58,6 +58,21 @@ def getFile(path):
     little helper function
     :return:
     """
+
+    file = open(path, 'rb')
+    s = file.read()
+    file.close()
+    return s
+
+
+def getFileRandom(path_array):
+
+    """
+    little helper function
+    :return:
+    """
+
+    path = random.choice(path_array)
 
     file = open(path, 'rb')
     s = file.read()
@@ -293,7 +308,12 @@ def handle_request(client_connection):
                     http_response += getFile("./html/mobile-screenshot.png")
 
                 elif u == "/top-image-1.jpg":
-                    http_response += getFile("./html/top-image-1.jpg")
+
+                    path_arr = ()
+                    path_arr.append("./html/top-image-1.jpg")
+
+                    # getFileRandom
+                    http_response += getFileRandom("./html/top-image-1.jpg")
                 elif "report.html" in u:
                     http_response += reph.get_report(u)
                 elif "legal.html" in u:

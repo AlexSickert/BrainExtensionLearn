@@ -41,13 +41,13 @@ def process_json_master(json_string):
 
     jo = json.loads(json_string)
 
-    user_id = sec.get_user_id(jo["user"]) # this is the email address
+    #user_id = sec.get_user_id(jo["user"]) # this is the email address
 
-    ip, port = sec.get_slave_ip_port(user_id)
+    ip, port = sec.get_slave_ip_port(jo["user"])
 
     if port > 0:
         ret_obj = slave_request.get_from_slave(ip, port, jo)
-
+        log.log_info("Spreadsheet upload reponse from slave: " + str(ret_obj))
     else:
         # wrong login coordinates
         ret_obj = {}
@@ -55,7 +55,8 @@ def process_json_master(json_string):
         ret_obj["function"] = jo["function"]
         ret_obj["error_description"] = "could not find user"
 
-    return ret_obj
+    log.log_info("process_json_master(json_string): " + str(ret_obj))
+    return json.dumps(ret_obj)
 
 
 def process_json(json_obj):

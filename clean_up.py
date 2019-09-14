@@ -9,6 +9,8 @@ import process_json
 
 def clean_master():
 
+    print("now clean up MASTER")
+
     conn = dba.get_connection()
     cur = conn.cursor()
     sql = "DELETE FROM master_slave_mapping WHERE session_or_user like '%$testuser$%';"
@@ -21,6 +23,9 @@ def clean_master():
 
 
 def clean_slave():
+
+    print("now clean up SLAVE")
+
     conn = dba.get_connection()
     cur = conn.cursor()
     sql = "DELETE FROM session WHERE session_string like '%$testuser$%';"

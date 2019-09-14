@@ -515,10 +515,13 @@ def process_experiment(word_id, user_id, answer):
     cur.execute(sql, (word_id, ))
 
     arr = cur.fetchall()
+    is_experiment = False
+    once_learned = False
 
-    is_experiment = arr[0][0]
-
-    once_learned = arr[0][16]
+    if arr is not None:
+        if len(arr) > 0:
+            is_experiment = arr[0][0]
+            once_learned = arr[0][16]
 
 
     if is_experiment:
@@ -897,7 +900,14 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
         log.log_info("get_next_word_id - count_current less than short_term_memory_length - need to add new words" )
 
         # we need to add a new word question is if repeat old word or use new
+        max_loops = 50 # security measure and if client is new
+        loop_count = 0
         while cache_length_for_user(user_id) < short_term_memory_length:
+
+            loop_count += 1
+
+            if loop_count > max_loops:
+                break
 
             log.log_info("in while loop... ")
 
@@ -953,8 +963,12 @@ def get_position_of_word(word_id):
         """
 
     cur.execute(sql, (word_id,))
-    l = cur.fetchall()
-    pos = l[0][0]
+
+    pos = 1 # when user has not entered words at the beginning fo his lifetime
+    arr = cur.fetchall()
+    if arr is not None:
+        if len(arr) > 0:
+            pos = arr[0][0]
 
     return pos
 
@@ -978,11 +992,20 @@ def get_word(new_id):
 
     arr = cur.fetchall()
 
-    id = arr[0][0]
-    l1 = arr[0][1]
-    w1 = str(arr[0][2]).strip()
-    l2 = arr[0][3]
-    w2 = str(arr[0][4]).strip()
+    id = -1
+    l1 = ""
+    w1 = "Not enough words. Please upload at least 20 words."
+    l2 = ""
+    w2 = "Not enough words. Please upload at least 20 words."
+
+    if arr is not None:
+        if len(arr) > 0:
+
+            id = arr[0][0]
+            l1 = arr[0][1]
+            w1 = str(arr[0][2]).strip()
+            l2 = arr[0][3]
+            w2 = str(arr[0][4]).strip()
 
     return id, l1, w1, l2, w2
 
@@ -1105,16 +1128,18 @@ def add_new_word(user_id):
     sql = "SELECT value FROM parameters WHERE user_id = %s AND key = %s"
     cur.execute(sql, (user_id, parameter_name))
 
-    ratio_learned = float(cur.fetchall()[0][0])
+    arr = cur.fetchall()
 
-    # r = random.random()
-    #
-    # if r > 0.5:
-    #     return True
-    # else:
-    #     return False
+    ratio_learned = -1.0 # default value
 
-    if ratio_learned < 0.05:
+    if arr is not None:
+        if len(arr) > 0:
+            ratio_learned = float(cur.fetchall()[0][0])
+
+
+    if ratio_learned < 0.0: # this happens when not enough words were so far learned and parameter is not filled
+        return True
+    elif ratio_learned < 0.05:
         return True
     elif ratio_learned > 0.85:
         return True

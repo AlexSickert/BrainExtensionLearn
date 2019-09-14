@@ -50,12 +50,14 @@ def get_translation(json_obj):
     :return:
     """
 
-    log.log_info("get_translation(json_obj)")
+    log.log_info("get_translation(json_obj) = " + str(json_obj))
     lang_from = json_obj["language"]
     lang_to = json_obj["translationLanguage"]
     word = json_obj["word"]
 
     translation = simple_translate.translate(lang_from, lang_to, word)
+
+    log.log_info("get_translation(json_obj) translation is: " + str(translation))
 
     return translation
 
@@ -213,6 +215,11 @@ def process_post(form_values, ip_address):
                 log.log_info("no session registerUser = using port: " + str(port))
                 res_obj = slave_request.get_from_slave(ip, port, data)
                 log.log_info("answer from slave received " + str(res_obj))
+
+            elif data["action"] == "translateRss":
+                log.log_info("now translating a word in translateRss")
+                res_obj = data
+                res_obj["translation"] = get_translation(data)
 
             else:
                 # if there is no session element, then maybe we want to stream other things
