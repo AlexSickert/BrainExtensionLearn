@@ -808,8 +808,8 @@ function UxUi() {
   this.getResultsForm = function(learned, newWords, ratioLearned) {
     try{
         var s = "<br><br>";
-        s += "<span id='resultLabel1'>Words learned so far: " + learned + "</span><br>";
-        s += "<span id='resultLabel1'>Words remaining to learn: " + newWords + "</span><br>";
+        s += "<span id='resultLabel1'>Words learned so far: " + learned + "</span><br><br>";
+        s += "<span id='resultLabel1'>Words remaining to learn: " + newWords + "</span><br><br>";
         var x = 100 - parseFloat(ratioLearned);
         var y = x.toString().substring(0, 5);
         s += "<span id='resultLabel1'>From the " + learned + " words learned you probably forgot " + y + " percent.</span><br>";

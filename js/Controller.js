@@ -578,14 +578,21 @@ function Controller() {
             //alert(nextId);
         }
 
-        globalWordId = this.wordArray[nextId]["wordId"]
+        if(this.wordArray.length > 1){
+            var l1 = this.wordArray[nextId]["language1"];
+            var l2 = this.wordArray[nextId]["language2"];
+            var w1 = this.wordArray[nextId]["word1"];
+            var w2 = this.wordArray[nextId]["word2"];
+            globalWordId = this.wordArray[nextId]["wordId"];
+        }else{
+            var l1 = "-";
+            var l2 = "-";
+            var w1 = "Not enough words. Please upload at least 10 words. If you have uploaded already 10 words or more, then please press the green 'YES' button.";
+            var w2 = "";
+            globalWordId = -1;
+        }
 
         console.log("nextId = " + nextId);
-
-        var l1 = this.wordArray[nextId]["language1"];
-        var l2 = this.wordArray[nextId]["language2"];
-        var w1 = this.wordArray[nextId]["word1"];
-        var w2 = this.wordArray[nextId]["word2"];
 
         if(l1 == null){l1 = " ";};
         if(l2 == null){l2 = " ";};
