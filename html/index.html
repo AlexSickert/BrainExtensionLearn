@@ -1,339 +1,489 @@
-<html>
+<html  >
+
+    <head>
+        <title>Brain Extension</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+        <meta name="author" content="DataYiled GmbH, Alexander Sickert">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="HandheldFriendly" content="true" />
+
+        <title>BrainExtension</title>
+        <meta name="description" content="BrainExtension is an app for learning vocabulary. It makes usage of artificial intelligence to optimize the learning speed.">
+        <meta name="keywords" content="language, learning, education, artificial intelligence, machine learning, translation, English, Russian, Spanish, German, French, Italian, Portuguese">
+
+        <style>
+
+            a {
+                color: #ffffff;
+                font-weight: bold;
+            }
+
+            body {
+                width: 100%;
+                overflow-x: hidden;
+                font-family: Gill Sans Extrabold, sans-serif;
+                background-color: #ffffff;
+                margin: 0px;
+                padding: 0px;
+            }
 
-<head>
-  <title>Brain Extension</title>
+            div{
+                position: relative;
+                border: 0px;
+                width: 100%;
+                padding: 0px;
+                text-align: center;
 
-  <meta charset="utf-8">
 
+            }
 
+            div.alternate{
+                display: inline-block;
+                padding-top: 20px;
+                padding-bottom: 20px;
 
-  <style>
-    html {
+            }
 
-    }
+            div.contact {
 
-    body {
-    max-width: 100%;
-    overflow-x: hidden;
-      font-family: Gill Sans Extrabold, sans-serif;
-      background-color: #ffffff;
-      border: 0px;
-      margin: 0px;
-      padding: 0px;
-    }
+                padding: 20px;
+                color: #ffffff;
+                background-color: #222222;
+                text-align: left;
+            }
 
-    table {
-      padding: 0px;
-      border: 0px;
-      width: 100%;
-    }
+            div.navigation {
+                padding: 10px;
+                background-color: #222222;
+                font-size: 20pt;
+                color: white;
+                font-weight: bold;
+                text-align: left;
+            }
 
-    td {
+            div.mainHead{
+                border: 0px;
+                width: 100%;
+                padding: 0px;
 
-      border: 0px;
-      width: 50%; //background-color:rgb(206, 51, 117);
-    }
+            }
 
-    td.columnheader {
-      font-size: 20pt;
-
-    }
-
-    a {
-      color: #444444;
-      font-weight: bold;
-      padding-left: 20px;
-      padding-right: 20px;
-    }
-
-    a.inline {
-      font-size: 20pt;
-      color: white;
-      font-weight: bold;
-
-    }
-
-    a.button{
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-    }
-
-span.mainHeadline{
-      color: #444444;
-      font-size: 70pt;
-}
-
-    span.headline {
-      color: #444444;
-      font-size: 50pt;
-    }
-
-span.left{
-
-	width: 100%;
-	text-align: left;
-
-}
-
-    span.normalText {
-      color: #444444;
-      font-size: 20pt;
-      padding: 20px;
-      width: 80%;
-    }
-
-    span.buttonRed{
-      border-radius: 15px;
-      border: 10px solid #ec454c;
-      background-color: #ec454c;
-      font-size: 20pt;
-
-    }
+            div.white {
+                border: 0px;
+                width: 100%;
+                padding-left: 0%;
+                padding-right: 0%;
+                padding-top: 20px;
+                padding-bottom: 20px;
+                background-color: #ffffff;
 
-    span.ul {
+            }
+            
+              div.mainHeadline{
+                color: #444444;
+                font-size: 50pt;
+                border: 0px;
+                width: 100%;
+                padding-top: 30px;
+                padding-bottom: 30px;
+            }
 
-      text-align: left;
-      color: #444444;
-      font-size: 20pt;
+            div.introText{
+                color: #444444;
+                font-size: 30pt;
+                padding: 20px;
+                width: 80%;
 
-    }
+            }
 
-    div.navigation {
-      border: 0px;
-      width: 100%;
-      padding: 10px;
-      background-color: #48b657;
+            img.cs{
 
-      font-size: 20pt;
-      color: white;
-      font-weight: bold;
+                border: 1px solid grey;
+            }
 
 
-    }
+            p.head{
+                font-size: 40px;
+                color: #444444;
+                text-align: center;
+                padding: 20px;
+            }
 
-    div.head {
-      border: 0px;
-      width: 100%;
-      padding: 20px;
-      color: #444444;
-      background-color: #ffffff;
-    }
+            p.content{
+                font-size: 20px;
+                color: #444444;
+                text-align: center;
+                padding: 22px;
+            }
 
-div.mainHead{
-      border: 0px;
-      width: 100%;
-      padding-left: 20px;
-      padding-right: 20px;
-      padding-bottom: 20px;
-      padding-top: 70px;
-      color: #444444;
-      background-color: #ffffff;
-}
 
-    div.white {
-      border: 0px;
-      width: 80%;
-      padding-left: 10%;
-      padding-right: 10%;
-      padding-top: 20px;
-      padding-bottom: 20px;
-      background-color: #ffffff;
-      align-items: center;
 
-    }
+          
 
-    div.roadmap {
-      border: 0px;
-      width: 80%;
-      padding: 20px;
-      background-color: #f3d100;
-    }
 
-    div.signup {
-      border: 0px;
-      padding-left: 50%;
-      background-color: #ec454c;
-    }
 
-    div.contact {
-      border: 0px;
-      width: 100%;
-      padding: 20px;
-      color: #444444;
-      background-color: #f3d100;
-    }
+        </style>
 
-div.dummyVideo{
 
-width: 500px;
-height: 400px;
-background-color: #dddddd;
 
-}
 
-    img{
-    border: #444444 1px solid;
+        <script>
 
-    }
 
-div.spacer{
+            function getWidth() {
+                var screenWidth = 0;
 
-	width: 100%;
-	height: 1px;
-	background-color: #eeeeee;
+                try {
+                    if (screen.width > window.innerWidth) {
+                        screenWidth = window.innerWidth;
+                    } else {
+                        screenWidth = screen.width;
+                    }
+                    ;
+                } catch (e) {
+                    //log("error", "2 getWidth()", "error when positioning id:  error: " + e.description);
+                }
 
-}
+                //console.log("screenWidth: " + screenWidth);
+                //log("info", "getWidth()", "screenWidth: " + screenWidth);
+                return screenWidth;
+            }
 
-img.image-top{
-	border: 0px solid white;
-	width: 100%;
-}
 
+            function getHeight() {
+                var screenHeight = 0;
 
-iframe.video{
+                try {
+                    if (screen.height > window.innerHeight) {
+                        screenHeight = window.innerHeight;
+                    } else {
+                        screenHeight = screen.height;
+                    }
 
-padding: 50px;
-}
+                } catch (e) {
+                    //log("error", "2 getHeight()", "error when positioning id:  error: " + e.description);
+                }
 
-  </style>
+                //console.log("screenHeight: " + screenHeight);
+                //log("info", "getHeight()", "screenHeight: " + screenHeight);
+                return screenHeight;
 
-</head>
+            }
 
+            function getDevice() {
+                var device = "d";
 
-<body>
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    device = "m";
+                }
 
-  <div class="navigation">
+                return device;
 
-Brain<i>Extension</i> &nbsp;
+            }
 
-      <a class="inline" href="/app">Launch app</a>
-      <a class="inline" href="#howitworks">How it works</a>
-      <a class="inline" href="#contact">Contact</a>
-      <a class="inline" href="#roadmap">Roadmap</a>
+            function getOrientation() {
+                // detect if landscape or portrait
+                var h = this.getHeight() - 0;
+                var w = this.getWidth() - 0;
+                var orientation = "l";
 
+                if (h < w) {
+                    orientation = "l";
+                } else {
+                    orientation = "p";
+                }
+                return orientation;
+            }
 
-  </div>
 
+            function render() {
 
-<!-- large 100% wide image --> 
+                document.getElementById("source").style.display = "none";
+                document.getElementById("source").style.visibility = "hidden";
 
-   <center>
-     <img src="top-image-1.jpg" style="width: 100%;" class="image-top" >
-    </center>
+                var img_1 = document.getElementById("img_1").innerHTML;
+                var txt_1 = document.getElementById("txt_1").innerHTML;
 
+                var img_2 = document.getElementById("img_2").innerHTML;
+                var txt_2 = document.getElementById("txt_2").innerHTML;
 
-<!-- main header --> 
+                var img_3 = document.getElementById("img_3").innerHTML;
+                var txt_3 = document.getElementById("txt_3").innerHTML;
 
-
-  <div class="mainHead">
-    <center>
-      <span class="mainHeadline">Brain<i>Extension</i></span>
-    </center>
-  </div>
-
-  <div class="white">
-    <center>
-      <span class="normalText">
-
-        Brain<i>Extension</i> is an app for learning vocabulary. It makes usage of artificial intelligence to optimize the learning speed. It learns the characteristics of the words you most probably forget and forces you to repeat them more often. In addition the application visualizes the learning progress. You can load the vocabulary into the application via copy/paster from Microsoft Excel and Google Spreadsheets.
-
-  </div>
-
-
-  <div class="white">
-    <center>
-
-
-      <img src="./mobile-screenshot.png" alt="screenshot mobile app" width="20%">
-
-    </center>
-  </div>
-
-
-
-  <div class="white">
-    <center>
-      <span class="normalText">
-        The application is free of charge, free to use. No advertising. Sign up here: <span class="buttonRed"><a class="button" href="/app">Start&nbsp;App</a></span>
-     </span>
-    </center>
-  </div>
-
-<div class="spacer"></div>
-
-  <div class="white">
-    <center>
-      <span class="headline">Functionality</span>
-    </center>
-
-    <center>
-      <span class="ul">
-
-        <ul>
-          <li>Insert new words that you want to learn</li>
-          <li>Learn the words</li>
-          <li>Upload words via Microsoft Excel and Google Spreadsheets</li>
-        </ul>
-
-
-      </span>
-    </center>
-  </div>
-
-<div class="spacer"></div>
-
-  <div class="white">
-    <center>
-      <span class="headline">How it works</span>
-    </center>
-
-    <center>
-      <span class="ul">
-<a id="howitworks"></a>
-      To understand better how the application works please watch this video:<br>
-
-	<iframe class="video" width="560" height="315" src="https://www.youtube.com/embed/C0DPdy98e4c" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
-      </span>
-    </center>
-  </div>
-
-<div class="spacer"></div>
-
-  <div class="white">
-    <a id="roadmap"></a><br>
-
-    <center>
-      <span class="headline">Roadmap</span>
-    </center>
-
-   
-      <span class="ul">
-	
-	The next features that will be added to the application are:
-	
-        <ul >
-          <li>Get statistics about your learning progress</li>
-          <li>Automatically pull text from a URL, translate each word and add it to the vocabularly list. It ignores words that you already know</li>
-          <li>Paste a text and extract from it all new words</li>
-
-        </ul>
-      </span>
-   
-  </div>
-
-
-
-
-  <div class="contact">
-    Contact:
-    <a href="mailto:alex@data-yield.com" target="_blank">alex@data-yield.com</a> Skype:&nbsp;this_is_alex
-    <a id="contact"></a>
-
-  </div>
-
-</body>
+                var img_4 = document.getElementById("img_4").innerHTML;
+                var txt_4 = document.getElementById("txt_4").innerHTML;
+
+                var img_5 = document.getElementById("img_5").innerHTML;
+                var txt_5 = document.getElementById("txt_5").innerHTML;
+
+                var img_6 = document.getElementById("img_6").innerHTML;
+                var txt_6 = document.getElementById("txt_6").innerHTML;
+
+                var html = "";
+
+                if (getDevice() === "d") {
+                    //if (1 === 2) {
+
+                    // Desktop
+
+                    html += "<table>";
+                    // easy to use
+                    html += "<tr>";
+                    html += "<td>";
+                    html += img_1;
+                    html += "</td>";
+                    html += "<td>";
+                    html += txt_1;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // video
+                    html += "<tr>";
+                    html += "<td>";
+                    html += txt_6;
+                    html += "</td>";
+                    html += "<td>";
+                    html += img_6;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // transloator
+                    html += "<tr>";
+                    html += "<td>";
+                    html += img_3;
+                    html += "</td>";
+                    html += "<td>";
+                    html += txt_3;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // reporting
+                    html += "<tr>";
+                    html += "<td>";
+                    html += txt_2;
+                    html += "</td>";
+                    html += "<td>";
+                    html += img_2;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // desktop
+                    html += "<tr>";
+                    html += "<td>";
+                    html += img_4;
+                    html += "</td>";
+                    html += "<td>";
+                    html += txt_4;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // bulk upload
+                    html += "<tr>";
+                    html += "<td>";
+                    html += txt_5;
+                    html += "</td>";
+                    html += "<td>";
+                    html += img_5;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    html += "</table>";
+
+                    document.getElementById("target").innerHTML = html;
+
+                } else {
+
+                    // mobile
+                    html += "<table style=\"text-align: center; width: 100%\">";
+                    // easy to use
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_1;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_1;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // video
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_6;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_6;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // transloator
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_3;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_3;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // reporting
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_2;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_2;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // desktop
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_4;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_4;
+                    html += "</td>";
+                    html += "</tr>";
+
+                    // bulk upload
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += img_5;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td style=\"text-align: center; width: 100%\">";
+                    html += txt_5;
+                    html += "</td>";
+                    html += "</tr>";
+                    html += "</table>";
+
+                    html += "w=" + getWidth() + " | h=" + getHeight() + " | " + getOrientation();
+                    
+                    var w = getWidth();
+                    var h = getHeight();
+
+                    document.getElementById("target").innerHTML = html;
+
+                    document.getElementById("navigation").style.width = "100%";
+                    document.getElementById("top-image").style.width = "100%";
+                    
+                    var f = 1.0;
+                    
+                    if(getOrientation() === "l"){
+                        f = 0.6;
+                    }
+
+                    document.getElementById("i1").style.width = Math.floor(w * 0.7 * f) + "px";
+                    document.getElementById("i2").style.width = Math.floor(w * 0.7 * f) + "px";
+                    document.getElementById("i3").style.width = Math.floor(w * 0.7 * f) + "px";
+                    document.getElementById("i4").style.width = Math.floor(w * 0.7 * f) + "px";
+                    document.getElementById("i5").style.width = Math.floor(w * 0.7 * f) + "px";
+                    
+                    
+                    
+                    // width="560" height="315"
+                    
+                    var r = 560 / 315;
+
+                    document.getElementById("v1").style.width =  Math.floor(w * f) + "px";
+                    document.getElementById("v1").style.height = Math.floor((w / r) * f) + "px";
+                    
+                    document.getElementById("mainHeadline").style.fontSize = "40px";
+                    document.getElementById("mainHead").style.fontSize = "40px";
+
+                    document.getElementById("mainIntoText").style.fontSize = "30px";
+
+
+                    console.log("setting width DONE");
+
+                }
+
+
+            }
+
+        </script>
+
+    </head>
+
+
+    <body onload="render()">
+        <div>
+            <div class="navigation" id="navigation">
+                <a class="inline" href="/app">Launch app</a>
+                <a class="inline" href="#contact">Contact</a>
+            </div>
+
+        </div>
+
+        <img src="top-image-1.jpg" style="width: 100%; padding: 0px" class="image-top" id="top-image" />
+
+
+
+        <div id="mainHead" class="mainHead" >
+            <center>
+                <div id="mainHeadline" class="mainHeadline">Brain<i>Extension</i></div>
+            </center>
+        </div>
+
+        <div class="white" >
+            <center>
+                <div class="introText" id="mainIntoText" >
+                    Brain<i>Extension</i> is an app for learning vocabulary. It makes usage of artificial intelligence to optimize the learning speed.
+                </div>
+            </center>
+        </div>
+
+
+        <div id="target" style="width: 100%;">xxx</div>
+
+
+        <div id="source">
+
+            <div id="img_1"><div class="alternate"><img  id="i1" src="./Screenshot_1.png" width="300"  class="cs"  alt="screenshot mobile app"></div></div>
+            <div id="txt_1"><div class="alternate"><p class="head">Easy to use</p><p  class="content">The application is extremely easy to use and has a simple and clear design that ensures focus and avoid distraction. </p></div></div>
+
+            <div id="img_2"> <div class="alternate"><img  id="i2" src="./Screenshot_2.png" width="300"  class="cs"   alt="screenshot mobile app" ></div></div>
+            <div id="txt_2"><div class="alternate"><p class="head">See progress</p><p  class="content">The application shows you in numbers, graphs and tables how your learning is progressing over time and to which extent you forget words. </p></div></div>
+
+            <div id="img_3"> <div class="alternate"><img  id="i3"  src="./Screenshot_3.png" width="300"  class="cs"   alt="screenshot mobile app" ></div></div>
+            <div id="txt_3"><div class="alternate"><p class="head">Built-in translator</p><p  class="content">When you want to add a new word you can translate it automatically. The translator works with the languages German, English, Russian, Spanish, French, Portuguese, Italian.</p></div></div>
+
+            <div id="img_4"><div class="alternate"> <img  id="i4"  src="./Screenshot_4.png" width="300"  class="cs"  alt="screenshot mobile app" ></div></div>
+            <div id="txt_4"><div class="alternate"><p class="head">Desktop version</p><p  class="content">You can use the application via mobile app and via desktop in the browser. In both cases you access the same content you entered. </p></div></div>
+
+            <div id="img_5"> <div class="alternate"><img id="i5" src="./Screenshot_5.png" width="300"  class="cs"  alt="screenshot mobile app" ></div></div>
+            <div id="txt_5"><div class="alternate"><p class="head">Add several words at once</p><p  class="content">You can enter words in three ways: Enter word by word, Copy/paste a part of a table from Excel LibreOffice, Google Spreadsheet or use a special Google Spreadsheet that allows to transfer the entire content of the spreadsheet to the app. </p></div></div>
+
+            <div id="img_6"><div class="alternate"> <iframe id="v1" class="video" width="560" height="315" src="https://www.youtube.com/embed/C0DPdy98e4c" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div></div>
+            <div id="txt_6"><div class="alternate"><p class="head">Watch app in action</p><p  class="content">The video shows the the main functionality of the app and how to add new words.</p></div></div>
+
+        </div>
+
+        <div>
+            <div class="contact">
+                Contact:
+                <a href="mailto:alex@data-yield.com" target="_blank">alex@data-yield.com</a>
+                Skype:&nbsp;this_is_alex
+                <a id="contact"></a>
+
+            </div>
+        </div>
+
+    </body>
 
 </html>
