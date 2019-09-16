@@ -80,6 +80,36 @@ def getFileRandom(path_array):
     return s
 
 
+def getHtmlPage(s):
+    """
+    it loads the html page template and fills it with the content from the file specified in s
+    :param s:
+    :return:
+    """
+
+
+
+    # page_template.txt
+
+    # file = open("./html/page_template.txt", 'r')
+    # template = file.read()
+    # file.close()
+    #
+    # file = open("./html/" + s, 'r')
+    # content = file.read()
+    # file.close()
+    #
+    # html = template.replace("#content#", content)
+    # html += "xxx"
+
+    html = "asdfasdfasdfasdf"
+
+    b = bytearray()
+    b.extend(map(ord, html))
+
+    return b
+
+
 def get_header_values(data):
 
     """
@@ -290,6 +320,9 @@ def handle_request(client_connection):
             else:
                 # serve other stuff
                 u = url.strip()
+
+                log.log_info("u: " + u)
+
                 if u == "/app":
                     http_response += getFile("./html/app.html")
                 if u == "/rss.html":
@@ -320,11 +353,19 @@ def handle_request(client_connection):
                     http_response += leg.get_legal()
                 elif "faq.html" in u:
                     http_response += faq.get_faq()
-
+                elif "terms.html" in u:
+                    http_response += getHtmlPage("terms.txt")
+                elif "imprint.html" in u:
+                    http_response += getHtmlPage("imprint.txt")
+                elif "privacy.html" in u:
+                    http_response += getHtmlPage("privacy.txt")
+                elif "index" in u:
+                    http_response += getHtml()
 
                 else:
                     # handle other requests we ignore them...
-                    message = ""
+                    log.log_info("unhandled URL value u: " + u)
+                    message = "ERROR"
                     b = bytearray()
                     b.extend(map(ord, message))
                     http_response += b

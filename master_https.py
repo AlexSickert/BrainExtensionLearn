@@ -94,6 +94,44 @@ def getFile(path, use_cache = True):
         return s
 
 
+def get_html_page(s):
+    """
+    it loads the html page template and fills it with the content from the file specified in s
+    :param s:
+    :return:
+    """
+
+    try:
+
+        # page_template.txt
+
+        file = open("./html/page_template.txt", 'r')
+        template = file.read()
+        file.close()
+
+        file = open("./html/" + s, 'r')
+        content = file.read()
+        file.close()
+
+        html = template.replace("#content#", content)
+        #html += "xxx"
+
+        html = html.encode('utf-8')
+
+        #b = bytearray()
+        #b.extend(map(ord, html))
+
+    except Exception as ex:
+
+        log.log_error(str(ex))
+        #b = bytearray()
+        #b.extend(map(ord, "Error"))
+
+        html = "ERROR".encode('utf-8')
+
+    return html
+
+
 def getRssContent(u):
 
     log.log_info("in getRssContent(u) and u = " + str(u))
@@ -393,9 +431,17 @@ def handle_request(client_connection, ip_address, port):
                     http_response += faq.get_faq()
                 elif "register-slave" in u:
                     http_response += pget.process_get(header_values, url_parameter)
+                elif "terms.html" in u:
+                    http_response += get_html_page("terms.txt")
+                elif "imprint.html" in u:
+                    http_response += get_html_page("imprint.txt")
+                elif "privacy.html" in u:
+                    http_response += get_html_page("privacy.txt")
+                elif "index" in u:
+                    http_response += getHtml()
                 else:
                     # handle other requests we ignore them...
-                    message = ""
+                    message = "ERROR"
                     b = bytearray()
                     b.extend(map(ord, message))
                     http_response += b
@@ -429,9 +475,9 @@ def handle_request(client_connection, ip_address, port):
         log.log_info("Execution took time in milliseconds: " + str(millis))
         log.log_info("------------------- END OF REQUEST ---------------------")
 
-    except:
+    except Exception as ex:
 
-        log.log_info("Exception in user code:")
+        log.log_info("Exception in user code:" + str(ex))
         log.log_info('-' * 60)
         traceback.print_exc(file=sys.stdout)
         log.log_info('-' * 60)
