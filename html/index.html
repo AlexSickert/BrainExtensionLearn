@@ -20,6 +20,26 @@
             a {
                 color: #ffffff;
                 font-weight: bold;
+                padding-right: 10px;
+                padding-left: 10px;
+            }
+
+            a.button{
+
+                background: #dd4444;
+                padding: 20px;
+                font-size: 30pt;
+                text-align: center;
+                border-radius: 5px;
+                color: white;
+                font-weight: bold;
+                text-decoration: none;
+
+            }
+
+            a.to-app{
+                color: #dd4444;
+                font-weight: bold;
             }
 
             body {
@@ -103,6 +123,13 @@
             img.cs{
 
                 border: 1px solid grey;
+            }
+
+            ol{
+
+                font-size: 20px;
+                color: #444444;
+
             }
 
 
@@ -293,7 +320,9 @@
 
                     html += "</table>";
 
+                    document.getElementById("target").style.width = "80%";
                     document.getElementById("target").innerHTML = html;
+
 
                 } else {
 
@@ -372,7 +401,7 @@
                     html += "</tr>";
                     html += "</table>";
 
-                    html += "w=" + getWidth() + " | h=" + getHeight() + " | " + getOrientation();
+                    // html += "w=" + getWidth() + " | h=" + getHeight() + " | " + getOrientation();
                     
                     var w = getWidth();
                     var h = getHeight();
@@ -407,6 +436,11 @@
                     document.getElementById("mainHead").style.fontSize = "40px";
 
                     document.getElementById("mainIntoText").style.fontSize = "30px";
+
+                    // lets get started part  start
+                    document.getElementById("start").style.width = "100%";
+                    // call-to-action
+                    document.getElementById("call-to-action").style.fontSize = "30px";
 
 
                     console.log("setting width DONE");
@@ -449,7 +483,14 @@
         </div>
 
 
-        <div id="target" style="width: 100%;">xxx</div>
+        <div class="white" >
+            <center>
+                <a href="#lets-get-started" class="button" id="call-to-action">Let's get started</a>
+            </center>
+        </div>
+
+
+        <div id="target" style="width: 100%; margin: 0 auto;">xxx</div>
 
 
         <div id="source">
@@ -474,12 +515,38 @@
 
         </div>
 
+
+        <div id="start" style="width: 50%; margin: 0 auto;" >
+            <a id="lets-get-started"></a>
+            <p class="head">Let's get started</p>
+
+            <p  class="content" style="text-align: left;">
+                To get started please follow these simple steps:
+                <ol style="text-align: left;">
+            <li>Follow this link in the browser of your mobile phone, notebook or desktop: <a class="to-app" href="./app">Link</a></li>
+            <li>In your mobile phone add the page to your home screen so that you can easily access it like other apps on your device.</li>
+            <li>Register with your email address.</li>
+            <li>Check your email for the password.</li>
+            <li>Login. You will need to log in only once.</li>
+            <li>Add words</li>
+            <li>Learn & enjoy</li>
+
+             </ol>
+
+            </p>
+
+        </div>
+
+
         <div>
             <div class="contact">
                 Contact:
                 <a href="mailto:alex@data-yield.com" target="_blank">alex@data-yield.com</a>
                 Skype:&nbsp;this_is_alex
                 <a id="contact"></a>
+                <a href="./terms.html">Terms and Conditions</a>
+                <a href="./privacy.html">Privacy</a>
+                <a href="./imprint.html">Imprint</a>
 
             </div>
         </div>

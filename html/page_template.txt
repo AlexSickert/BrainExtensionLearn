@@ -1,0 +1,53 @@
+<html  >
+
+    <head>
+        <title>Brain Extension</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
+        <meta name="author" content="DataYiled GmbH, Alexander Sickert">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="HandheldFriendly" content="true" />
+
+        <title>BrainExtension</title>
+        <meta name="description" content="BrainExtension is an app for learning vocabulary. It makes usage of artificial intelligence to optimize the learning speed.">
+        <meta name="keywords" content="language, learning, education, artificial intelligence, machine learning, translation, English, Russian, Spanish, German, French, Italian, Portuguese">
+
+        <style>
+
+
+        </style>
+
+
+        <script>
+
+        </script>
+
+    </head>
+
+
+    <body >
+
+    <a class="aNavigation" href="index.html">Home</a><br><br>
+
+#content#
+
+        <div class="contact">
+
+                <a href="./index.html">HOME</a>
+                Contact:
+                <a href="mailto:alex@data-yield.com" target="_blank">alex@data-yield.com</a>
+                Skype:&nbsp;this_is_alex
+                <a id="contact"></a>
+                <a href="./terms.html">Terms and Conditions</a>
+                <a href="./privacy.html">Privacy</a>
+                <a href="./imprint.html">Imprint</a>
+
+            </div>
+
+   </body>
+
+</html>
+
