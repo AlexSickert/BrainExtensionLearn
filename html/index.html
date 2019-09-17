@@ -37,9 +37,10 @@
 
             }
 
-            a.to-app{
+            a.red-link{
                 color: #dd4444;
                 font-weight: bold;
+                padding: 0px;
             }
 
             body {
@@ -323,6 +324,9 @@
                     document.getElementById("target").style.width = "80%";
                     document.getElementById("target").innerHTML = html;
 
+                    // "lets-get-started-containter"
+                    document.getElementById("lets-get-started-containter").style.paddingTop = "50px";
+                    document.getElementById("lets-get-started-containter").style.paddingBottom = "100px";
 
                 } else {
 
@@ -422,9 +426,7 @@
                     document.getElementById("i3").style.width = Math.floor(w * 0.7 * f) + "px";
                     document.getElementById("i4").style.width = Math.floor(w * 0.7 * f) + "px";
                     document.getElementById("i5").style.width = Math.floor(w * 0.7 * f) + "px";
-                    
-                    
-                    
+
                     // width="560" height="315"
                     
                     var r = 560 / 315;
@@ -441,6 +443,8 @@
                     document.getElementById("start").style.width = "100%";
                     // call-to-action
                     document.getElementById("call-to-action").style.fontSize = "30px";
+
+                    document.getElementById("lets-get-started-containter").style.paddingBottom = "100px";
 
 
                     console.log("setting width DONE");
@@ -483,14 +487,14 @@
         </div>
 
 
-        <div class="white" >
+        <div class="white" id="lets-get-started-containter">
             <center>
                 <a href="#lets-get-started" class="button" id="call-to-action">Let's get started</a>
             </center>
         </div>
 
 
-        <div id="target" style="width: 100%; margin: 0 auto;">xxx</div>
+        <div id="target" style="width: 100%; margin: 0 auto;">Loading...</div>
 
 
         <div id="source">
@@ -523,17 +527,20 @@
             <p  class="content" style="text-align: left;">
                 To get started please follow these simple steps:
                 <ol style="text-align: left;">
-            <li>Follow this link in the browser of your mobile phone, notebook or desktop: <a class="to-app" href="./app">Link</a></li>
+            <li>Follow this link in the browser of your mobile phone, notebook or desktop: <a class="red-link" href="./app">Link</a></li>
             <li>In your mobile phone add the page to your home screen so that you can easily access it like other apps on your device.</li>
             <li>Register with your email address.</li>
             <li>Check your email for the password.</li>
             <li>Login. You will need to log in only once.</li>
             <li>Add words</li>
             <li>Learn & enjoy</li>
+            <li>If you experience any difficulties or have suggestions for improvement - please contact me: <a class="red-link" href="mailto:alex@data-yield.com" target="_blank">alex@data-yield.com</a></li>
 
              </ol>
 
             </p>
+
+            <br><br><br><br><br>
 
         </div>
 
