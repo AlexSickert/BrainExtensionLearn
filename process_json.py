@@ -295,39 +295,16 @@ def distribute_actions(jo):
         user_id = dbs.get_user_id_from_session(session)
 
         new_words, learned_words, ratio_learned = dbr.get_simple_report(user_id)
-
-        # html = "<table>"
-        # html += "<tr>"
-        # html += "<td>"
-        # html += "new words:"
-        # html += "</td>"
-        # html += "<td>"
-        # html += str(new_words)
-        # html += "</td>"
-        # html += "</tr>"
-        # html += "<tr>"
-        # html += "<td>"
-        # html += "learned words:"
-        # html += "</td>"
-        # html += "<td>"
-        # html += str(learned_words)
-        # html += "</td>"
-        # html += "</tr>"
-        # html += "<tr>"
-        # html += "<td>"
-        # html += "From these " + str(learned_words) + " words you probably know " + str(
-        #     ratio_learned) + " percent because you forgot them since you learned them."
-        #
-        # html += "</td>"
-        # html += "</tr>"
-        # html += "</table>"
-
-        log.log_info("asdfasdfasdfasdfa " + str(ratio_learned))
+        c1, c2, c3, c4 = dbr.get_report_charts(user_id)
 
         rj['action'] = action
         rj['newWords'] = new_words
         rj['learnedWords'] = learned_words
         rj['ratioLearned'] = ratio_learned
+        rj['c1'] = c1
+        rj['c2'] = c2
+        rj['c3'] = c3
+        rj['c4'] = c4
         rj['html'] = ""
         rj['error'] = False
         rj['error_description'] = ""
