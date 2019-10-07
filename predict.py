@@ -23,9 +23,11 @@ import pickle
 import os
 import train_models
 
+
 print("libraries loaded")
 
 last_dataset_length = {}
+
 
 def rs_to_arr(rs):
     """
@@ -194,6 +196,8 @@ def predict(user_id, clf):
 
 def update_learned_percentage(user_id, ratio):
 
+
+
     parameter_name = "percentage_learned"
 
     sql = "SELECT count(*) FROM parameters WHERE user_id = %s AND key = %s"
@@ -214,6 +218,8 @@ def update_learned_percentage(user_id, ratio):
         cur.execute(sql, (ratio, user_id, parameter_name))
 
     conn.commit()
+
+
 
 
 def boolean_to_float(arr):
@@ -444,5 +450,5 @@ while True:
     print("running prediction")
     run_prediction_loop()
     #print("now sleeping")
-    #time.sleep(60)
-    time.sleep(10)
+    time.sleep(60)
+    #time.sleep(10)
