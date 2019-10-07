@@ -134,7 +134,8 @@ def re_order_and_update_cache(user_id, word_id, new_position):
     else:
         log.log_error("word not found in cache " + str(word_id) + " for user " + str(user_id))
 
-    log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length after: " + str(len(cache_short_term_memory[user_id])))
+    if user_id in cache_short_term_memory:
+        log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length after: " + str(len(cache_short_term_memory[user_id])))
 
 
 def process_answer_with_sorted_array(word_id, user_id, answer):
@@ -1132,9 +1133,13 @@ def add_new_word(user_id):
 
     ratio_learned = -1.0 # default value
 
+    #print(user_id)
+    #print(parameter_name)
+    #print(arr)
+
     if arr is not None:
         if len(arr) > 0:
-            ratio_learned = float(cur.fetchall()[0][0])
+            ratio_learned = float(arr[0][0])
 
 
     if ratio_learned < 0.0: # this happens when not enough words were so far learned and parameter is not filled
@@ -1184,7 +1189,15 @@ def get_position(word_id):
     conn = dba.get_connection()
     cur = conn.cursor()
     cur.execute("SELECT COALESCE(short_memory_position, 1)    FROM vocabulary where ID = %s", (word_id,) )
-    l = cur.fetchall()[0][0]
+    arr = cur.fetchall()
+
+    l = None
+    if arr is not None:
+        if len(arr) > 0:
+            l = float(arr[0][0])
+
+
+    #l = cur.fetchall()[0][0]
 
     if l is None:
         l = 1
