@@ -9,6 +9,7 @@ import ssl
 import socket
 import config as cfg
 import json
+import log
 
 
 
@@ -41,8 +42,9 @@ def get_from_slave(ip, port, obj):
             # either 0 or end of data
             break
 
-
     data_str = "".join(map(chr, data))
+    if len(data_str) < 1:
+        log.log_error("response from slave is empty!")
 
     #print(data_str)
 
