@@ -1,6 +1,12 @@
 import smtplib
 import log
 import config as cfg
+import threading
+import queue
+import time
+
+
+
 
 
 def send_mail(to_email, email_subject, email_message):
@@ -36,56 +42,49 @@ def send_mail(to_email, email_subject, email_message):
     log.log_info("end send_mail")
 
 
-# def send_new_registered_user(user, password):
-#
-#
-#     log.log_info("in send_new_registered_user()")
-#
-#     subject_line = "Your registration at GliaLab WebApp."
-#
-#     body_text = "Dear User,\n"
-#     body_text += "\n"
-#     body_text += "Thank you for your registration at GliaLab WebApp.\n"
-#     body_text += "\n"
-#     body_text += "Please login using these login credentials:\n"
-#     body_text += "\n"
-#     body_text += "User: " + user + "\n"
-#     body_text += "Password: " + password + "\n"
-#     body_text += "\n"
-#     body_text += "The WebApp can be reachd via the URL http://34.214.34.79:8888/:\n"
-#     body_text += "\n"
-#     body_text += "\n"
-#     body_text += "With kind regards,\n"
-#     body_text += "\n"
-#     body_text += "GliaLab Team\n"
-#
-#     send_mail(user, subject_line,body_text)
-#     # for controlling purposes is end it to here as well
-#     send_mail("alex.solensky@gmail.com", subject_line, body_text)
-#
-#     log.log_info("done send_new_registered_user()")
+q = queue.Queue(0)
 
-# def send_password_reset(user, password):
-#
-#     subject_line = "GliaLab WebApp password reset."
-#
-#     body_text = "Dear User,\n"
-#     body_text += "\n"
-#     body_text += "We have reset your password\n"
-#     body_text += "\n"
-#     body_text += "Please login using these login credentials:\n"
-#
-#     body_text += "User: " + user + "\n"
-#     body_text += "Password: " + password + "\n"
-#     body_text += "\n"
-#     body_text += "The WebApp can be reachd via the URL http://34.214.34.79:8888/:\n"
-#     body_text += "\n"
-#     body_text += "\n"
-#     body_text += "With kind regards,\n"
-#     body_text += "\n"
-#     body_text += "GliaLab Team\n"
-#
-#     send_mail(user, subject_line,body_text)
-#     # for controlling purposes is end it to here as well
-#     send_mail("alex.solensky@gmail.com", subject_line, body_text)
+
+class Worker(threading.Thread):
+
+    def __init__(self, queue):
+        self.__queue = queue
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            item = self.__queue.get()
+            if item is not None:
+                try:
+                    send_mail(item[0], item[1], item[2])
+                except Exception as ex:
+                    log.log_error("Error sending mail threaded... " + str(ex))
+                    time.sleep(100)
+                time.sleep(1)
+            else:
+                time.sleep(10)
+
+
+# starting the endless loop in thread
+Worker(q).start()
+
+
+def send_mail_queued(to_email, email_subject, email_message):
+
+    global q
+
+    try:
+        element = [to_email, email_subject, email_message]
+        q.put(element)
+    except Exception as ex:
+        log.log_error("send_mail_queued() could not add element to queue" + str(ex))
+
+
+def send_mail_queued_monitoring(subject, body):
+
+    arr = cfg.parameters["emails-monitoring"]
+
+    for ele in arr:
+        send_mail_queued(ele, "Monitoring: " + str(subject), body)
+
 
