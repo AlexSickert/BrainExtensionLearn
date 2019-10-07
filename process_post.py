@@ -8,6 +8,7 @@ import security
 import slave_request
 import db_security as dbs
 from translate import simple as simple_translate
+import email_sender as es
 
 import log
 
@@ -114,7 +115,7 @@ def process_post(form_values, ip_address):
                     if port == -1:
                         log.log_error("this user is unknown: " + str(data["user"]))
 
-                    #dbs.get_slave_id_from_session_or_user(data["user"])
+                    es.send_mail_queued_monitoring("user logging in: " + str(data["user"]), "")
 
                 if data["action"] == "registerUser":
                     # we might already know this user and therefore better if we first check
@@ -131,6 +132,8 @@ def process_post(form_values, ip_address):
                     log.log_info("with session registerUser = using port: " + str(port))
                     res_obj = slave_request.get_from_slave(ip, port, data)
                     log.log_info("answer from slave received " + str(res_obj))
+
+                    es.send_mail_queued_monitoring("user registering: " + str(data["user"]), "")
 
                 if data["action"] == "checkSession":
                     session = data["session"]
@@ -154,6 +157,8 @@ def process_post(form_values, ip_address):
                         log.log_error("port is not larger than 0")
                         # Todo: proper error handling
                         res_obj = data
+
+                    es.send_mail_queued_monitoring("user resetting password: " + str(data["user"]), "")
 
             if int(port) > 0:
 
@@ -191,6 +196,8 @@ def process_post(form_values, ip_address):
 
                 ip, port = security.get_slave_ip_port(data["user"])
 
+                es.send_mail_queued_monitoring("user resetting password without session: " + str(data["user"]), "")
+
                 if int(port) > 0:
                     log.log_info(("sending data to slave"))
                     res_obj = slave_request.get_from_slave(ip, port, data)
@@ -203,6 +210,9 @@ def process_post(form_values, ip_address):
             elif data["action"] == "registerUser":
                 # we might already know this user and therefore better if we first check
                 # get_slave_ip_port(user_id)
+
+                es.send_mail_queued_monitoring("user registering without session: " + str(data["user"]), "")
+
                 ip, port = dbs.get_slave_ip_port(data["user"].strip())
 
                 if port < 0:
