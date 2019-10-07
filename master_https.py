@@ -393,16 +393,18 @@ def handle_request(client_connection, ip_address, port):
                 u = url.strip()
                 if u == "/app":
                     http_response += getFile("./html/app.html")
-                if u == "/app-android-webview":
+                elif u == "/app-android-webview":
                     http_response += getFile("./html/app-android-webview.html")
-                if u == "/app-ios-webview":
+                elif u == "/app-ios-webview":
                     http_response += getFile("./html/app-ios-webview.html")
-                if u == "/rss.html":
+                elif u == "/rss.html":
                     http_response += getFile("./html/rss.html", False)
                 elif "rss_content" in u:
                     http_response += getRssContent(u)
                 elif u == "/Controller.js":
                     http_response += getFile("./js/Controller.js")
+                elif u == "/Chart.js":
+                    http_response += getFile("./js/Chart.js")
                 elif u == "/UxUi.js":
                     http_response += getFile("./js/UxUi.js")
                 elif u == "/DataAccess.js":
@@ -441,7 +443,7 @@ def handle_request(client_connection, ip_address, port):
                     http_response += getHtml()
                 else:
                     # handle other requests we ignore them...
-                    message = "ERROR"
+                    message = "ERROR with: " + u
                     b = bytearray()
                     b.extend(map(ord, message))
                     http_response += b
