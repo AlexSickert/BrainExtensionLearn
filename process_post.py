@@ -192,6 +192,9 @@ def process_post(form_values, ip_address):
                     # Todo: proper error handling
                     res_obj = data
 
+                if not str(data["user"]) in "user-2@data-yield.com, user-1@data-yield.com":
+                    es.send_mail_queued_monitoring("user login without session: " + str(data["user"]), "")
+
             elif data["action"] == "resetPassword":
 
                 ip, port = security.get_slave_ip_port(data["user"])
