@@ -1,30 +1,20 @@
 
-import xml.etree.ElementTree as ET
-import urllib.request  as req
-import re
-import random
-import json
-import os.path
-import pickle
-from time import gmtime, strftime
-import time
-import os
-
-def get_dictionary(name):
-
-    #print("get dictionary: " + name)
-
-    file_name = name + ".pickle"
-
-    if os.path.isfile(file_name):
-        fileObject = open(file_name, 'rb')
-        # load the object from the file into var b
-        ret = pickle.load(fileObject)
-
-    return ret
+from os import walk
+import rss_parser as rss_parser
 
 
-x = get_dictionary("RUSSIAN")
 
-for y in x:
-    print(y, x[y])
+f = []
+for (dirpath, dirnames, filenames) in walk("./texts"):
+    f.extend(filenames)
+
+
+for f in filenames:
+    if "RAW" in f:
+        #print(f)
+
+        fi = open("./texts/" + f, "r")
+        txt = fi.read()
+        fi.close()
+
+        txt_read = rss_parser.parse(txt, f, f)

@@ -9,6 +9,10 @@ import pickle
 from time import gmtime, strftime
 import time
 import os
+import random
+
+#import rss.rss_parser as rss_parser
+import rss_parser as rss_parser
 
 db = []
 
@@ -61,256 +65,112 @@ def handle_one_text(language, txt):
     #now save the dictionary
     save_dictionary(language, dic)
 
+
 def check_if_url_done(url):
 
     dic = get_dictionary("URLs")
 
     if url in dic:
         #print("url already done: " + url)
-        return True
+
+        v = dic[url]
+
+        if v:
+            if len(str(v)) > 10:
+                return True
+            else:
+                return False
+        else:
+            return False
     else:
         return False
 
-def set_url_done(url):
+
+def get_local_file(url):
 
     dic = get_dictionary("URLs")
-    dic[url] = True
+    v = ""
+
+    if url in dic:
+        v = dic[url]
+
+    return v
+
+def set_url_done(url, localFile):
+
+    dic = get_dictionary("URLs")
+    dic[url] = localFile
     save_dictionary("URLs", dic)
 
 
-def wrap_link(txt, lnk):
+def wrap_link(txt, lnk, is_local):
 
     ret = "<a href='"
     ret += lnk
     ret += "' ratget='_blank'>"
     ret += txt
+    if is_local:
+        ret += ""
     ret += "</a>"
     return ret
 
 
-def html_2_text_for_reading(html):
 
-    spacer = "8Sh6Sw5Wb4Ee9Mi2Rd2R"
+def get_file_nem(lang, url, source):
 
-    txt = str(html) + " "
+    h = hash(url)
 
-    txt = txt.replace("<p", spacer + "<p")
-    txt = txt.replace("<div", spacer + "<div")
+    if h < 1:
+        h = -1 * h
 
-    txt = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", txt)
-    txt = re.sub(r"<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>", "", txt)
-    txt = re.sub(r"<.+?>", " ", txt)
+    ret = lang + "_" + str(source) + "_" + str(h) + ".txt"
+    ret = ret.replace(" ", "_")
 
-    #txt = re.sub(r",", " ", txt)
-    # txt = re.sub(r""", " ", txt)
-    #txt = re.sub(r"»", " ", txt)
-    #txt = re.sub(r"«", " ", txt)
-    #txt = re.sub(r"\.", " ", txt)
-    #txt = re.sub(r":", " ", txt)
-    #txt = re.sub(r"#", " ", txt)
-    #txt = re.sub(r"=", " ", txt)
-    #txt = re.sub(r"\(", " ", txt)
-    #txt = re.sub(r"\)", " ", txt)
-    #txt = re.sub(r"\[", " ", txt)
-    #txt = re.sub(r"\]", " ", txt)
-    txt = re.sub(r"\n", " ", txt)
-    #txt = re.sub(r""", " ", txt)
-    txt = re.sub(r"&rsquo;", "'", txt)
-    txt = re.sub(r"&raquo;", " ", txt)
-    txt = re.sub(r"&laquo;", " ", txt)
-    txt = re.sub(r"&Agrave;", "À", txt)
-    txt = re.sub(r"&Aacute;", "Á", txt)
-    txt = re.sub(r"&Acirc;", "Â", txt)
-    txt = re.sub(r"&Atilde;", "Ã", txt)
-    txt = re.sub(r"&Auml;", "Ä", txt)
-    txt = re.sub(r"&Aring;", "Å", txt)
-    txt = re.sub(r"&AElig;", "Æ", txt)
-    txt = re.sub(r"&Ccedil;", "Ç", txt)
-    txt = re.sub(r"&Egrave;", "È", txt)
-    txt = re.sub(r"&Eacute;", "É", txt)
-    txt = re.sub(r"&Ecirc;", "Ê", txt)
-    txt = re.sub(r"&Euml;", "Ë", txt)
-    txt = re.sub(r"&Igrave;", "Ì", txt)
-    txt = re.sub(r"&Iacute;", "Í", txt)
-    txt = re.sub(r"&Icirc;", "Î", txt)
-    txt = re.sub(r"&Iuml;", "Ï", txt)
-    txt = re.sub(r"&ETH;", "Ð", txt)
-    txt = re.sub(r"&Ntilde;", "Ñ", txt)
-    txt = re.sub(r"&Ograve;", "Ò", txt)
-    txt = re.sub(r"&Oacute;", "Ó", txt)
-    txt = re.sub(r"&Ocirc;", "Ô", txt)
-    txt = re.sub(r"&Otilde;", "Õ", txt)
-    txt = re.sub(r"&Ouml;", "Ö", txt)
-    txt = re.sub(r"&times;", "×", txt)
-    txt = re.sub(r"&Oslash;", "Ø", txt)
-    txt = re.sub(r"&Ugrave;", "Ù", txt)
-    txt = re.sub(r"&Uacute;", "Ú", txt)
-    txt = re.sub(r"&Ucirc;", "Û", txt)
-    txt = re.sub(r"&Uuml;", "Ü", txt)
-    txt = re.sub(r"&Yacute;", "Ý", txt)
-    txt = re.sub(r"&THORN;", "Þ", txt)
-    txt = re.sub(r"&szlig;", "ß", txt)
-    txt = re.sub(r"&agrave;", "à", txt)
-    txt = re.sub(r"&aacute;", "á", txt)
-    txt = re.sub(r"&acirc;", "â", txt)
-    txt = re.sub(r"&atilde;", "ã", txt)
-    txt = re.sub(r"&auml;", "ä", txt)
-    txt = re.sub(r"&aring;", "å", txt)
-    txt = re.sub(r"&aelig;", "æ", txt)
-    txt = re.sub(r"&ccedil;", "ç", txt)
-    txt = re.sub(r"&egrave;", "è", txt)
-    txt = re.sub(r"&eacute;", "é", txt)
-    txt = re.sub(r"&ecirc;", "ê", txt)
-    txt = re.sub(r"&euml;", "ë", txt)
-    txt = re.sub(r"&igrave;", "ì", txt)
-    txt = re.sub(r"&iacute;", "í", txt)
-    txt = re.sub(r"&icirc;", "î", txt)
-    txt = re.sub(r"&iuml;", "ï", txt)
-    txt = re.sub(r"&eth;", "ð", txt)
-    txt = re.sub(r"&ntilde;", "ñ", txt)
-    txt = re.sub(r"&ograve;", "ò", txt)
-    txt = re.sub(r"&oacute;", "ó", txt)
-    txt = re.sub(r"&ocirc;", "ô", txt)
-    txt = re.sub(r"&otilde;", "õ", txt)
-    txt = re.sub(r"&ouml;", "ö", txt)
-    txt = re.sub(r"&divide;", "÷", txt)
-    txt = re.sub(r"&oslash;", "ø", txt)
-    txt = re.sub(r"&ugrave;", "ù", txt)
-    txt = re.sub(r"&uacute;", "ú", txt)
-    txt = re.sub(r"&ucirc;", "û", txt)
-    txt = re.sub(r"&uuml;", "ü", txt)
-    txt = re.sub(r"&yacute;", "ý", txt)
-    txt = re.sub(r"&thorn;", "þ", txt)
-    txt = re.sub(r"&yuml;", "ÿ", txt)
-    txt = re.sub(r"&nbsp;", " ", txt)
-    txt = re.sub(r"&#9642;", "", txt)  # black small square
+    return ret
 
-    #txt = txt.replace("!", " ")
-    #txt = txt.replace("?", " ")
-    txt = txt.replace("<", " ")
-    txt = txt.replace(">", " ")
-    txt = txt.replace("\\", " ")
-    txt = txt.replace("/", " ")
-    txt = txt.replace("+", " ")
-    #txt = txt.replace(";", " ")  # deactivated because we need it for the url encoded special character liek &quot;
-    txt = txt.replace(",", " ")
-    txt = txt.replace('"', " ")
 
-    txt = txt.replace(spacer, " ")
+def make_local_link(lang, url, source):
 
-    return txt
 
-def html_2_text(html):
+    fn = "./texts/" + get_file_nem(lang, url, source)
 
-    spacer = "8Sh6Sw5Wb4Ee9Mi2Rd2R"
+    if os.path.exists(fn):
+        print("local link exists: " + str(fn))
+        return get_file_nem(lang, url, source)
+    else:
+        print("local link does NOT exist: " + str(fn))
+        return None
 
-    txt = str(html) + " "
 
-    txt = txt.replace("<p", spacer + "<p")
-    txt = txt.replace("<div", spacer + "<div")
 
-    txt = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", txt)
-    txt = re.sub(r"<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>", "", txt)
-    txt = re.sub(r"<.+?>", " ", txt)
 
-    txt = re.sub(r",", " ", txt)
-    # txt = re.sub(r""", " ", txt)
-    txt = re.sub(r"»", " ", txt)
-    txt = re.sub(r"«", " ", txt)
-    txt = re.sub(r"\.", " ", txt)
-    txt = re.sub(r":", " ", txt)
-    txt = re.sub(r"#", " ", txt)
-    txt = re.sub(r"=", " ", txt)
-    txt = re.sub(r"\(", " ", txt)
-    txt = re.sub(r"\)", " ", txt)
-    txt = re.sub(r"\[", " ", txt)
-    txt = re.sub(r"\]", " ", txt)
-    txt = re.sub(r"\n", " ", txt)
-    #txt = re.sub(r""", " ", txt)
-    txt = re.sub(r"&rsquo;", "'", txt)
-    txt = re.sub(r"&raquo;", " ", txt)
-    txt = re.sub(r"&laquo;", " ", txt)
-    txt = re.sub(r"&Agrave;", "À", txt)
-    txt = re.sub(r"&Aacute;", "Á", txt)
-    txt = re.sub(r"&Acirc;", "Â", txt)
-    txt = re.sub(r"&Atilde;", "Ã", txt)
-    txt = re.sub(r"&Auml;", "Ä", txt)
-    txt = re.sub(r"&Aring;", "Å", txt)
-    txt = re.sub(r"&AElig;", "Æ", txt)
-    txt = re.sub(r"&Ccedil;", "Ç", txt)
-    txt = re.sub(r"&Egrave;", "È", txt)
-    txt = re.sub(r"&Eacute;", "É", txt)
-    txt = re.sub(r"&Ecirc;", "Ê", txt)
-    txt = re.sub(r"&Euml;", "Ë", txt)
-    txt = re.sub(r"&Igrave;", "Ì", txt)
-    txt = re.sub(r"&Iacute;", "Í", txt)
-    txt = re.sub(r"&Icirc;", "Î", txt)
-    txt = re.sub(r"&Iuml;", "Ï", txt)
-    txt = re.sub(r"&ETH;", "Ð", txt)
-    txt = re.sub(r"&Ntilde;", "Ñ", txt)
-    txt = re.sub(r"&Ograve;", "Ò", txt)
-    txt = re.sub(r"&Oacute;", "Ó", txt)
-    txt = re.sub(r"&Ocirc;", "Ô", txt)
-    txt = re.sub(r"&Otilde;", "Õ", txt)
-    txt = re.sub(r"&Ouml;", "Ö", txt)
-    txt = re.sub(r"&times;", "×", txt)
-    txt = re.sub(r"&Oslash;", "Ø", txt)
-    txt = re.sub(r"&Ugrave;", "Ù", txt)
-    txt = re.sub(r"&Uacute;", "Ú", txt)
-    txt = re.sub(r"&Ucirc;", "Û", txt)
-    txt = re.sub(r"&Uuml;", "Ü", txt)
-    txt = re.sub(r"&Yacute;", "Ý", txt)
-    txt = re.sub(r"&THORN;", "Þ", txt)
-    txt = re.sub(r"&szlig;", "ß", txt)
-    txt = re.sub(r"&agrave;", "à", txt)
-    txt = re.sub(r"&aacute;", "á", txt)
-    txt = re.sub(r"&acirc;", "â", txt)
-    txt = re.sub(r"&atilde;", "ã", txt)
-    txt = re.sub(r"&auml;", "ä", txt)
-    txt = re.sub(r"&aring;", "å", txt)
-    txt = re.sub(r"&aelig;", "æ", txt)
-    txt = re.sub(r"&ccedil;", "ç", txt)
-    txt = re.sub(r"&egrave;", "è", txt)
-    txt = re.sub(r"&eacute;", "é", txt)
-    txt = re.sub(r"&ecirc;", "ê", txt)
-    txt = re.sub(r"&euml;", "ë", txt)
-    txt = re.sub(r"&igrave;", "ì", txt)
-    txt = re.sub(r"&iacute;", "í", txt)
-    txt = re.sub(r"&icirc;", "î", txt)
-    txt = re.sub(r"&iuml;", "ï", txt)
-    txt = re.sub(r"&eth;", "ð", txt)
-    txt = re.sub(r"&ntilde;", "ñ", txt)
-    txt = re.sub(r"&ograve;", "ò", txt)
-    txt = re.sub(r"&oacute;", "ó", txt)
-    txt = re.sub(r"&ocirc;", "ô", txt)
-    txt = re.sub(r"&otilde;", "õ", txt)
-    txt = re.sub(r"&ouml;", "ö", txt)
-    txt = re.sub(r"&divide;", "÷", txt)
-    txt = re.sub(r"&oslash;", "ø", txt)
-    txt = re.sub(r"&ugrave;", "ù", txt)
-    txt = re.sub(r"&uacute;", "ú", txt)
-    txt = re.sub(r"&ucirc;", "û", txt)
-    txt = re.sub(r"&uuml;", "ü", txt)
-    txt = re.sub(r"&yacute;", "ý", txt)
-    txt = re.sub(r"&thorn;", "þ", txt)
-    txt = re.sub(r"&yuml;", "ÿ", txt)
-    txt = re.sub(r"&nbsp;", " ", txt)
-    txt = re.sub(r"&#9642;", "", txt)  # black small square
 
-    txt = txt.replace("!", " ")
-    txt = txt.replace("?", " ")
-    txt = txt.replace("<", " ")
-    txt = txt.replace(">", " ")
-    txt = txt.replace("\\", " ")
-    txt = txt.replace("/", " ")
-    txt = txt.replace("+", " ")
-    #txt = txt.replace(";", " ")  # deactivated because we need it for the url encoded special character liek &quot;
-    txt = txt.replace(",", " ")
-    txt = txt.replace('"', " ")
 
-    txt = txt.replace(spacer, " ")
+def save_raw_text_as_file(lang, txt, url, source, flag):
 
-    return txt
+    #create folder if not exists
+
+    dirname = "./texts/"
+
+    if not os.path.exists(os.path.dirname(dirname)):
+        try:
+            os.makedirs(os.path.dirname(dirname))
+        except:
+            print("error making directory")
+
+
+    h = hash(url)
+
+    if h < 1:
+        h = -1 * h
+
+
+    fn = dirname + lang + "_" + str(source) + "_" + str(h) + "-" + flag + ".txt"
+    fn = fn.replace(" ", "_")
+    f = open(fn, "w+", encoding="utf-8")
+    f.write(txt)
+    f.close()
+
 
 
 def save_text_as_file(lang, txt, url, source):
@@ -331,7 +191,13 @@ def save_text_as_file(lang, txt, url, source):
     if h < 1:
         h = -1 * h
 
-    fn = dirname + lang + "_" + str(source) + "_" + str(h) + ".txt"
+    fn = dirname + get_file_nem(lang, url, source)
+    #fn = fn.replace(" ", "_")
+    f = open(fn, "w+", encoding="utf-8")
+    f.write(txt)
+    f.close()
+
+    fn = dirname + lang + "_" + str(source) + "_" + str(h) + ".html"
     fn = fn.replace(" ", "_")
     f = open(fn, "w+", encoding="utf-8")
     f.write(txt)
@@ -339,38 +205,232 @@ def save_text_as_file(lang, txt, url, source):
 
     #print("alksdjf ;alkjsdf ;alkjsdf ;laj**************+++++++++")
 
-    ret = lang + "_" + str(source) + "_" + str(h) + ".txt"
-    ret = ret.replace(" ", "_")
-
-    return ret
+    return get_file_nem(lang, url, source)
 
 
-def process_db_entry(lan, source, title, link, enc):
+def get_top_naiv(link):
 
-    if not check_if_url_done(link):
+    navi = """
+    
+        <table style="width: 100%">
+            <tr>
+                <td>#home#</td>
+                <td><a onclick="smaller();">&nbsp;-&nbsp;</a></td>
+                <td><a onclick="bigger();">&nbsp;+&nbsp;</a></td>
+                <td>#orig#</td>
+            </tr>        
+        <table>  <br><br>
+    
+    """
+    orig = "<a href='" + link + "'>ORIGINAL</a>"
+    home = " <a href=\"./rss.html\">HOME</a><br>"
 
-        set_url_done(link)
+    navi = navi.replace("#home#", home)
+    navi = navi.replace("#orig#", orig)
+
+    return navi
+
+
+def add_js(link, lan, txt_read, title):
+
+    ret = ""
+
+    arr = title.split(" ")
+    ti = ""
+    if len(arr) > 0:
+
+        for ele in arr:
+            if len(ele) > 0:
+                e = ele.strip()
+                ti += "<span  onclick=\"translateMe(this, \'" + e + "\', \'" + lan + "\')\">" + e + " </span> \n"
+        ret += "<h1>" + ti + "</h1><br><br>"
+    else:
+        ret += "<h1>" + title + "</h1><br><br>"
+
+    arr = txt_read.split(" ")
+
+    js = """
+    
+    <link rel = "stylesheet" type = "text/css" href = "./rss.css" />
+    
+    <style>
+    
+    </style>
+    
+    <script src="./rss.js"></script>
+    
+    <script>
+    
+    
+    
+    
+    function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  var expires = "expires="+d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+    
+    var globalFontSize = 20;
+    
+    function smaller(){
+    
+        updateFontSize(-2);
+    }
+    
+    function bigger(){
+        
+        updateFontSize(2);
+    }
+    
+    
+    
+    function updateFontSize(delta) {
+    
+        console.log("updateFontSize  = " + delta);
+
+        globalFontSize = parseInt(globalFontSize) + parseInt(delta);        
+        setCookie("RssGlobalFontSize", globalFontSize, 1000);               
+        setSize(globalFontSize);
+    };
+    
+    
+    function setSize(s){
+    
+        console.log("setting size to  = " + s);
+    
+        var all = document.getElementsByTagName("*");
+        
+        for (var i = 0, max = all.length; i < max; i++) {
+            try {
+                all[i].style.fontSize = parseInt(s).toString() + "px";
+            } catch (e) {
+                // to do;
+                console.log("error in setSize  = " + e);
+            }
+        }  
+        
+        all = document.getElementsByTagName("a");
+        
+        for (var i = 0, max = all.length; i < max; i++) {
+            try {
+                var n = parseInt(s) * 1.5;
+                all[i].style.fontSize = n.toString() + "px";
+            } catch (e) {
+                // to do;
+            }
+        }
+        
+        console.log("finished setting size to  = " + s);
+        
+        
+    }
+    
+    function loadFontSize(){
+    
+        var x = getCookie("RssGlobalFontSize");
+        
+        console.log("RssGlobalFontSize = " + x);
+        
+        if (x.length > 0){
+            globalFontSize = x;
+            setSize(x);
+        }else{
+            globalFontSize = 30;
+            setSize(30);
+        }      
+    }
+    
+    </script>
+    """
+
+    if len(arr) > 0:
+
+        for ele in arr:
+            if len(ele) > 0:
+                e = ele.strip()
+                e = e.replace("\n", " ")
+                e = e.replace("\r", " ")
+                e = e.replace("\t", " ")
+                e = e.replace("\'", "&apos;")
+                e = e.replace("\"", "&quot;")
+
+                ret += "<span onclick=\"translateMe(this, '" + e + "', '" + lan + "')\">" + e + " </span> "
+        return js + ret
+    else:
+        return txt_read
+
+
+def process_db_entry(lan, source, title, link, enc, always_load = False):
+
+    print("--------------------------------")
+    print("processing " + link)
+
+    if (not check_if_url_done(link)) or always_load:
+
+
         resp = ""
+
+        print("url not done yet: " + str(link))
 
         try:
             print("processing: " + link)
             resp = req.urlopen(link).read()
             txt = str(resp, encoding=enc)
-            txt = html_2_text(txt)
+            #txt = rss_parser.html_2_text(txt)
             print(source + ": text : " + txt)
 
 
             handle_one_text(lan, txt)
 
             txt_read = str(resp, encoding=enc)
-            txt_read = html_2_text_for_reading(txt_read)
+
+            save_raw_text_as_file(lan, txt_read, link, source, "RAW")
+
+
+            txt_read = rss_parser.parse(txt_read, lan, source)
+
+
+            save_raw_text_as_file(lan, txt_read, link, source, "CLEAN")
+
+            txt_read = add_js(link, lan, txt_read, title)
+
+            txt_read = get_top_naiv(link)  + txt_read
+
+            txt_read = "<body onload=\"loadFontSize();\">" + txt_read + "<div onclick=\"hideTranslate()\" id=\"translate\">loading...</div></body>"
+
             ret = save_text_as_file(lan, txt_read, link, source)
+
+
+
+            print("new processed file is: " + str(ret))
+
+            set_url_done(link, ret)
+
             return ret
-        except:
-            print("error")
-            return ""
+        except Exception as ex:
+            print("error: " + str(ex))
+            return None
 
+    else:
 
+        return get_local_file(link)
 
 
 def process_link(language, source, encoding, url, target_encoding):
@@ -409,19 +469,19 @@ def process_link(language, source, encoding, url, target_encoding):
 
             for title in item.iter('title'):
                 # print(html_2_text(title.text))
-                entry["title"] = html_2_text(title.text)
+                entry["title"] = rss_parser.html_2_text(title.text)
 
             #print("-------------------------------------------------------")
 
             for title in item.iter('description'):
                 # print(html_2_text(title.text))
-                entry["description"] = html_2_text(title.text)
+                entry["description"] = rss_parser.html_2_text(title.text)
 
             #print("-------------------------------------------------------")
 
             for title in item.iter('encoded'):
                 # print(html_2_text(title.text))
-                entry["encoded"] = html_2_text(title.text)
+                entry["encoded"] = rss_parser.html_2_text(title.text)
 
             #print("-------------------------------------------------------")
 
@@ -454,10 +514,13 @@ for language in j["LANGUAGES"]:
         process_link(language, link["title"], link["encoding"], link["url"], link["target_encoding"])
 
 
+# ======================================================================================================================
+# ======================================================================================================================
+# ======================================================================================================================
+# ======================================================================================================================
+# ======================================================================================================================
 
-# EXPORT
 
-# print(db)
 random.shuffle(db)
 
 # create html code
@@ -469,100 +532,95 @@ html += "<html>"
 html += "<head>"
 html += '<meta charset="UTF-8">'
 html += '<meta name="viewport" content="width=device-width, initial-scale=1">'
-html += "\n<style>"
+
 
 
 st = """
-
-body {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: none;
-  -ms-text-size-adjust: 100%;
-  font-size: 30px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-td{
-
-padding: 5px; 
-font-size: 30px;
-font-family: Arial, Helvetica, sans-serif;
-
-}
-
-td.language{
-    padding-top: 10px;
-    color: red;
-}
-
-td.source{
-    padding-top: 10px;
-    color: #444444;
-    text-align: right;
     
-}
-
-/* unvisited link */
-a:link {
-  color: black;
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: none;
-}
-
-/* visited link */
-a:visited {
-  color: black;
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: none;
-}
-
-/* mouse over link */
-a:hover {
-  color: black;
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: none;
-}
-
-/* selected link */
-a:active {
-  color: black;
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: none;
-}
+    <link rel = "stylesheet" type = "text/css" href = "./rss.css" />
+    
+    <script>
+    
+    function shuffle(array) {
+      var currentIndex = array.length, temporaryValue, randomIndex;
+    
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex) {
+    
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+    
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+    
+      return array;
+    }
+    
+    function reorder(){
+    
+        i_max = document.getElementById("i_count").innerHTML;
+console.log("i_max = " + i_max);
+i_max =  parseInt(i_max , 10);
+        console.log("i_max = " + i_max);
+        
+        var arr = [];
+        
+        for (i = 0; i < i_max; i++) {
+            arr.push(i+1);
+        }
+        
+        arr = shuffle(arr);
+        
+        html = "";
+        
+        for (i = 0; i < i_max; i++) {
+        
+            try{
+            x = arr[i];
+            
+            h = document.getElementById("row_source_" + x).innerHTML;
+            
+            html += '<tr id="row_source_' + x + '">' + h + "</tr>";
+            
+            h = document.getElementById("row_title_" + x).innerHTML;
+            
+            html += '<tr id="row_title_' + x + '">' + h + "</tr>";
+            }catch(e){
+            console.log("---------------");
+            console.log(e);
+            console.log("---------------");
+            }
+            
+        } // end for
+       
+        var table = document.getElementById("content-table");
+            
+        table.innerHTML = html;
+       
+    } // end function
+        
+</script>
 
 
 """
 
 html += st
-html += "\n</style>"
+
 
 html += "</head>"
-html += "\n<body >"
+html += "\n<body onload=\"reorder()\">"
 
+html += strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "&nbsp;V-19-08-17-A "
+html += "<span onclick=\"reorder()\">SHUFFLE</span>"
+html += "\n<table id=\"content-table\" border=0>"
 
-
-html += strftime("%Y-%m-%d %H:%M:%S", gmtime()) + "<br>"
-
-
-html += "\n<table border=0>"
-
+db_entry_td_arr = []  # array that holds the entries which gets shuffeled
+i = 0
 for entry in db:
-
-    html += "\n<tr>"
-
-    html += "<td class='language'>"
-    html += entry["language"]
-    html += "</td> "
-
-    html += " <td class='source'>"
-    html += entry["source"]
-    html += "</td> "
-
-    html += "</tr>"
-
-    html += "\n<tr>"
-
-    html += "<td colspan=\"2\" style='border-bottom: 3px solid #cccccc; padding-bottom: 10px;'>"
 
     if len(entry["target_encoding"]) < 3:
         enc = str(entry["encoding"]).strip()
@@ -573,19 +631,49 @@ for entry in db:
 
     #
     if rss_link_local is not None:
-        html += wrap_link(entry["title"], "./rss_content_" + rss_link_local)
-    else:
-        html += wrap_link(entry["title"], entry["link"])
+        if len(rss_link_local) > 0:
+            i += 1
+            x = wrap_link(entry["title"], "./rss_content_" + rss_link_local, True)
 
-    html += "</td>"
+            trs = ""
 
-    html += "</tr>"
+            trs += "\n<tr id=\"row_source_" + str(i) + "\" >"
 
-    html += "\n"
+            trs += "<td class='language'>"
+            trs += entry["language"]
+            trs += "</td> "
+
+            trs += " <td class='source'>"
+            trs += entry["source"]
+            trs += "</td> "
+
+            trs += "</tr>"
+
+            trs += "\n<tr id=\"row_title_" + str(i) + "\" >"
+
+            trs += "<td colspan=\"2\" style='border-bottom: 3px solid #cccccc; padding-bottom: 10px;'>"
+
+            trs += x
+
+            #else:
+                #trs += wrap_link(entry["title"], entry["link"], False)
+
+            trs += "</td>"
+
+            trs += "</tr>"
+
+            trs += "\n"
+
+            db_entry_td_arr.append(trs)
+
+random.shuffle(db_entry_td_arr)
+
+for ele in db_entry_td_arr:
+    html += ele
 
 
 html += "</table>"
-
+html += "<div id=\"i_count\">" + str(i)+ "</div>"
 html += "</body>"
 
 html += "</html>"
@@ -597,3 +685,5 @@ file = open("../html/rss.html", "w",  encoding='utf-8')
 file.write(html)
 
 file.close()
+
+print("file was saved to ../html/rss.html")

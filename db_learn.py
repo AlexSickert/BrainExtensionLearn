@@ -1141,15 +1141,29 @@ def add_new_word(user_id):
         if len(arr) > 0:
             ratio_learned = float(arr[0][0])
 
+    log.log_info("add_new_word(user_id) " + str(user_id) + " ratio learned is " + str(ratio_learned))
 
-    if ratio_learned < 0.0: # this happens when not enough words were so far learned and parameter is not filled
+    r = random.random()
+
+    if ratio_learned < 0.0 or ratio_learned > 0.99: # this happens when not enough words were so far learned and parameter is not filled
+        # generally we would like to add only new words but we also need to start doing experiments
+
+        if r > 0.5:
+            return True
+        else:
+            return False
+    elif ratio_learned < 0.05:  # ToDo this is probably an error and needs to be removed
         return True
-    elif ratio_learned < 0.05:
-        return True
-    elif ratio_learned > 0.85:
-        return True
+    elif ratio_learned > 0.85: # we know most of the words and make rarely experiments
+        if r > 0.9: # only in 10 percent we make experiments
+            return False
+        else:
+            return True
     else:
-        return False
+        if r > (ratio_learned * 0.8): # if 70% learned, then we make 30% experiments
+            return False
+        else:
+            return True
 
 
 def count_current(user_id):

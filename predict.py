@@ -119,7 +119,7 @@ def predict(user_id, clf):
     arr_upgraded = []
     arr_ids = []
 
-    for i in arr: # for each user
+    for i in arr: # for each word
         #print("-------------------------------")
         r = []
 
@@ -176,21 +176,23 @@ def predict(user_id, clf):
         ret = clf.predict(one_sample)
         #print("prediction result: " + str(ret[0]))
 
-        probability_forgot_word = ret[0]
+        probability_learned_word = ret[0]
 
         denominator_learned += 1
-        if probability_forgot_word < 0.5:
+        if probability_learned_word > 0.5:
             counter_learned += 1
+
+        update_forgot_score(arr_ids[i], probability_learned_word)
 
     # update the percentage of learned vocabulary
 
     if denominator_learned > 1:
         ratio = counter_learned / denominator_learned
     else:
-        ratio = 0.0
+        ratio = 1.0 # lets assume user memorizes all, not to demotivate him/he at the beginning
 
     log.log_info("user " + str(user_id) + " has a learned ratio of " + str(ratio) + " count learned = " + str(counter_learned) + " count all = " + str(denominator_learned))
-    update_forgot_score(arr_ids[i], probability_forgot_word)
+
     update_learned_percentage(user_id, ratio)
 
 
@@ -246,8 +248,6 @@ def train_and_predict_rs(arr, user_id, train = True):
     X = np_arr_dirty[:,1:]
 
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.33, random_state = 42)
-
-
 
     clf = train_models.train_and_choose_best(X_train, X_test, y_train, y_test)
 
