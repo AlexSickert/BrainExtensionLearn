@@ -1,0 +1,48 @@
+
+
+li.defaultListItem{
+
+
+}
+
+div.naviDiv{
+
+
+}
+
+div.mainBodyDiv{
+
+
+}
+
+div.clear{    
+    clear: left;
+}
+
+div.textWord{    
+    font-size: 15pt;
+    float: left;
+    padding-right: 10px;
+}
+
+div.defaultButton{
+    float: left;    
+    padding-right: 20px;
+}
+
+div.popDiv{
+    top: 100px;
+    left: 100px;
+    position: absolute;
+    z-index: 100;
+    background-color: red;
+}
+
+div.toastDiv{
+    top: 100px;
+    left: 100px;
+    position: absolute;
+    z-index: 100;
+    background-color: red; 
+}
+
