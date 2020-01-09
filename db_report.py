@@ -14,22 +14,22 @@ import time
 
 def get_report_charts(user_id):
 
-    l, v = get_report_chart(user_id)
+    l, v = get_report_chart(user_id, 1, 7)  # predicted how many % of learned words i still know
     c1 = dict()
     c1["labels"] = l
     c1["values"] = v
 
-    l, v = get_report_chart(user_id)
+    l, v = get_report_chart(user_id, 2, 7) # number of new words - never touched words
     c2 = dict()
     c2["labels"] = l
     c2["values"] = v
 
-    l, v = get_report_chart(user_id)
+    l, v = get_report_chart(user_id, 3, 7) # number of once learned learned words
     c3 = dict()
     c3["labels"] = l
     c3["values"] = v
 
-    l, v = get_report_chart(user_id)
+    l, v = get_report_chart(user_id, 4, 7) # number of clicks on this day
     c4 = dict()
     c4["labels"] = l
     c4["values"] = v
@@ -37,7 +37,66 @@ def get_report_charts(user_id):
     return c1, c2, c3, c4
 
 
-def get_report_chart(user_id):
+def get_report_chart(user_id, chart_type, days_in_past):
+
+    values = []
+    labels = []
+
+    try:
+
+        time_stamp = int(time.time())
+        delta = days_in_past * (24 * 60 * 60)
+        t = time_stamp - delta
+
+        sql = """
+            
+            SELECT
+                time_stamp_server,
+                parameter_value
+            FROM
+                progress_history
+            WHERE
+                user_id = %s
+            AND
+                parameter_id = %s
+            AND
+                time_stamp_server > %s
+            ORDER BY
+                time_stamp_server
+            LIMIT 100
+            
+        """
+
+        conn = dba.get_connection()
+        cur = conn.cursor()
+        cur.execute(sql, (user_id, chart_type, t))
+        arr = cur.fetchall()
+        conn.close()
+
+        log.log_info("length of array in get_report_chart() is " + str(len(arr)))
+
+        # need to convert the timestamps
+        date_str_before = ""
+
+        for i in range(len(arr)):
+            date_str = str(datetime.strftime(datetime.fromtimestamp(arr[i][0]), "%d.%m."))
+            if date_str_before != date_str:
+                labels.append(date_str)
+                values.append(float(arr[i][1]))
+                date_str_before = date_str
+            else:
+                # ensure that we take the latest value of the day
+                values[len(values) - 1] = float(arr[i][1])
+
+        log.log_info("successfull finished  get_report_chart()")
+
+    except Exception as ex:
+        log.log_error("get_report_chart(user_id, chart_type, days_in_past)): for user " + str(user_id) + ": " + str(ex))
+
+    return labels, values
+
+
+def get_report_chart_random(user_id):
 
     today = datetime.now().date()
     values = []
@@ -128,6 +187,8 @@ def create_progress_table():
 
 
 def add_to_progress(user_id, parameter_id, parameter_value):
+
+    log.log_info("adding to progress_history: user: " + str(user_id) + " parameter " + str(parameter_id) + " parameter_value " + str(parameter_value))
 
     global progress_table_created
 
