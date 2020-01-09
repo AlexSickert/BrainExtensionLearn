@@ -163,8 +163,8 @@ function UxUi() {
 //        var arrLabels = ['Logout', 'More'];
 //        var arrFunctions = ['Con.logout()', 'UxUi.setScreen(2, 0)'];
 
-        var arrLabels = ['Start', 'More', '+ Font', '- Font', 'Go To APP'];
-        var arrFunctions = ['UxUi.setScreen(1, 0)', 'UxUi.setScreen(2, 0)', 'UxUi.updateFontSize(true)', 'UxUi.updateFontSize(false)', 'UxUi.goToApp()'];
+        var arrLabels = ['Start', 'More', '+ Font', '- Font'];
+        var arrFunctions = ['UxUi.setScreen(1, 0)', 'UxUi.setScreen(2, 0)', 'UxUi.updateFontSize(true)', 'UxUi.updateFontSize(false)'];
         this.setNavigation(arrLabels, arrFunctions);
 
         // set content        
@@ -213,9 +213,7 @@ function UxUi() {
             }
         }
 
-        this.setCookie("readerFontSize", globalFontSize + "");
-
-
+        setCookieValue("readerFontSize", globalFontSize + "");
     };
 
 
@@ -227,8 +225,8 @@ function UxUi() {
         this.setNavigation(arrLabels, arrFunctions);
 
         // set content        
-        arrLabels = ['Logout', 'Privacy', 'Terms and Conditions'];
-        arrFunctions = ['Con.logout()', 'alert(999)', 'alert(999)'];
+        arrLabels = ['Go to Learner App', 'Logout', 'Privacy', 'Terms and Conditions'];
+        arrFunctions = ['UxUi.goToApp()', 'Con.logout()', 'alert(999)', 'alert(999)'];
         this.setBody("float-button-list", arrLabels, arrFunctions);
     };
 
@@ -399,7 +397,7 @@ function UxUi() {
                 h = html.getBodyTextAreaForm(x, "Copy text from article and paste it here", y, "UxUi.convertText(true)", "Next");
                 break;
             case "float-reader":
-                h = html.getBodyFloatContainer("", x);
+                h = html.getBodyFloatContainer(y, x);
                 break;
             case "float-scrollable":
                 h = html.getBodyFloatContainer("", x);
@@ -430,7 +428,11 @@ function UxUi() {
 
         var h = html.getNavigationButton("", "Set text as read", "Con.setTextRead()");
         h += parser.getHtml();
-        this.setBody("float-reader", h, "");
+        this.setBody("float-reader", h, "floatReaderContainer");
+
+        // adjust font of the text
+        this.updateFontSize(false):
+        this.updateFontSize(true):
 
     };
 
@@ -441,7 +443,11 @@ function UxUi() {
         parser.parse(s);
         var h = html.getNavigationButton("", "Set text as read", "Con.setTextRead()");
         h += parser.getHtml();
-        this.setBody("float-reader", h, "");
+        this.setBody("float-reader", h, "floatReaderContainer");
+
+        // adjust font of the text
+        this.updateFontSize(false):
+        this.updateFontSize(true):
     };
 
 
@@ -545,6 +551,7 @@ function UxUi() {
                 // to do;
             }
         }
+        setCookieValue("readerFontSize", globalFontSize + "");
     };
 
 
@@ -600,9 +607,9 @@ function UxUi() {
         e = document.getElementById("mainToast");
 
         if (c) {
-            e.className = "toastRed";
+            e.className = "toastDiv";
         } else {
-            e.className = "toastGreen";
+            e.className = "toastDiv";
         }
 
         e.style.display = "block";
@@ -625,7 +632,7 @@ function UxUi() {
          */
 
         e.style.width = "50%";
-        e.style.zIndex = "99";
+        e.style.zIndex = "999";
         e.style.left = "0px";
         e.style.top = "0px";
         e.style.padding = "10px";

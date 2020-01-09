@@ -223,12 +223,12 @@ function UxUi() {
         svg = document.getElementById("svg-3");
         this.scaleChart(svg);
         var chart = new Chart();
-        chart.drawBarChart(svg, chart_2["values"], chart_2["labels"]);
+        chart.drawBarChart(svg, chart_3["values"], chart_3["labels"]);
 
         svg = document.getElementById("svg-4");
         this.scaleChart(svg);
         var chart = new Chart();
-        chart.drawBarChart(svg, chart_3["values"], chart_3["labels"]);
+        chart.drawBarChart(svg, chart_2["values"], chart_2["labels"]);
 
     };
 

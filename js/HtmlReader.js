@@ -19,7 +19,7 @@ function Html() {
         var txt = "";
         var i;
         for (i = 0; i < arrLabels.length; i++) {
-            txt += this.getNavigationButton("defaultButton", arrLabels[i], arrFunctions[i]);
+            txt += this.getNavigationButton("navigationButton", arrLabels[i], arrFunctions[i]);
         }
         txt += "<div class=\"clear\"></div>";
         return txt + "<hr>";
@@ -82,7 +82,7 @@ function Html() {
         s += "<br>" + label;
         s += "<br>" + url;
         s += "<br><input type=\"button\" onclick=\"" + f + "\" value=\"" + fLabel + "\">";
-        s += "<br><textarea id=\"textarea\" onclick=\"UxUi.checkTextAreaContent(this)\" rows=\"4\" cols=\"50\">Copy text here</textarea>";
+        s += "<br><textarea id=\"textarea\" onclick=\"UxUi.checkTextAreaContent(this)\" rows=\"20\" cols=\"50\">Copy text here</textarea>";
         return s;
     };
 
