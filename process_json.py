@@ -14,6 +14,7 @@ import security as sec
 import time
 import db_learn as dbl
 import db_report as dbr
+import db_reader as db_reader
 import db_security as dbs
 import db_add_content as dbc
 import email_sender
@@ -132,7 +133,7 @@ def distribute_actions(jo):
 
         session = jo["session"]
 
-    elif action == "addText":
+    elif action == "addText":   # todo: is this anywhere used ???
 
         text = jo["text"]
         language = jo["language"]   # the input language
@@ -297,6 +298,13 @@ def distribute_actions(jo):
         new_words, learned_words, ratio_learned = dbr.get_simple_report(user_id)
         c1, c2, c3, c4 = dbr.get_report_charts(user_id)
 
+        log.log_info("c1 = " + str(c1))
+        log.log_info("c2 = " + str(c2))
+        log.log_info("c3 = " + str(c3))
+        log.log_info("c4 = " + str(c4))
+
+        log.log_info("done getting data for charts")
+
         rj['action'] = action
         rj['newWords'] = new_words
         rj['learnedWords'] = learned_words
@@ -309,9 +317,68 @@ def distribute_actions(jo):
         rj['error'] = False
         rj['error_description'] = ""
 
+        log.log_info("converting to json")
+
+        try:
+            result = json.dumps(rj)
+        except Exception as ex:
+            log.log_error("error in making report: " + str(ex))
+            rj = {}
+            rj['action'] = action
+            rj['error'] = True
+            rj['error_description'] = "error in making report: " + str(ex)
+            result = json.dumps(rj)
+
+        log.log_info("distribute_actions(jo) result for report = " + result)
+
+    elif action == "readerSaveText":
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+        # user_id, language, url, text
+        rj['text_id'],  err = db_reader.save_text(user_id, jo["language"], jo["url"], jo["text"])
+        rj['action'] = action
+        if len(err) > 0:
+            rj['error'] = True
+            rj['error_description'] = err
+        else:
+            rj['error'] = False
+            rj['error_description'] = ""
         result = json.dumps(rj)
 
-        log.log_info("distribute_actions(jo) result for report " + result)
+    elif action == "readerLoadTextTitles":
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+        rj['titles'] = db_reader.get_text_titles(user_id)
+        rj['action'] = action
+        rj['error'] = False
+        rj['error_description'] = ""
+        result = json.dumps(rj)
+
+    elif action == "readerLoadOneText":
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+        rj['text'], rj['text_id'] = db_reader.get_one_text(jo["id"], user_id)
+        rj['action'] = action
+        rj['error'] = False
+        rj['error_description'] = ""
+        result = json.dumps(rj)
+
+    elif action == "readerSetTextRead":
+
+        session = jo["session"]
+        log.log_info("session was " + str(session))
+        user_id = dbs.get_user_id_from_session(session)
+        db_reader.set_text_read(jo["id"], user_id)
+        rj['action'] = action
+        rj['error'] = False
+        rj['error_description'] = ""
+        result = json.dumps(rj)
 
     elif action == "logIn":
 
