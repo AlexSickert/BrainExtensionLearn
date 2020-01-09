@@ -15,7 +15,6 @@ of the server is this:
 
 """
 
-
 import socket
 import config as cfg
 from  concurrent.futures import ThreadPoolExecutor
@@ -48,9 +47,7 @@ REQUEST_QUEUE_SIZE = 50
 file_cache = {}
 
 
-
 def getHtml():
-
     """
     little helper function that only loads the html code of the client
     :return:
@@ -63,8 +60,7 @@ def getHtml():
     return s
 
 
-def getFile(path, use_cache = True):
-
+def getFile(path, use_cache=True):
     """
     little helper function
     :return:
@@ -114,18 +110,18 @@ def get_html_page(s):
         file.close()
 
         html = template.replace("#content#", content)
-        #html += "xxx"
+        # html += "xxx"
 
         html = html.encode('utf-8')
 
-        #b = bytearray()
-        #b.extend(map(ord, html))
+        # b = bytearray()
+        # b.extend(map(ord, html))
 
     except Exception as ex:
 
         log.log_error(str(ex))
-        #b = bytearray()
-        #b.extend(map(ord, "Error"))
+        # b = bytearray()
+        # b.extend(map(ord, "Error"))
 
         html = "ERROR".encode('utf-8')
 
@@ -133,7 +129,6 @@ def get_html_page(s):
 
 
 def getRssContent(u):
-
     log.log_info("in getRssContent(u) and u = " + str(u))
 
     txt = "nothing"
@@ -172,8 +167,8 @@ def getRssContent(u):
     </html>
     """
 
-    #ret = bytearray()
-    #ret.extend(map(ord, html.encode('utf8')))
+    # ret = bytearray()
+    # ret.extend(map(ord, html.encode('utf8')))
 
     ret = bytearray(html, encoding="utf-8")
 
@@ -181,7 +176,6 @@ def getRssContent(u):
 
 
 def get_header_values(data):
-
     """
     it processes the header part of a http request. Both Post and Get
     :param data: the header data as a string
@@ -196,7 +190,6 @@ def get_header_values(data):
 
     log.log_info("data has length: " + str(len(data)))
 
-
     method = ""
     url = ""
     protocol = ""
@@ -210,7 +203,7 @@ def get_header_values(data):
         if len(l) > 0:
             i += 1
             if i == 1:
-                #print(l)
+                # print(l)
                 log.log_info("first line string: " + str(l))
                 try:
                     method, url, protocol = l.split(" ")
@@ -247,7 +240,6 @@ def get_header_values(data):
 
 
 def handle_body(s):
-
     """
     This function takes the body of a request as an input and extracts the parameters
     it returns a dictionary
@@ -275,8 +267,8 @@ def handle_body(s):
 
     return values
 
-def make_header():
 
+def make_header():
     """
     DO NOT CHANGE THIS WEIRD FORMATTING. IT HAS TO BE LIKE THAT
     :return:
@@ -291,7 +283,6 @@ HTTP/1.1 200 OK
 
 
 def handle_request(client_connection, ip_address, port):
-
     """
     This is the method that is being executed in separate threads.
     It handles the request and sends back the response.
@@ -318,8 +309,7 @@ def handle_request(client_connection, ip_address, port):
 
         log.log_info("get_header_values(req) DONE ")
 
-
-        #check if POST
+        # check if POST
 
         if req[:4] == "POST":
             log.log_info("it is a post request")
@@ -342,7 +332,7 @@ def handle_request(client_connection, ip_address, port):
                     content_length = int(fragments[1])
                     # print(content_length)
 
-            #body lenght already retrieved
+            # body lenght already retrieved
             done = len(body)
             diff = content_length - done
 
@@ -364,7 +354,7 @@ def handle_request(client_connection, ip_address, port):
             for c in chunks:
                 # print(c)
                 # print(c.decode(encoding = 'UTF-8', errors = 'replace'))
-                s = c.decode(encoding = 'UTF-8', errors = 'replace')
+                s = c.decode(encoding='UTF-8', errors='replace')
                 body += s
             # print(body)
             #     log.log_info("body completely processed now.")
@@ -383,7 +373,6 @@ def handle_request(client_connection, ip_address, port):
             log.log_info("GET request")
             log.log_info("URL: " + url)
 
-
             # check if we need to serve a static file or process parameters
             if url.strip() == "/":
                 # serve the index file
@@ -399,6 +388,8 @@ def handle_request(client_connection, ip_address, port):
                     http_response += getFile("./html/app-ios-webview.html")
                 elif u == "/rss.html":
                     http_response += getFile("./html/rss.html", False)
+                elif u == "/reader.html":
+                    http_response += getFile("./html/reader.html", False)
                 elif "rss_content" in u:
                     http_response += getRssContent(u)
                 elif u == "/Controller.js":
@@ -411,10 +402,22 @@ def handle_request(client_connection, ip_address, port):
                     http_response += getFile("./js/DataAccess.js")
                 elif u == "/rss.js":
                     http_response += getFile("./js/rss.js", False)
+                elif u == "/ControllerReader.js":
+                    http_response += getFile("./js/ControllerReader.js", False)
+                elif u == "/DataAccessReader.js":
+                    http_response += getFile("./js/DataAccessReader.js", False)
+                elif u == "/HtmlReader.js":
+                    http_response += getFile("./js/HtmlReader.js", False)
+                elif u == "/Parser.js":
+                    http_response += getFile("./js/Parser.js", False)
+                elif u == "/UxUiReader.js":
+                    http_response += getFile("./js/UxUiReader.js", False)
                 elif u == "/favicon.ico":
                     http_response += getFile("./html/favicon.ico")
                 elif u == "/style.css":
                     http_response += getFile("./css/style.css")
+                elif u == "/styleReader.css":
+                    http_response += getFile("./css/styleReader.css", False)
                 elif u == "/rss.css":
                     http_response += getFile("./css/rss.css", False)
                 elif u == "/mobile-screenshot.png":
@@ -456,7 +459,7 @@ def handle_request(client_connection, ip_address, port):
                 # this is currently just used by the Google Spreadsheet function
                 log.log_info("JSON content")
                 jsonObj = parse.unquote(body)
-                #message = pj.process_json(fragments, jsonObj)
+                # message = pj.process_json(fragments, jsonObj)
                 message = pj.process_json_master(jsonObj)
             else:
                 # this is uded by android and web app
@@ -486,11 +489,11 @@ def handle_request(client_connection, ip_address, port):
 
 
 def serve_forever():
-
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    #listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
-    ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True)
+    # listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
+    ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],
+                                 server_side=True)
 
     ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ssl_socket.bind(SERVER_ADDRESS)
@@ -501,10 +504,10 @@ def serve_forever():
     log.log_info('MASTER Serving HTTPS on port {port} ...'.format(port=PORT))
 
     while True:
-        #client_connection, client_address = listen_socket.accept()
+        # client_connection, client_address = listen_socket.accept()
         try:
             client_connection, client_address = ssl_socket.accept()
-            #log.log_info("client_user_address: " + str( client_address) )
+            # log.log_info("client_user_address: " + str( client_address) )
             traffic.track(client_address[0], True)
             a = executor.submit(handle_request, client_connection, str(client_address[0]), client_address[1])
         except:
@@ -513,7 +516,6 @@ def serve_forever():
 
             if "KeyboardInterrupt" in str(sys.exc_info()[0]):
                 exit()
-
 
 
 if __name__ == '__main__':
