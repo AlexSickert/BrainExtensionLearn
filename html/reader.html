@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="author" content="BrainExtension">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="HandheldFriendly" content="true" />
+
+        <title>READER - Brain Extension</title>
+        <meta name="description" content="BrainExtension is an app for learning vocabulary. It makes usage of artificial intelligence to optimize the learning speed.">
+        <meta name="keywords" content="language, learning, education, artificial intelligence, machine learning, translation, English, Russian, Spanish, German, French, Italian, Portuguese">
+
+        <script src="Parser.js" type="text/javascript"></script>
+        <script src="ControllerReader.js" type="text/javascript"></script>
+        <script src="UxUiReader.js" type="text/javascript"></script>
+        <script src="DataAccessReader.js" type="text/javascript"></script>
+        <script src="HtmlReader.js" type="text/javascript"></script>
+
+        <link rel="stylesheet" type="text/css" href="styleReader.css" />
+
+        <script>
+
+            var UxUi = new UxUi();
+            var Con = new Controller();
+            var htmlObj = new Html();
+
+            var globalChoosenLanguage = "";
+            var globalCurrentText = "";
+            var globalCurrentTextId = "";  // id of text in database
+            var globalTranslateWhat = "";  // word or sentence
+            var globalFontSize = 15;
+
+            UxUi.setController(Con);
+            Con.setUxUi(UxUi);
+            UxUi.setHtml(htmlObj);
+
+            function init() {
+                Con.init();
+            }
+
+            function resize() {}
+            ;
+            /*
+             function resize() {
+             //alert("resize triggered");
+             
+             if (Number(globalVisibleScreen) == Number(1)) {
+             //uxui.makeToast("resize global = " + globalVisibleScreen, true);
+             uxui.showTrainingUi();
+             } else if (Number(globalVisibleScreen) == Number(2)) {
+             // this is when edit word screen is shown
+             } else {
+             // if it is 0 then do nothing
+             // do nothing
+             }
+             
+             }
+             
+             */
+        </script>
+    </head>
+
+    <body onload="init()" onresize="resize()" id="bodyId">
+
+        <div id="mainNavi" class="naviDiv">Navigation</div>
+        <div id="mainBody" class="mainBodyDiv">Body</div>
+        <div id="mainPop" style="position: absolute; display: none;" class="popDiv">Pop</div>
+        <div id="mainToast" style="position: absolute; display: none;" class="toastDiv">Toast</div>
+
+        <script type="text/javascript" >
+
+            var charfield = document.getElementById("bodyId");
+            charfield.onkeydown = function (e) {
+                var e = window.event || e;
+                //con.handleKey(e.keyCode);
+                //alert(e.keyCode);
+            };
+        </script>
+    </body>
+</html>
