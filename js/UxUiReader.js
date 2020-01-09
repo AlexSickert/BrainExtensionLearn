@@ -431,8 +431,8 @@ function UxUi() {
         this.setBody("float-reader", h, "floatReaderContainer");
 
         // adjust font of the text
-        this.updateFontSize(false):
-        this.updateFontSize(true):
+        this.updateFontSize(false);
+        this.updateFontSize(true);
 
     };
 
@@ -446,8 +446,8 @@ function UxUi() {
         this.setBody("float-reader", h, "floatReaderContainer");
 
         // adjust font of the text
-        this.updateFontSize(false):
-        this.updateFontSize(true):
+        this.updateFontSize(false);
+        this.updateFontSize(true);
     };
 
 
