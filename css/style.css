@@ -3,6 +3,9 @@
 @import url(https://fonts.googleapis.com/css?family=Lusitana);
 
 
+.bar {
+    fill: steelblue;
+    }
 
 a:link {
   color: #000000;
