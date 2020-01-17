@@ -54,6 +54,11 @@ def save_text(user_id, language, url, text):
         values(%s, %s, %s, %s, %s, %s, %s);
     
         """
+
+        # ToDo: this text cannot be saved and it is not clear why
+        # https://www.theatlantic.com/entertainment/archive/2019/08/my-joe-rogan-experience/594802/
+
+
         conn = dba.get_connection()
         cur = conn.cursor()
         cur.execute(sql, (user_id, language, url, time_stamp, text, False, title))
