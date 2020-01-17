@@ -781,10 +781,7 @@ function UxUi() {
             s += "<br>";
             s += this.getButton("Save Words", "con.saveVocBulkCopyPaste()");
             s += "</center>";
-
-
         }
-
         return s;
     };
 
@@ -874,9 +871,9 @@ function UxUi() {
             s += '<svg id="svg-1" width="600" height="500" style="border: 1px solid white;"></svg>';
             s += "<br><br><b>Percentage of words your learned and still remember:</b><br>";
             s += '<svg id="svg-2" width="600" height="500" style="border: 1px solid white;"></svg>';
-            s += "<br><br><b>New words to learn:</b><br>";
-            s += '<svg id="svg-3" width="600" height="500" style="border: 1px solid white;"></svg>';
             s += "<br><br><b>Number of words learned at least once:</b><br>";
+            s += '<svg id="svg-3" width="600" height="500" style="border: 1px solid white;"></svg>';
+            s += "<br><br><b>Remaining new words to learn:</b><br>";
             s += '<svg id="svg-4" width="600" height="500" style="border: 1px solid white;"></svg>';
             s += "</div>";
             return s;

@@ -5,55 +5,65 @@ function UxUi() {
     var controller;
     var html;
     var currentScreen = -1;
-    var arrLanguageLabels = ['English', 'Russian', 'Spanish', 'Italian', 'French', 'Portuguese'];
+    var arrLanguageLabels = ['English', 'Russian', 'Spanish', 'Italian', 'French', 'Portuguese', 'German'];
 
     var plublications = {
 
         "English": {
-            "New York Times": "https://www.nytimes.com",
-            "Washington Post": "https://www.washingtonpost.com/"
+            "USA: New York Times": "https://www.nytimes.com",
+            "USA: The Atlantic":"https://www.theatlantic.com/",
+            "USA: Washington Post": "https://www.washingtonpost.com/",
+            "UK: The Guardian":"https://www.theguardian.com/"
         },
 
         "Russian": {
-            "Forbes": "https://www.forbes.ru/",
-            "Pravda": "https://www.pravda.ru/",
-            "Kommersant": "https://www.kommersant.ru/",
-            "Segodnya": "https://www.segodnya.ua/"
+            "Russia: Forbes": "https://www.forbes.ru/",
+            "Russia: Pravda": "https://www.pravda.ru/",
+            "Russia: Kommersant": "https://www.kommersant.ru/",
+            "Ukraine: Segodnya": "https://www.segodnya.ua/"
         },
 
         "Spanish": {
-            "El Pais": "https://elpais.com/"
+            // newspapers in venezuela https://en.wikipedia.org/wiki/List_of_newspapers_in_Venezuela
+            "Spain: El Pais": "https://elpais.com/",
+            "Venezuela: El Nacional": "https://www.elnacional.com/",
+            "Venezuela: Ultimas Noticias": "http://www.ultimasnoticias.com.ve/"
         },
 
         "Italian": {
-            "Corriere de la Sera": "https://www.corriere.it/",
-            "La Repubblica": "https://www.repubblica.it/"
+            "Italy: Corriere de la Sera": "https://www.corriere.it/",
+            "Italy: La Repubblica": "https://www.repubblica.it/"
         },
 
         "French": {
             // 18 french newspapers https://frenchtogether.com/french-newspaper/ 
             // top 100 french blogs  https://blog.feedspot.com/french_blogs/ 
-            "Le Monde Diplomatique": "https://www.monde-diplomatique.fr/",
-            "Le Figaro": "https://www.lefigaro.fr/",
-            "Le Monde": "https://www.lemonde.fr/",
-            "Liberation": "https://www.liberation.fr/"
+            // "Le Monde Diplomatique": "https://www.monde-diplomatique.fr/",
+            "France: Le Figaro": "https://www.lefigaro.fr/",
+            "France: Le Monde": "https://www.lemonde.fr/",
+            "France: Liberation": "https://www.liberation.fr/"
         },
         "Portuguese": {
             // see https://www.fluentu.com/blog/portuguese/brazilian-bloggers/
             //  https://petiscos.jp/
-            "Expresso": "https://expresso.pt/",
-            "El Pais Brasil": "https://brasil.elpais.com/",
-            "Folha de S.Paulo": "https://www.folha.uol.com.br/",
+            "Portugal: Expresso": "https://expresso.pt/",
+            "Brazil: El Pais Brasil": "https://brasil.elpais.com/",
+            "Brazil: Folha de S.Paulo": "https://www.folha.uol.com.br/",
             "Blog: Petiscos": "https://petiscos.jp/",
             "Blog: MÍRIAM LEITÃO": "https://blogs.oglobo.globo.com/miriam-leitao/",
-            "Veja": "https://veja.abril.com.br/",
-            "Jornal GGN": "https://jornalggn.com.br/",
-            "UOL": "https://www.uol.com.br/"
+            "Brazil: Veja": "https://veja.abril.com.br/",
+            "Brazil: Jornal GGN": "https://jornalggn.com.br/",
+            "Brazil: UOL": "https://www.uol.com.br/"
 
         },
 
         "German": {
-            "Die Zeit": "https://www.zeit.de/index"
+            "Germany: Die Zeit": "https://www.zeit.de/index",
+            "Germany: Der Spiegel": "https://www.spiegel.de/",
+            "Switzerland: NZZ":"https://www.nzz.ch/",
+            // austria news  https://de.wikipedia.org/wiki/Medien_in_%C3%96sterreich
+            "Austria: Kronen Zeitung":"https://www.krone.at/"
+            
         }
     };
 
@@ -239,7 +249,7 @@ function UxUi() {
         this.setNavigation(arrLabels, arrFunctions);
 
         // set content  
-        arrFunctions = ['UxUi.setScreen(4, 0)', 'UxUi.setScreen(4, 1)', 'UxUi.setScreen(4, 2)', 'UxUi.setScreen(4, 3)', 'UxUi.setScreen(4, 4)', 'UxUi.setScreen(4, 5)'];
+        arrFunctions = ['UxUi.setScreen(4, 0)', 'UxUi.setScreen(4, 1)', 'UxUi.setScreen(4, 2)', 'UxUi.setScreen(4, 3)', 'UxUi.setScreen(4, 4)', 'UxUi.setScreen(4, 5)', 'UxUi.setScreen(4, 6)'];
         this.setBody("float-button-list", arrLanguageLabels, arrFunctions);
 
     };
