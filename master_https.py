@@ -381,11 +381,11 @@ def handle_request(client_connection, ip_address, port):
                 # serve other stuff
                 u = url.strip()
                 if u == "/app":
-                    http_response += getFile("./html/app.html")
+                    http_response += getFile("./html/app.html", False)
                 elif u == "/app-android-webview":
-                    http_response += getFile("./html/app-android-webview.html")
+                    http_response += getFile("./html/app-android-webview.html", False)
                 elif u == "/app-ios-webview":
-                    http_response += getFile("./html/app-ios-webview.html")
+                    http_response += getFile("./html/app-ios-webview.html", False)
                 elif u == "/rss.html":
                     http_response += getFile("./html/rss.html", False)
                 elif u == "/reader.html":
@@ -393,13 +393,13 @@ def handle_request(client_connection, ip_address, port):
                 elif "rss_content" in u:
                     http_response += getRssContent(u)
                 elif u == "/Controller.js":
-                    http_response += getFile("./js/Controller.js")
+                    http_response += getFile("./js/Controller.js", False)
                 elif u == "/Chart.js":
-                    http_response += getFile("./js/Chart.js")
+                    http_response += getFile("./js/Chart.js", False)
                 elif u == "/UxUi.js":
-                    http_response += getFile("./js/UxUi.js")
+                    http_response += getFile("./js/UxUi.js", False)
                 elif u == "/DataAccess.js":
-                    http_response += getFile("./js/DataAccess.js")
+                    http_response += getFile("./js/DataAccess.js", False)
                 elif u == "/rss.js":
                     http_response += getFile("./js/rss.js", False)
                 elif u == "/ControllerReader.js":
@@ -415,7 +415,7 @@ def handle_request(client_connection, ip_address, port):
                 elif u == "/favicon.ico":
                     http_response += getFile("./html/favicon.ico")
                 elif u == "/style.css":
-                    http_response += getFile("./css/style.css")
+                    http_response += getFile("./css/style.css", False)
                 elif u == "/styleReader.css":
                     http_response += getFile("./css/styleReader.css", False)
                 elif u == "/rss.css":
