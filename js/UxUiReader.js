@@ -13,7 +13,8 @@ function UxUi() {
             "USA: New York Times": "https://www.nytimes.com",
             "USA: The Atlantic":"https://www.theatlantic.com/",
             "USA: Washington Post": "https://www.washingtonpost.com/",
-            "UK: The Guardian":"https://www.theguardian.com/"
+            "UK: The Guardian":"https://www.theguardian.com/",
+            "DAZED":"https://www.dazeddigital.com/"
         },
 
         "Russian": {

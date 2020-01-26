@@ -242,13 +242,13 @@ function UxUi() {
         if (id === null) {
             console.log("id for this.setHtmlInDiv is null");
         } else {
-            console.log("id to insert html into is: " + id);
+            //console.log("id to insert html into is: " + id);
         }
 
         if (html === null) {
             console.log("HTML content for this.setHtmlInDiv is null");
         } else {
-            console.log("HTML content length for  this.setHtmlInDiv is: " + html.length);
+            //console.log("HTML content length for  this.setHtmlInDiv is: " + html.length);
         }
         document.getElementById(id).innerHTML = html;
 

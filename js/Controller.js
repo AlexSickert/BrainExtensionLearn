@@ -12,6 +12,14 @@ function Controller() {
 
     this.wordArray = [];
 
+    this.rnd_wordId = -1;
+    this.rnd_language1 = "";
+    this.rnd_word1 = "";
+    this.rnd_language2 = "";
+    this.rnd_word2 = "";
+    this.rnd_frequency = 15;
+    this.rnd_frequency_counter = 1;
+
     /*
      * this function runs when the html page loads initially
      */
@@ -455,11 +463,12 @@ function Controller() {
         for (var i = 0; i < arrayLength; i++) {
             if (this.wordArray[i]["wordId"] == globalWordId) {
                 currIndex = i;
-            }
-            ;
+            };
         }
 
-        if (currIndex >= 0) {  // we process only if the current array has the word
+        if (currIndex >= 0) {
+
+            // we process only if the current array has the word => not the case if random word was shown
 
             // we know that each array element has always a value "position"
 
@@ -551,10 +560,34 @@ function Controller() {
     // from the array we immediately load the next word and don't wait for the callback
     this.nextWordFromArray = function (answer) {
 
+        var loadWordArray = true;
+        var loadRandomWord = false;
+
         console.log("this.nextWordFromArray() this.wordArray.length = " + this.wordArray.length);
 
-        if (this.wordArray.length > 0) {
+        console.log("this.nextWordFromArray() this.rnd_frequency_counter = " + this.rnd_frequency_counter);
+        console.log("this.nextWordFromArray() this.rnd_frequency = " + this.rnd_frequency);
+        console.log("this.nextWordFromArray() this.rnd_wordId = " + this.rnd_wordId);
 
+        // first we need to decide if we load word from array or show the random word
+        if(this.rnd_frequency_counter > this.rnd_frequency && this.rnd_wordId > 0){
+            // load the random word
+            loadWordArray = false;
+            loadRandomWord = true;
+
+        }else{
+            loadRandomWord = false;
+            // load the word array
+            if (this.wordArray.length > 0){
+                loadWordArray = true;
+            }else{
+                loadWordArray = false;
+            }
+        }
+
+        if (loadWordArray) {
+
+            this.rnd_frequency_counter += 1; // to trigger display of random word
             this.reOrderArray(answer)
 
             //nextId = Math.round(Math.random() * (this.wordArray.length - 1));
@@ -621,6 +654,22 @@ function Controller() {
             console.log("w2 = " + w2);
 
             objUxUi.setLearnFormValues(l1, w1, l2, w2);
+        }else{
+
+            // in case we show the random word
+            if(loadRandomWord){
+
+                this.rnd_frequency_counter = 1; // reset counter to start from beginning
+
+                console.log("setting RANDOM word, not word from array");
+
+                var l1 = this.rnd_language1;
+                var l2 = this.rnd_language2;
+                var w1 = this.rnd_word1;
+                var w2 = this.rnd_word2;
+                globalWordId = this.rnd_wordId;
+                objUxUi.setLearnFormValues(l1, w1, l2, w2);
+            }
         }
     };
 
@@ -723,6 +772,15 @@ function Controller() {
 
             console.log("loaded the array of words");
             console.log("pushToGui = " + pushToGui);
+
+            // set the randomly chosen word that was already learned
+            console.log("updating the RANDOM word");
+            this.rnd_wordId = responseObject["rnd_wordId"];;
+            this.rnd_language1 = responseObject["rnd_language1"];
+            this.rnd_word1 = responseObject["rnd_word1"] + " *";
+            this.rnd_language2 = responseObject["rnd_language2"];
+            this.rnd_word2 = responseObject["rnd_word2"] + " *";
+            this.rnd_frequency = responseObject["rnd_frequency"];
 
             if (pushToGui) {
 
