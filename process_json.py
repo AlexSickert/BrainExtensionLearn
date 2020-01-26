@@ -186,6 +186,11 @@ def distribute_actions(jo):
 
         id, l1, w1, l2, w2 = dbl.get_word(new_id)
 
+        #get a random word from the words already learned
+        learned_id = dbl.get_learned_random(user_id)
+        rnd_id, rnd_l1, rnd_w1, rnd_l2, rnd_w2 = dbl.get_word(learned_id)
+
+
         rj['action'] = action
         rj["wordId"] = id
         rj["language1"] = dbac.get_language_label(l1)
@@ -197,6 +202,14 @@ def distribute_actions(jo):
         rj['success'] = success
         rj['experiment'] = experiment
         rj['once_learned'] = once_learned
+
+        rj["rnd_wordId"] = rnd_id
+        rj["rnd_language1"] = dbac.get_language_label(rnd_l1)
+        rj["rnd_word1"] = rnd_w1
+        rj["rnd_language2"] = dbac.get_language_label(rnd_l2)
+        rj["rnd_word2"] = rnd_w2
+        rj["rnd_frequency"] = 15  #todo: convert to algorithm depending on % learned and size of vocabulary
+
 
         result = json.dumps(rj)
 
@@ -264,6 +277,18 @@ def distribute_actions(jo):
         rj['experiment'] = experiment
         rj['once_learned'] = once_learned
         rj["words"] = word_arr
+
+        # get a random word from the words already learned
+        learned_id = dbl.get_learned_random(user_id)
+        rnd_id, rnd_l1, rnd_w1, rnd_l2, rnd_w2 = dbl.get_word(learned_id)
+
+        rj["rnd_wordId"] = rnd_id
+        rj["rnd_language1"] = dbac.get_language_label(rnd_l1)
+        rj["rnd_word1"] = rnd_w1
+        rj["rnd_language2"] = dbac.get_language_label(rnd_l2)
+        rj["rnd_word2"] = rnd_w2
+        rj["rnd_frequency"] = 10  #todo: convert to algorithm depending on % learned and size of vocabulary
+
 
         result = json.dumps(rj)
 

@@ -508,6 +508,8 @@ def process_experiment(word_id, user_id, answer):
         vocabulary
     WHERE
         id = %s   
+        AND
+        current = FALSE
     
     """
 
@@ -517,6 +519,7 @@ def process_experiment(word_id, user_id, answer):
 
     arr = cur.fetchall()
     is_experiment = False
+    is_random_experiment = False
     once_learned = False
 
     if arr is not None:
@@ -524,8 +527,15 @@ def process_experiment(word_id, user_id, answer):
             is_experiment = arr[0][0]
             once_learned = arr[0][16]
 
+            #it can be that it was a random test and we handle this case here
+            if not is_experiment:
+                is_current = arr[0][16]
+                # added the condition that word should not be current in the SQL statement already
+                # then the only conclusion is that it was a random experiment
+                is_random_experiment = True
 
-    if is_experiment:
+
+    if is_experiment or is_random_experiment:
 
         pn_string = arr[0][1]
         count_positive = arr[0][2]
@@ -601,6 +611,8 @@ def process_experiment(word_id, user_id, answer):
     # remove the experiment flag
     set_experiment_state(word_id, False)
 
+    if is_random_experiment:
+        is_experiment = True
 
     return is_experiment, once_learned
 
@@ -1107,6 +1119,30 @@ def get_new_random(user_id):
         l = -1
 
     return l
+
+
+def get_learned_random(user_id):
+    """
+    get a random word from the words that were already learned to check if it has been forgotten
+
+    :param user_id:
+    :return:
+    """
+
+    conn = dba.get_connection()
+    cur = conn.cursor()
+    #cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND direction = TRUE AND count_positive < 1 ORDER BY random() LIMIT 1", (user_id,))
+    cur.execute("SELECT id FROM vocabulary where user_id = %s AND current = FALSE AND count_positive > 1 ORDER BY random() LIMIT 1", (user_id,))
+
+    arr = cur.fetchall()
+
+    if len(arr) > 0:
+        l = arr[0][0]
+    else:
+        l = -1
+
+    return l
+
 
 
 def add_new_word(user_id):
