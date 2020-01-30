@@ -40,6 +40,7 @@ function UxUi() {
             // 18 french newspapers https://frenchtogether.com/french-newspaper/ 
             // top 100 french blogs  https://blog.feedspot.com/french_blogs/ 
             // "Le Monde Diplomatique": "https://www.monde-diplomatique.fr/",
+            "France TV Info":"https://www.francetvinfo.fr/",
             "France: Le Figaro": "https://www.lefigaro.fr/",
             "France: Le Monde": "https://www.lemonde.fr/",
             "France: Liberation": "https://www.liberation.fr/"
