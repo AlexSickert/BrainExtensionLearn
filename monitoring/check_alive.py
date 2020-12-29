@@ -2,10 +2,12 @@ import urllib.request as req
 import json
 import os
 import smtplib
-
+import ssl
 import json
 import time
 from datetime import datetime
+
+context = ssl._create_unverified_context()
 
 
 config_params = json.load(open('./config.json'))
@@ -65,7 +67,7 @@ def send_mail(to_email, email_subject, email_message):
 if config_params["test-ping"]:
 
     try:
-        resp = req.urlopen(url, timeout=time_out).read()
+        resp = req.urlopen(url, timeout=time_out, context=context).read()
         print("OK, server can be reached")
         err_text += "\r\nOK, server can be reached"
 
@@ -89,7 +91,7 @@ if config_params["test-login"]:
 
         dby = d.encode("utf-8")
 
-        resp = req.urlopen(url, data=dby, timeout=time_out).read()
+        resp = req.urlopen(url, data=dby, timeout=time_out, context=context).read()
         jt = resp.decode()
         jo = json.loads(jt)
 

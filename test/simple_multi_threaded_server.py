@@ -119,6 +119,7 @@ HTTP/1.1 200 OK
 
     return http_response
 
+
 def handle_request(client_connection):
 
     """
@@ -140,6 +141,8 @@ def handle_request(client_connection):
     form_values = {}
     elements = req.split("\r\n\r\n")
     method, url, protocol, header_values, url_parameter = get_header_values(req)
+
+
 
     #check if POST
 

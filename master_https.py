@@ -33,6 +33,11 @@ import faq_html as faq
 import process_get as pget
 import traffic
 import clean_up
+import email_sender as es
+
+
+es.send_mail_queued_monitoring("MASTER HTTPS application is starting", "MASTER HTTPS application is starting")
+
 
 clean_up.clean_master()
 
@@ -291,6 +296,8 @@ def handle_request(client_connection, ip_address, port):
     :return:
     """
 
+    print("------------------ REQUEST RECEIVED ----------------------")
+
     try:
         start_execution = datetime.datetime.now()
         log.log_info("------------------ REQUEST RECEIVED ----------------------")
@@ -358,6 +365,7 @@ def handle_request(client_connection, ip_address, port):
                 body += s
             # print(body)
             #     log.log_info("body completely processed now.")
+
             form_values = handle_body(body)
 
         else:
@@ -501,6 +509,8 @@ def serve_forever():
 
     executor = ThreadPoolExecutor(max_workers=50)
 
+    print('MASTER Serving HTTPS on port {port} ...'.format(port=PORT))
+
     log.log_info('MASTER Serving HTTPS on port {port} ...'.format(port=PORT))
 
     while True:
@@ -513,6 +523,25 @@ def serve_forever():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             log.log_error("Error in try-catch of main server loop: " + str(sys.exc_info()[0]))
+
+            # new test july 2020 handling the ssl error issue
+
+            # listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            #
+            # # listen_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"], keyfile=cfg.parameters["keyfile"],server_side=True, ssl_version=ssl.PROTOCOL_TLSv1_2)
+            # ssl_socket = ssl.wrap_socket(listen_socket, certfile=cfg.parameters["certfile"],
+            #                              keyfile=cfg.parameters["keyfile"],
+            #                              server_side=True)
+            #
+            # ssl_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # ssl_socket.bind(SERVER_ADDRESS)
+            # ssl_socket.listen(REQUEST_QUEUE_SIZE)
+            #
+            # executor = ThreadPoolExecutor(max_workers=50)
+
+
+
+
 
             if "KeyboardInterrupt" in str(sys.exc_info()[0]):
                 exit()

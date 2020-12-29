@@ -28,6 +28,7 @@ def log_error(x):
     item.append(s)
     log_q.put(item)
 
+
 def log_prediction(x):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
@@ -40,6 +41,31 @@ def log_prediction(x):
     log_q.put(item)
 
 
+def log_translation(x):
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
+    s = st + ";" + str(x)
+    #print(s)
+
+    item = []
+    item.append("t")
+    item.append(s)
+    log_q.put(item)
+
+
+
+def log_logic(x):
+    ts = time.time()
+    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
+    s = st + ";" + str(x)
+    #print(s)
+
+    item = []
+    item.append("l")
+    item.append(s)
+    log_q.put(item)
+
+
 def log_ip_2_location(x):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S;')
@@ -47,20 +73,30 @@ def log_ip_2_location(x):
     #print(s)
 
     item = []
-    item.append("i")
+    item.append("ip")
     item.append(s)
     log_q.put(item)
+
 
 def log_info(x):
-    ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-    s = "INFO:: " + st + " :: " + str(x)
-    #print(s)
 
-    item = []
-    item.append("i")
-    item.append(s)
-    log_q.put(item)
+    try:
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        s = "INFO:: " + st + " :: " + str(x)
+        print(s)
+    except Exception as ex:
+
+        print(ex)
+
+    try:
+        item = []
+        item.append("i")
+        item.append(s)
+        log_q.put(item)
+    except Exception as ex:
+
+        print(ex)
 
 
 def log_warning(x):
@@ -117,10 +153,13 @@ def log_worker():
 
                     if item[0] == "e":
                         write_to_file(item[1], suffix="ERROR")
-
                     if item[0] == "p":
                         write_to_file(item[1], suffix="PREDICTION")
-                    if item[0] == "i":
+                    if item[0] == "t":
+                        write_to_file(item[1], suffix="TRANSLATION")
+                    if item[0] == "l":
+                        write_to_file(item[1], suffix="LOGIC")
+                    if item[0] == "ip":
                         write_to_file(item[1], suffix="IP-2-LOCATION")
 
                     log_q.task_done()

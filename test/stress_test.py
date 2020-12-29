@@ -131,7 +131,7 @@ while True:
 
     word_id = jo["wordId"]
 
-    print(a_user + " loop number: ", counter)
+    #print(a_user + " loop number: ", counter)
     #print("word_id is:" + str(word_id))
 
     #time.sleep(1)
@@ -140,7 +140,7 @@ while True:
 
     diff = end_time - start_time
 
-    print(a_user + " execution took:", diff)
+    print(a_user, " loop number: ", counter,  " execution took:", diff)
 
 
 

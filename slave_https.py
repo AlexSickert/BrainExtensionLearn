@@ -36,10 +36,24 @@ import faq_html as faq
 import json
 import process_json as pj
 import clean_up
+import re
+import email_sender as es
 
 log.log_info("------------------ start server ----------------------")
 
+es.send_mail_queued_monitoring("SLAVE application is starting", "application is starting")
+
 clean_up.clean_slave()
+
+
+
+invalid_escape = re.compile(r'\\[0-7]{1,3}')  # up to 3 digits for byte values up to FF
+
+def replace_with_byte(match):
+    return chr(int(match.group(0)[1:], 8))
+
+def repair(brokenjson):
+    return invalid_escape.sub(replace_with_byte, brokenjson)
 
 
 
@@ -95,14 +109,43 @@ def handle_request(client_connection):
 
         # load 10 characters and convert to number
         request = client_connection.recv(10)
+        #client_connection.
         print(request)
         req = request.decode()
+        print("...")
         print(req)
-        print(int(req))
+        print("...")
+        #print(int(req))
 
-        request = client_connection.recv(int(req))
-        obj_str = request.decode()
+        todo = int(req)
+
+        #request = client_connection.recv(int(req))
+        #obj_str = request.decode()
+        #obj_str = request.decode('utf-8', errors='ignore')
+
+        chunks = []
+
+        if todo > 0:
+            while todo > 0:
+                chunk = client_connection.recv(1)
+                chunks.append(chunk)
+                todo -= 1
+
+        obj_str = ""
+        for c in chunks:
+            s = c.decode(encoding='UTF-8', errors='replace')
+            obj_str += s
+
+
+
+
+        #jo = json.loads(repair(obj_str))
         jo = json.loads(obj_str)
+
+        # try:
+        #     jo = json.loads(obj_str)
+        # except Exception as ex:
+
 
         # the next line throws and error when object contains cyrillic. So don't uncomment!
         #print(jo)
@@ -153,7 +196,7 @@ def serve_forever():
     ssl_socket.bind(SERVER_ADDRESS)
     ssl_socket.listen(REQUEST_QUEUE_SIZE)
 
-    executor = ThreadPoolExecutor(max_workers=50)
+    executor = ThreadPoolExecutor(max_workers=10)
 
     log.log_info('SLAVE Serving HTTP on port {port} ...'.format(port=PORT))
 
@@ -166,6 +209,11 @@ def serve_forever():
         except:
             print("Unexpected error:", sys.exc_info()[0])
             log.log_error("Error in try-catch of main server loop: " + str(sys.exc_info()[0]))
+
+
+
+            if "KeyboardInterrupt" in str(sys.exc_info()[0]):
+                exit()
 
 
 

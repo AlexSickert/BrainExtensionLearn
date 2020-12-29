@@ -87,6 +87,15 @@ def process_post(form_values, ip_address):
         j = parse.unquote(x)
         data = json.loads(j)
 
+
+
+        if "text" in data:
+            #data["text"] = str(data["text"]).decode(encoding = 'UTF-8',errors = 'ignore')
+            data["text"] = str(data["text"]).replace("\\n", "\n")
+            data["text"] = str(data["text"]).replace("\\", " ")
+
+
+
         res_obj = None
 
         ip = ""

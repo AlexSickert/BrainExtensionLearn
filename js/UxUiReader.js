@@ -18,10 +18,16 @@ function UxUi() {
         },
 
         "Russian": {
+            "Апостроф":"https://apostrophe.ua/",
             "Russia: Forbes": "https://www.forbes.ru/",
             "Russia: Pravda": "https://www.pravda.ru/",
+            "UA NEWS": "https://ua.news/ru/",
             "Russia: Kommersant": "https://www.kommersant.ru/",
-            "Ukraine: Segodnya": "https://www.segodnya.ua/"
+            "Ukraine: Segodnya": "https://www.segodnya.ua/",
+            "Ведомости": "https://www.vedomosti.ru/",
+            "РБК - РОСБИЗНЕСКОНСАЛТИНГ": "https://www.rbc.ru/",
+            "Obozrevatel":"https://www.obozrevatel.com/",
+            "5sfer.com/":"https://5sfer.com/"
         },
 
         "Spanish": {
@@ -32,8 +38,10 @@ function UxUi() {
         },
 
         "Italian": {
+            "Open":"https://www.open.online/",
             "Italy: Corriere de la Sera": "https://www.corriere.it/",
-            "Italy: La Repubblica": "https://www.repubblica.it/"
+            "Italy: La Repubblica": "https://www.repubblica.it/",
+            "Ultrarunning Blog": "https://terzoristoro18.blogspot.com/?m=1"
         },
 
         "French": {
@@ -41,8 +49,10 @@ function UxUi() {
             // top 100 french blogs  https://blog.feedspot.com/french_blogs/ 
             // "Le Monde Diplomatique": "https://www.monde-diplomatique.fr/",
             "France TV Info":"https://www.francetvinfo.fr/",
+            "Capital":"https://www.capital.fr/",
             "France: Le Figaro": "https://www.lefigaro.fr/",
             "France: Le Monde": "https://www.lemonde.fr/",
+            "Capital": "https://www.capital.fr/",
             "France: Liberation": "https://www.liberation.fr/"
         },
         "Portuguese": {
@@ -325,8 +335,14 @@ function UxUi() {
             var id = arr[i][0];
             var l = arr[i][1];
             var t = arr[i][2];
+            var r = arr[i][3];
 
-            arrLabels.push(html.bold(l + ": ") + t + "...");
+            if(r){
+                arrLabels.push(html.bold("[READ] " + l + ": ") + t + "...");
+            }else{
+                arrLabels.push(html.bold(l + ": ") + t + "...");
+            }
+
             arrFunctions.push("Con.loadText(" + id + ", '" + l + "')");
         }
 
@@ -438,7 +454,8 @@ function UxUi() {
         // now we split the text into sentences and then into words
         parser.parse(s);
 
-        var h = html.getNavigationButton("", "Set text as read", "Con.setTextRead()");
+        var h = html.getNavigationButton("defaultButton", "Set text as read", "Con.setTextRead()");
+        h += "<br>";
         h += parser.getHtml();
         this.setBody("float-reader", h, "floatReaderContainer");
 
@@ -453,7 +470,8 @@ function UxUi() {
         globalCurrentText = s;
         // now we split the text into sentences and then into words
         parser.parse(s);
-        var h = html.getNavigationButton("", "Set text as read", "Con.setTextRead()");
+        var h = html.getNavigationButton("defaultButton", "Set text as read", "Con.setTextRead()");
+        h += "<br>";
         h += parser.getHtml();
         this.setBody("float-reader", h, "floatReaderContainer");
 

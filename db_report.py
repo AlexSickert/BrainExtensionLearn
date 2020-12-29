@@ -44,6 +44,8 @@ def get_report_chart(user_id, chart_type, days_in_past):
 
     try:
 
+        log.log_info("get_report_chart before SQL chart_type = " + str(chart_type))
+
         time_stamp = int(time.time())
         delta = days_in_past * (24 * 60 * 60)
         t = time_stamp - delta
@@ -67,13 +69,15 @@ def get_report_chart(user_id, chart_type, days_in_past):
             
         """
 
+        log.log_info("get_report_chart chart_type = " + str(chart_type))
+
         conn = dba.get_connection()
         cur = conn.cursor()
         cur.execute(sql, (user_id, chart_type, t))
         arr = cur.fetchall()
         conn.close()
 
-        log.log_info("length of array in get_report_chart() is " + str(len(arr)))
+        log.log_info("get_report_chart ... length of array in get_report_chart() is " + str(len(arr)))
 
         # need to convert the timestamps
         date_str_before = ""

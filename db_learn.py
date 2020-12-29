@@ -85,7 +85,17 @@ def cache_length_for_user(user_id):
     else:
         cache_short_term_memory[user_id] = []
         ret = 0
+
+    #for ele in cache_short_term_memory[user_id]:
+      #  log.log_info("element in cache_length_for_user(user_id): " + str(ele))
+
     return ret
+
+
+def debug_cache_to_logic(arr):
+
+    for ele in arr:
+        log.log_logic(str(ele))
 
 
 def re_order_and_update_cache(user_id, word_id, new_position):
@@ -97,6 +107,9 @@ def re_order_and_update_cache(user_id, word_id, new_position):
     else:
         arr = []
 
+    log.log_logic("------------array before reordering-----------")
+    debug_cache_to_logic(arr)
+    log.log_logic("----------------------------------------------")
 
     currIndex = -1;
 
@@ -109,7 +122,7 @@ def re_order_and_update_cache(user_id, word_id, new_position):
             currIndex = i
 
     new_arr = []
-    if currIndex >=0:
+    if currIndex >= 0:
 
         for i in range(len(arr)):
 
@@ -137,6 +150,10 @@ def re_order_and_update_cache(user_id, word_id, new_position):
     if user_id in cache_short_term_memory:
         log.log_info("re_order_and_update_cache(user_id, word_id, new_position) - length after: " + str(len(cache_short_term_memory[user_id])))
 
+        log.log_logic("------------array after reordering-----------")
+        debug_cache_to_logic(cache_short_term_memory[user_id])
+        log.log_logic("----------------------------------------------")
+
 
 def process_answer_with_sorted_array(word_id, user_id, answer):
 
@@ -161,11 +178,13 @@ def process_answer_with_sorted_array(word_id, user_id, answer):
 
     # ToDo: the user ID is not used here and this allows the user to access other people's data. it is a security hole
 
-    log.log_info("process_answer " + answer)
+    log.log_logic("process_answer " + answer)
 
     #before we update the data in the database, we need to process the result incase it was an experiment
 
     if len(str(word_id)) > 0:
+
+        # experiment is ture for real score experiment and random experiment
         experiment, once_learned = process_experiment(word_id, user_id, answer)
 
         experiment_timestamp = int(time.time())
@@ -180,23 +199,31 @@ def process_answer_with_sorted_array(word_id, user_id, answer):
 
         position = get_position(word_id)
 
-        log.log_info("position of word id " + str(word_id) + " up to now " + str(position))
+        log.log_logic("position of word id " + str(word_id) + " up to now " + str(position))
 
         if answer == "YES":
 
-            if experiment:
-                # it was an experiment and it was a success so we can push it to the "done" category
-                position = short_term_memory_length + 2
-            else:
-                if position < 5:
-                    position += 2
-                else:
-                    position += 1
+            log.log_logic("answer was YES")
 
+            if experiment:
+                log.log_logic("it was an experiment")
+                # it was an experiment and it was a success so we can push it to the "done" category
+                position = short_term_memory_length + 2 # we push it over the endge of the array length
+            else:
+                log.log_logic("position was " + str(position))
+                if position < 5:
+                    position += 2 # at the beginning progress faster
+                else:
+                    position += 1  # later progress slower
+
+            log.log_logic("new position is " + str(position))
             n = get_yes(word_id)
             n = int(n) + 1
             pn = "y" + get_np_string(word_id)
             pn = pn[0:240]
+
+            log.log_logic("number positive: " + str(n))
+            log.log_logic("number negatives: " + str(get_no(word_id)))
 
             sql = "UPDATE vocabulary SET count_positive = %s , pn_string = %s WHERE id = %s "
             conn = dba.get_connection()
@@ -204,10 +231,10 @@ def process_answer_with_sorted_array(word_id, user_id, answer):
             cur.execute(sql, (n, pn, word_id) )
             conn.commit()
 
-            # now check if we need to move the word to the 'learned' category
+            log.log_logic("now check if we need to move the word to the 'learned' category")
             #if check_if_learned(word_id):
             if check_if_learned_ordered(word_id, experiment):
-                log.log_info("this word was now successfully learned and we set current = false: " + str(word_id))
+                log.log_logic("this word was now successfully learned and we set current = false: " + str(word_id))
                 sql = "UPDATE vocabulary SET current = FALSE WHERE id = %s "
                 conn = dba.get_connection()
                 cur = conn.cursor()
@@ -216,15 +243,27 @@ def process_answer_with_sorted_array(word_id, user_id, answer):
                 log.log_info("word was learned and we remove it from cache: " + str(word_id))
                 remove_word_from_cache(user_id, word_id)
                 success = True
+            else:
+                log.log_logic("the word is not learned so far")
 
         if answer == "NO":
 
+            log.log_logic("answer was NO")
+            log.log_logic("current position is " + str(position))
+
             if experiment:
-                position = int(short_term_memory_length / 2)
+                log.log_logic("it was an experiment")
+                position = int(short_term_memory_length / 2) # what is the sense of this???
+                log.log_logic("A - new position is " + str(position))
             else:
                 if position > 2:
                     position = position - 2
-
+                else:
+                    if position == 1:
+                        position == 0
+                    if position == 0:
+                        position == 1
+                log.log_logic("B - new position is " + str(position))
 
             n = get_no(word_id)
             n = int(n) + 1
@@ -236,23 +275,33 @@ def process_answer_with_sorted_array(word_id, user_id, answer):
             cur.execute(sql, (n, pn, word_id) )
             conn.commit()
 
+            log.log_logic("number positive: " + str(get_yes(word_id)))
+            log.log_logic("number negatives: " + str(get_no(word_id)))
+
         # update the position
-        log.log_info("new position of word id " + str(word_id) + " is " + str(position))
+        log.log_logic("new position of word id " + str(word_id) + " is " + str(position))
         set_position_in_db(word_id, position)
 
         re_order_and_update_cache(user_id, word_id, position)
 
+        # we are not anymore in the NO part of the if else
+
         if experiment:
+            log.log_logic("it was an experiment")
             if not success:
+                log.log_logic("it was not successful. Adding a transition ' forgot the word'")
                 # forgot the word
                 add_transition(word_id, user_id, 2)
 
         else:
+            log.log_logic("it was NOT an experiment")
             if once_learned:
+                log.log_logic("it was once learned and we confirm that we still know it")
                 # re-learned existing word
                 add_transition(word_id, user_id, 3)
 
             else:
+                log.log_logic("ne word was now learned first time")
                 # learned new word
                 add_transition(word_id, user_id, 1)
 
@@ -901,7 +950,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
     # if there are still words missing then we add from the "non current"
     # first we ensure there are enough current words if array too short, then we add to array
 
-    log.log_info("cache length is now " + str(cache_length_for_user(user_id)))
+    log.log_logic("cache length is now " + str(cache_length_for_user(user_id)))
 
     if cache_length_for_user(user_id) < short_term_memory_length:
 
@@ -910,9 +959,9 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
         if cache_length_for_user(user_id) < 1:
             fill_cache_from_db(user_id)
 
-        log.log_info("get_next_word_id - count_current less than short_term_memory_length - need to add new words" )
+        log.log_logic("get_next_word_id - count_current less than short_term_memory_length - need to add new words" )
 
-        # we need to add a new word question is if repeat old word or use new
+        # we need to add a new word - question is if repeat old word or use new
         max_loops = 50 # security measure and if client is new
         loop_count = 0
         while cache_length_for_user(user_id) < short_term_memory_length:
@@ -939,6 +988,7 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
                 # if not, then we add from new category
                 num_learned = count_learned(user_id)
                 if num_learned > 0:
+                    # an experiment is testing the word with the highest probability of forgetting
                     word_id = get_old_by_score(user_id) # this is what we call an experiment
                 else:
                     word_id = get_new_random(user_id)
@@ -954,9 +1004,9 @@ def get_next_word_id_array_ordered_position(user_id, last_word_id):
             log.log_info("cache length is now " + str(cache_length_for_user(user_id)))
 
     else:
-        log.log_info("no changes of array length in get_next_word_id_array_ordered_position to do ")
+        log.log_logic("no changes of array length in get_next_word_id_array_ordered_position to do ")
 
-    log.log_info("end of function cache length is now " + str(cache_length_for_user(user_id)))
+    log.log_logic("end of function cache length is now " + str(cache_length_for_user(user_id)))
 
     return cache_short_term_memory[user_id]
 
@@ -1124,6 +1174,8 @@ def get_new_random(user_id):
 def get_learned_random(user_id):
     """
     get a random word from the words that were already learned to check if it has been forgotten
+
+    this must be the actions that build the training set
 
     :param user_id:
     :return:

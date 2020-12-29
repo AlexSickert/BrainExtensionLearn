@@ -57,6 +57,8 @@ def save_text(user_id, language, url, text):
 
         # ToDo: this text cannot be saved and it is not clear why
         # https://www.theatlantic.com/entertainment/archive/2019/08/my-joe-rogan-experience/594802/
+        #  https://5sfer.com/devid-goggins-dzho-rogan-istoriya-uspeha-pohudenie/
+        # https://focus.ua/archivist/457635-jahnenko-simirenko
 
 
         conn = dba.get_connection()
@@ -104,7 +106,7 @@ def get_text_titles(user_id):
 
     sql = """
     
-    SELECT id, language, title FROM reader_texts WHERE user_id = %s ORDER BY read LIMIT 200; 
+    SELECT id, language, title, read FROM reader_texts WHERE user_id = %s ORDER BY read, id desc LIMIT 200; 
     
     """
 

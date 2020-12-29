@@ -1,0 +1,65 @@
+
+
+
+body {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: 100%;
+  font-size: 30px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+td{
+
+padding: 5px;
+font-size: 30px;
+font-family: Arial, Helvetica, sans-serif;
+
+}
+
+td.language{
+    padding-top: 10px;
+    color: red;
+}
+
+td.source{
+    padding-top: 10px;
+    color: #444444;
+    text-align: right;
+
+}
+
+/* unvisited link */
+a:link {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* mouse over link */
+a:hover {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+/* selected link */
+a:active {
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  text-decoration: none;
+}
+
+span{
+
+line-height: 1.5em;
+}
+
+

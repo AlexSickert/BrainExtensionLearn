@@ -158,7 +158,14 @@ def distribute_actions(jo):
         
         result = json.dumps(rj)
 
-    elif action == "loadWord":
+    elif action == "loadWord":  # ATTENTION !!! this is probably not used anymore !!!
+
+        log.log_logic(" ")
+        log.log_logic(" ")
+        log.log_logic(" ")
+        log.log_logic("===============================================================================")
+        log.log_logic("=========================== ROUTE loadWord ====================================")
+        log.log_logic("===============================================================================")
 
         log.log_info("loading new word")
         log.log_info(jo)
@@ -175,10 +182,9 @@ def distribute_actions(jo):
 
         log.log_info("user_id is " + str(user_id))
 
-
         success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
 
-        log.log_info("process_answer done")
+        log.log_info("process_answer done -------------------------------")
 
         new_id = dbl.get_next_word_id(user_id, str(wordId))
 
@@ -189,7 +195,6 @@ def distribute_actions(jo):
         #get a random word from the words already learned
         learned_id = dbl.get_learned_random(user_id)
         rnd_id, rnd_l1, rnd_w1, rnd_l2, rnd_w2 = dbl.get_word(learned_id)
-
 
         rj['action'] = action
         rj["wordId"] = id
@@ -217,6 +222,13 @@ def distribute_actions(jo):
 
     elif action == "loadWordArray":
 
+        log.log_logic(" ")
+        log.log_logic(" ")
+        log.log_logic(" ")
+        log.log_logic("===============================================================================")
+        log.log_logic("=========================== ROUTE loadWordArray ====================================")
+        log.log_logic("===============================================================================")
+
         log.log_info("loading new word array")
         log.log_info(jo)
 
@@ -228,18 +240,27 @@ def distribute_actions(jo):
         log.log_info("wordId was " + str(wordId))
         log.log_info("session was " + str(session))
 
+        if len(str(wordId).strip()) > 0:
+
+            xxxx, yyyy, w1, zzzz, w2 = dbl.get_word(wordId)
+
+            log.log_logic("answer was " + answer)
+            log.log_logic("wordId was " + str(wordId))
+            log.log_logic("w1 was " + str(w1))
+            log.log_logic("w2 was " + str(w2))
+
         user_id = dbs.get_user_id_from_session(session)
 
         log.log_info("user_id is " + str(user_id))
 
-        # January 2019 we change this logic now using a ordered lost avoiding random
+        # January 2019 we change this logic now using a ordered list avoiding random
         #success, experiment, once_learned = dbl.process_answer(str(wordId), user_id, answer)
         success, experiment, once_learned = dbl.process_answer_with_sorted_array(str(wordId), user_id, answer)
 
-        log.log_info("was experiment? " + str(experiment))
-        log.log_info("was success? " + str(success))
-        log.log_info("once learned? " + str(once_learned))
-        log.log_info("process_answer done")
+        log.log_logic("was experiment? " + str(experiment))
+        log.log_logic("was success? " + str(success))
+        log.log_logic("once learned? " + str(once_learned))
+        log.log_logic("***** processing uf user answer  done, now prepare response *****")
 
         # January 2019 trying out a new algorithm using a logic that does not use random, but ordered by logic
         #new_id_array = dbl.get_next_word_id_array(user_id, str(wordId))
@@ -264,7 +285,7 @@ def distribute_actions(jo):
             log_str += str(row_j["word1"]) + ", "
             log_str += str(row_j["word2"]) + ", "
 
-            log.log_info(log_str)
+            log.log_logic(log_str)
 
             word_arr.append(row_j)
 
@@ -278,7 +299,11 @@ def distribute_actions(jo):
         rj['once_learned'] = once_learned
         rj["words"] = word_arr
 
+        log.log_logic("sending to client success = " + str(success))
+        log.log_logic("sending to client experiment = " + str(experiment))
+
         # get a random word from the words already learned
+        # this is to repeat words and to create a better training set
         learned_id = dbl.get_learned_random(user_id)
         rnd_id, rnd_l1, rnd_w1, rnd_l2, rnd_w2 = dbl.get_word(learned_id)
 
@@ -289,6 +314,7 @@ def distribute_actions(jo):
         rj["rnd_word2"] = rnd_w2
         rj["rnd_frequency"] = 10  #todo: convert to algorithm depending on % learned and size of vocabulary
 
+        log.log_logic("sending to client extra random word: " + rnd_w1 + " == " + rnd_w2)
 
         result = json.dumps(rj)
 

@@ -30,6 +30,11 @@ import sys, traceback
 import ssl
 import traffic
 
+import email_sender as es
+
+
+es.send_mail_queued_monitoring("MASTER HTTP application is starting", "MASTER HTTP application is starting")
+
 
 log.log_info("==========================================================================")
 log.log_info("==========================================================================")

@@ -25,10 +25,14 @@ def get_from_slave(ip, port, obj):
     # convert object to json string
     obj_str = json.dumps(obj)
 
+
+
     b = bytearray()
     b.extend(map(ord, str(len(obj_str)).zfill(10))) # tell server how long message is
 
     b.extend(map(ord, obj_str))
+
+
 
     #ssl_socket.send(b)
     ssl_socket.sendall(b)

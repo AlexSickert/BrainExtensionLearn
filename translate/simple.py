@@ -31,7 +31,9 @@ def translate(source_lang, target_lang, txt_to_translate):
     """
     global auth_keys
 
-    log.log_info("translate(source_lang, target_lang, txt_to_translate)")
+    log.log_translation("-------- start of translation ---------")
+
+    log.log_translation("translate(source_lang, target_lang, txt_to_translate)")
 
     languages = ["EN", "DE", "FR", "ES", "PT", "IT", "RU"]
 
@@ -39,9 +41,13 @@ def translate(source_lang, target_lang, txt_to_translate):
     target_lang = target_lang.upper()
 
     if source_lang not in languages:
+        log.log_translation("error in translation: no source language")
+        log.log_error("no source language")
         return ""
 
     if target_lang not in languages:
+        log.log_translation("error in translation: no target language")
+        log.log_error("no target language")
         return ""
 
     try:
@@ -61,7 +67,7 @@ def translate(source_lang, target_lang, txt_to_translate):
 
                 try_count += 1
 
-                log.log_info("try counter of translate: " + str(try_count) + " of " + str(len(auth_keys)))
+                log.log_translation("try counter of translate: " + str(try_count) + " of " + str(len(auth_keys)))
 
                 if try_count >= len(auth_keys):
                     success = True # its actually not true, but we need to stop as no other option
@@ -71,13 +77,15 @@ def translate(source_lang, target_lang, txt_to_translate):
                 url += "&target_lang=" + target_lang
                 url += "&auth_key=" + auth_key
 
-                log.log_info(url)
+                log.log_translation(url)
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
                 ctx.verify_mode = ssl.CERT_NONE
                 resp = req.urlopen(url, context=ctx, timeout=10).read()
                 res_txt = resp.decode()
-                log.log_info(res_txt)
+                log.log_translation("------------ response json object ------------")
+                log.log_translation(res_txt)
+                log.log_translation("------------------------")
                 res_obj = json.loads(res_txt)
 
                 trans = ""
@@ -98,8 +106,11 @@ def translate(source_lang, target_lang, txt_to_translate):
 
     except Exception as e:
 
-        log.log_info(e)
+        log.log_translation("error in translation: " + str(e))
+        log.log_error(e)
         trans = ""
+
+    log.log_translation("-------- end of translation ---------")
 
     return trans
 
